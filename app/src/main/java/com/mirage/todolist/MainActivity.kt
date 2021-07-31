@@ -2,7 +2,7 @@ package com.mirage.todolist
 
 import android.os.Bundle
 import android.view.Menu
-import android.view.View
+import android.view.MenuItem
 import android.widget.FrameLayout
 import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         drawerSlider.headerView = object : FrameLayout(this) {
             init {
-                inflate(context, R.layout.nav_header, this)
+                inflate(context, R.layout.todolist_drawer_header, this)
             }
         }
         tasksDrawerItem = PrimaryDrawerItem().apply {
@@ -65,6 +65,15 @@ class MainActivity : AppCompatActivity() {
         toolbar.setNavigationIcon(R.drawable.ic_toolbar_drawer_open)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    override fun onBackPressed() {
+        if (drawerLayout.isOpen) {
+            drawerLayout.close()
+        }
+        else {
+            super.onBackPressed()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

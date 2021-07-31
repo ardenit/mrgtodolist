@@ -10,6 +10,15 @@
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
 
+    <string name="toolbar_title_archive">Archive</string>
+    <string name="toolbar_title_todo">Current tasks</string>
+    <string name="toolbar_title_done">Completed tasks</string>
+
+    <string name="footer_new_task_btn">New task</string>
+    <string name="footer_archive_btn">Archive</string>
+    <string name="footer_todo_btn">TODO</string>
+    <string name="footer_done_btn">Done</string>
+
     <string name="drawer_btn_tasks">Tasks</string>
     <string name="drawer_btn_tags">Tags</string>
     <string name="drawer_btn_settings">Settings</string>
