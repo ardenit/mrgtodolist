@@ -2,53 +2,74 @@ package com.mirage.todolist
 
 import android.os.Bundle
 import android.view.Menu
-import android.support.design.widget.Snackbar
-import android.support.design.widget.NavigationView
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
-import android.support.v4.widget.DrawerLayout
-import android.support.v7.app.AppCompatActivity
-import com.mirage.todolist.databinding.ActivityMainBinding
+import android.view.View
+import android.widget.FrameLayout
+import androidx.appcompat.widget.Toolbar
+import androidx.appcompat.app.AppCompatActivity
+import androidx.drawerlayout.widget.DrawerLayout
+import com.mikepenz.materialdrawer.model.DividerDrawerItem
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
+import com.mikepenz.materialdrawer.model.SecondaryDrawerItem
+import com.mikepenz.materialdrawer.model.interfaces.iconRes
+import com.mikepenz.materialdrawer.model.interfaces.nameRes
+import com.mikepenz.materialdrawer.util.addItems
+import com.mikepenz.materialdrawer.widget.MaterialDrawerSliderView
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var appBarConfiguration: AppBarConfiguration
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var toolbar: Toolbar
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var drawerSlider: MaterialDrawerSliderView
+
+    private lateinit var tasksDrawerItem: PrimaryDrawerItem
+    private lateinit var tagsDrawerItem: PrimaryDrawerItem
+    private lateinit var settingsDrawerItem: SecondaryDrawerItem
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        setSupportActionBar(binding.appBarMain.toolbar)
-
-        binding.appBarMain.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
+        setContentView(R.layout.todolist_root)
+        initializeDrawer()
+        initializeToolbar()
+        toolbar.setNavigationOnClickListener {
+            drawerLayout.open()
         }
-        val drawerLayout: DrawerLayout = binding.drawerLayout
-        val navView: NavigationView = binding.navView
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        appBarConfiguration = AppBarConfiguration(setOf(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow), drawerLayout)
-        setupActionBarWithNavController(navController, appBarConfiguration)
-        navView.setupWithNavController(navController)
+        drawerSlider = findViewById(R.id.act_main_nav_slider)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.main, menu)
+    private fun initializeDrawer() {
+        drawerLayout = findViewById(R.id.act_main_root_layout)
+        drawerSlider = findViewById(R.id.act_main_nav_slider)
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        drawerSlider.headerView = object : FrameLayout(this) {
+            init {
+                inflate(context, R.layout.nav_header, this)
+            }
+        }
+        tasksDrawerItem = PrimaryDrawerItem().apply {
+            nameRes = R.string.drawer_btn_tasks
+            iconRes = R.drawable.ic_drawer_tasks
+        }
+        tagsDrawerItem = PrimaryDrawerItem().apply {
+            nameRes = R.string.drawer_btn_tags
+            iconRes = R.drawable.ic_drawer_tags
+        }
+        settingsDrawerItem = SecondaryDrawerItem().apply {
+            nameRes = R.string.drawer_btn_settings
+            iconRes = R.drawable.ic_drawer_settings
+        }
+        drawerSlider.addItems(tasksDrawerItem, tagsDrawerItem, DividerDrawerItem(), settingsDrawerItem)
+    }
+
+    private fun initializeToolbar() {
+        toolbar = findViewById(R.id.toolbar_actionbar)
+        toolbar.setNavigationIcon(R.drawable.ic_toolbar_drawer_open)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_activity_main, menu)
         return true
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-    }
 }
