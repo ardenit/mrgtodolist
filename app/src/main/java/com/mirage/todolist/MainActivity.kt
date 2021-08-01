@@ -7,6 +7,8 @@ import android.widget.FrameLayout
 import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.viewpager.widget.ViewPager
+import com.google.android.material.tabs.TabLayout
 import com.mikepenz.materialdrawer.model.DividerDrawerItem
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem
@@ -14,6 +16,7 @@ import com.mikepenz.materialdrawer.model.interfaces.iconRes
 import com.mikepenz.materialdrawer.model.interfaces.nameRes
 import com.mikepenz.materialdrawer.util.addItems
 import com.mikepenz.materialdrawer.widget.MaterialDrawerSliderView
+import com.mirage.todolist.ui.main.SectionsPagerAdapter
 
 class MainActivity : AppCompatActivity() {
 
@@ -34,6 +37,12 @@ class MainActivity : AppCompatActivity() {
             drawerLayout.open()
         }
         drawerSlider = findViewById(R.id.act_main_nav_slider)
+
+        val sectionsPagerAdapter = SectionsPagerAdapter(this, supportFragmentManager)
+        val viewPager: ViewPager = findViewById(R.id.view_pager)
+        viewPager.adapter = sectionsPagerAdapter
+        val tabs: TabLayout = findViewById(R.id.tabs)
+        tabs.setupWithViewPager(viewPager)
     }
 
     private fun initializeDrawer() {
