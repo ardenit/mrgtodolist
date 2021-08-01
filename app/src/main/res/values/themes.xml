@@ -7,7 +7,7 @@
         <item name="colorAccent">@color/light_orange</item>
     </style>
 
-    <style name="Theme.TodoApp.TodolistActivity">
+    <style name="Theme.TodoApp.TodolistActivity" parent="Theme.TodoApp">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>

@@ -7,9 +7,9 @@
     android:layout_height="match_parent"
     android:background="@android:color/background_light"
     android:gravity="top"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+    android:theme="@style/Theme.TodoApp.TodolistActivity">
 
-    <androidx.viewpager.widget.ViewPager
+    <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -20,7 +20,7 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="SpeakableTextPresentCheck">
 
-    </androidx.viewpager.widget.ViewPager>
+    </androidx.viewpager2.widget.ViewPager2>
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabs"
@@ -40,7 +40,10 @@
         android:clickable="true"
         android:contentDescription="@string/footer_new_task_btn"
         android:focusable="true"
+        app:backgroundTint="@color/light_orange"
         app:layout_constraintBottom_toTopOf="@+id/tabs"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/btn_todolist_new_task" />
+        app:maxImageSize="48dp"
+        app:srcCompat="@drawable/btn_todolist_new_task"
+        app:tint="@color/white" />
 </androidx.constraintlayout.widget.ConstraintLayout>
