@@ -42,5 +42,5 @@
         android:focusable="true"
         app:layout_constraintBottom_toTopOf="@+id/tabs"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_drawer_tags" />
+        app:srcCompat="@drawable/btn_todolist_new_task" />
 </androidx.constraintlayout.widget.ConstraintLayout>

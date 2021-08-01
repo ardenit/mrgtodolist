@@ -4,15 +4,17 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/mrgtodolist"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/mrgtodolist"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Mrgtodolist">
+        android:theme="@style/Theme.TodoApp">
         <activity
-            android:name=".MainActivity"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.Mrgtodolist.NoActionBar"
+            android:name=".TodolistActivity"
+            android:icon="@mipmap/mrgtodolist"
+            android:roundIcon="@mipmap/mrgtodolist"
+            android:label="@string/drawer_btn_tasks"
+            android:theme="@style/Theme.TodoApp.TodolistActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

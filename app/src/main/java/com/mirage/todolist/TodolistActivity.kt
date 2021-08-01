@@ -18,7 +18,7 @@ import com.mikepenz.materialdrawer.util.addItems
 import com.mikepenz.materialdrawer.widget.MaterialDrawerSliderView
 import com.mirage.todolist.ui.main.SectionsPagerAdapter
 
-class MainActivity : AppCompatActivity() {
+class TodolistActivity : AppCompatActivity() {
 
     private lateinit var toolbar: Toolbar
     private lateinit var drawerLayout: DrawerLayout
@@ -43,6 +43,34 @@ class MainActivity : AppCompatActivity() {
         viewPager.adapter = sectionsPagerAdapter
         val tabs: TabLayout = findViewById(R.id.tabs)
         tabs.setupWithViewPager(viewPager)
+    }
+
+    override fun onBackPressed() {
+        if (drawerLayout.isOpen) {
+            drawerLayout.close()
+        }
+        else {
+            super.onBackPressed()
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("nav_drawer_opened", drawerLayout.isOpen)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        val navDrawerOpened = savedInstanceState.getBoolean("nav_drawer_opened", false)
+        if (navDrawerOpened) {
+            drawerLayout.open()
+        }
+
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_activity_main, menu)
+        return true
     }
 
     private fun initializeDrawer() {
@@ -74,20 +102,6 @@ class MainActivity : AppCompatActivity() {
         toolbar.setNavigationIcon(R.drawable.ic_toolbar_drawer_open)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-    }
-
-    override fun onBackPressed() {
-        if (drawerLayout.isOpen) {
-            drawerLayout.close()
-        }
-        else {
-            super.onBackPressed()
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_activity_main, menu)
-        return true
     }
 
 }
