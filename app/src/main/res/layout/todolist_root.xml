@@ -11,8 +11,7 @@
         android:layout_height="match_parent"
         android:background="@android:color/background_light"
         android:gravity="top"
-        android:orientation="vertical"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark">
+        android:orientation="vertical">
 
         <include layout="@layout/todolist_toolbar"/>
         <include layout="@layout/todolist_body"/>
