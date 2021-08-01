@@ -9,53 +9,27 @@
     android:gravity="top"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-    <Button
-        android:id="@+id/todolist_footer_archive_btn"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="#FF5722"
-        android:drawableTop="@drawable/ic_nav_archive"
-        android:text="@string/footer_archive_btn"
-        android:textAllCaps="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/todolist_footer_todo_btn"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/todolist_footer_todo_btn"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="#FFC107"
-        android:drawableTop="@drawable/ic_nav_todo"
-        android:text="@string/footer_todo_btn"
-        android:textAllCaps="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/todolist_footer_done_btn"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/todolist_footer_archive_btn" />
-
-    <Button
-        android:id="@+id/todolist_footer_done_btn"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="#4CAF50"
-        android:drawableTop="@drawable/ic_nav_done"
-        android:text="@string/footer_done_btn"
-        android:textAllCaps="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/todolist_footer_todo_btn" />
-
-    <include
-        layout="@layout/todolist_content"
-        android:layout_width="0dp"
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/todolist_footer_todo_btn"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        app:layout_constraintBottom_toTopOf="@+id/tabs"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="SpeakableTextPresentCheck">
+
+    </androidx.viewpager.widget.ViewPager>
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/todolist_new_task_btn"
@@ -66,7 +40,7 @@
         android:clickable="true"
         android:contentDescription="@string/footer_new_task_btn"
         android:focusable="true"
-        app:layout_constraintBottom_toTopOf="@+id/todolist_footer_todo_btn"
+        app:layout_constraintBottom_toTopOf="@+id/tabs"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_drawer_tags" />
 </androidx.constraintlayout.widget.ConstraintLayout>
