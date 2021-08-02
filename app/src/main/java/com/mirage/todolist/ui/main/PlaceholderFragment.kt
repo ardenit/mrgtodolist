@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.mirage.todolist.databinding.TodolistContentFragmentBinding
 
 /**
@@ -37,10 +38,9 @@ class PlaceholderFragment : Fragment() {
         _binding = TodolistContentFragmentBinding.inflate(inflater, container, false)
         val root = binding.root
 
-        val textView: TextView = binding.sectionLabel
-        pageViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
-        })
+        val recycler = binding.todolistRecyclerView
+        recycler.layoutManager = LinearLayoutManager(context)
+
         return root
     }
 
