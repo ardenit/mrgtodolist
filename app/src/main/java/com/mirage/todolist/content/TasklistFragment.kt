@@ -1,39 +1,33 @@
-package com.mirage.todolist.ui.main
+package com.mirage.todolist.content
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mirage.todolist.databinding.TodolistContentFragmentBinding
 
-/**
- * A placeholder fragment containing a simple view.
- */
-class PlaceholderFragment : Fragment() {
+class TasklistFragment : Fragment() {
 
-    private lateinit var pageViewModel: PageViewModel
+    private lateinit var tasklistViewModel: TasklistViewModel
     private var _binding: TodolistContentFragmentBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
+    // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        pageViewModel = ViewModelProvider(this).get(PageViewModel::class.java).apply {
-            setIndex(arguments?.getInt(ARG_SECTION_NUMBER) ?: 1)
+        tasklistViewModel = ViewModelProvider(this).get(TasklistViewModel::class.java).apply {
+            type.value = TasklistType.getType(arguments?.getInt(ARG_SECTION_NUMBER) ?: 1)
         }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         _binding = TodolistContentFragmentBinding.inflate(inflater, container, false)
         val root = binding.root
@@ -56,8 +50,8 @@ class PlaceholderFragment : Fragment() {
          * number.
          */
         @JvmStatic
-        fun newInstance(sectionNumber: Int): PlaceholderFragment {
-            return PlaceholderFragment().apply {
+        fun newInstance(sectionNumber: Int): TasklistFragment {
+            return TasklistFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_SECTION_NUMBER, sectionNumber)
                 }

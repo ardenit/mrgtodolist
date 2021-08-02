@@ -1,6 +1,5 @@
 package com.mirage.todolist
 
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.Menu
 import android.widget.FrameLayout
@@ -21,7 +20,8 @@ import com.mikepenz.materialdrawer.model.interfaces.iconRes
 import com.mikepenz.materialdrawer.model.interfaces.nameRes
 import com.mikepenz.materialdrawer.util.addItems
 import com.mikepenz.materialdrawer.widget.MaterialDrawerSliderView
-import com.mirage.todolist.ui.main.PlaceholderFragment
+import com.mirage.todolist.content.TasklistFragment
+import com.mirage.todolist.content.TasklistType
 
 
 class TodolistActivity : AppCompatActivity() {
@@ -45,40 +45,32 @@ class TodolistActivity : AppCompatActivity() {
         drawerSlider = findViewById(R.id.act_main_nav_slider)
 
         val viewPager: ViewPager2 = findViewById(R.id.view_pager)
-        viewPager.offscreenPageLimit = 3
+        viewPager.offscreenPageLimit = TasklistType.typesCount
         viewPager.adapter = object : FragmentStateAdapter(supportFragmentManager, lifecycle) {
             override fun getItemCount(): Int {
-                return 3
+                return TasklistType.typesCount
             }
 
             override fun createFragment(position: Int): Fragment {
-                return PlaceholderFragment.newInstance(position + 1)
+                return TasklistFragment.newInstance(position + 1)
             }
 
         }
-        val tabTitles = arrayOf(
-            R.string.footer_archive_btn,
-            R.string.footer_todo_btn,
-            R.string.footer_done_btn
-        )
-        val tabIcons = arrayOf(
-            R.drawable.ic_nav_archive,
-            R.drawable.ic_nav_todo,
-            R.drawable.ic_nav_done
-        )
         val tabs: TabLayout = findViewById(R.id.tabs)
         tabs.setSelectedTabIndicatorColor(ContextCompat.getColor(this, R.color.light_orange))
         tabs.setTabTextColors(ContextCompat.getColor(this, R.color.light_grey),
             ContextCompat.getColor(this, R.color.light_orange))
         TabLayoutMediator(tabs, viewPager, true, true) { tab, position ->
-            tab.setText(tabTitles[position])
-            tab.setIcon(tabIcons[position])
+            val type = TasklistType.getType(position)
+            tab.setText(type.title)
+            tab.setIcon(type.icon)
             tab.icon?.let {
                 val colorStateList = ContextCompat.getColorStateList(this, R.color.todolist_footer_btn_color)
                 val coloredIcon = DrawableCompat.wrap(it)
                 DrawableCompat.setTintList(coloredIcon, colorStateList)
             }
         }.attach()
+        viewPager.currentItem = 1
     }
 
     override fun onBackPressed() {
