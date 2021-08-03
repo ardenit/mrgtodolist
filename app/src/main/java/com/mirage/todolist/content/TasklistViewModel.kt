@@ -18,5 +18,4 @@ class TasklistViewModel : ViewModel() {
         tasks.removeAt(index)
 
     }
-
 }
