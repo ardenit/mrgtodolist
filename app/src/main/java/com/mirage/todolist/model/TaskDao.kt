@@ -1,7 +1,5 @@
 package com.mirage.todolist.model
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.room.*
 import com.mirage.todolist.content.TasklistType
 
