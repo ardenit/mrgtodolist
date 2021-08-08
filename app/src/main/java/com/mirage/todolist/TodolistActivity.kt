@@ -3,6 +3,7 @@ package com.mirage.todolist
 import android.os.Bundle
 import android.view.Menu
 import android.widget.FrameLayout
+import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -11,6 +12,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.mikepenz.materialdrawer.model.DividerDrawerItem
@@ -71,6 +73,11 @@ class TodolistActivity : AppCompatActivity() {
             }
         }.attach()
         viewPager.currentItem = 1
+
+        val btn: FloatingActionButton = findViewById(R.id.todolist_new_task_btn)
+        btn.setOnClickListener {
+            Toast.makeText(this, "kekw", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onBackPressed() {

@@ -1,4 +1,4 @@
-package com.mirage.todolist.model
+package com.mirage.todolist.model.room
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

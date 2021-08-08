@@ -2,7 +2,7 @@ package com.mirage.todolist.content
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.mirage.todolist.model.Task
+import com.mirage.todolist.model.room.Task
 
 /**
  * View model of a single tasklist page

@@ -1,4 +1,4 @@
-package com.mirage.todolist.model
+package com.mirage.todolist.model.room
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

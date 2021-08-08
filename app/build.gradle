@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 }
 
 android {
@@ -33,6 +34,9 @@ android {
     buildFeatures {
         viewBinding true
     }
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+    }
 }
 
 dependencies {
@@ -46,13 +50,17 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.3.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-savedstate:2.3.1'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.4.0-alpha05'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.4.0-alpha05'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.4.0-alpha06'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.4.0-alpha06'
     implementation 'androidx.room:room-runtime:2.3.0'
     implementation 'androidx.room:room-ktx:2.3.0'
     implementation 'com.mikepenz:materialdrawer:8.4.2'
+    implementation 'com.google.android.gms:play-services-identity:17.0.1'
+    implementation 'com.google.apis:google-api-services-drive:v3-rev197-1.25.0'
+    implementation 'com.google.api-client:google-api-client-android:1.32.1'
+    implementation 'com.google.http-client:google-http-client-gson:1.39.2'
 
-    testImplementation 'junit:junit:4.+'
+    testImplementation 'junit:junit:4.13.2'
     testImplementation 'androidx.room:room-testing:2.3.0'
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
