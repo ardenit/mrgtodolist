@@ -8,6 +8,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mirage.todolist.databinding.TodolistContentFragmentBinding
+import com.mirage.todolist.viewmodel.TasklistViewModel
+import com.mirage.todolist.viewmodel.TasklistViewModelImpl
 
 class TasklistFragment : Fragment() {
 
@@ -19,7 +21,7 @@ class TasklistFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        tasklistViewModel = ViewModelProvider(this).get(TasklistViewModel::class.java).apply {
+        tasklistViewModel = ViewModelProvider(this).get(TasklistViewModelImpl::class.java).apply {
             type.value = TasklistType.getType(arguments?.getInt(ARG_SECTION_NUMBER) ?: 1)
         }
     }
@@ -34,6 +36,8 @@ class TasklistFragment : Fragment() {
 
         val recycler = binding.todolistRecyclerView
         recycler.layoutManager = LinearLayoutManager(context)
+        val recyclerAdapter = TasklistRecyclerAdapter(context, tasklistViewModel)
+        recycler.adapter = recyclerAdapter
 
         return root
     }

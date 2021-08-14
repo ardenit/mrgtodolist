@@ -7,7 +7,7 @@ import com.mirage.todolist.content.TasklistType
 interface TaskDao {
 
     @Transaction
-    fun addNewTask(taskTypeIndex: Int): Task {
+    fun addNewTask(taskTypeIndex: Int): TaskEntity {
         val taskRowId = createTaskRow(taskTypeIndex)
         val taskId = getTaskIdByRowId(taskRowId)
         val tasklistSize = getTasklistSize(taskTypeIndex)
@@ -28,21 +28,21 @@ interface TaskDao {
     fun setTaskIndex(taskId: Long, taskIndex: Int)
 
     @Query("SELECT * FROM task WHERE id = :taskId")
-    fun getTask(taskId: Long): Task
+    fun getTask(taskId: Long): TaskEntity
 
     @Query("SELECT * FROM task")
-    fun getAllTasks(): List<Task>
+    fun getAllTasks(): List<TaskEntity>
 
     @Query("SELECT * FROM task WHERE taskTypeIndex = :tasklistIndex")
-    fun getTasklist(tasklistIndex: Int): List<Task>
+    fun getTasklist(tasklistIndex: Int): List<TaskEntity>
 
     @Query("DELETE FROM task WHERE id = :taskId")
     fun removeTask(taskId: Long)
 
 }
 
-fun TaskDao.getArchivedTasks(): List<Task> = getTasklist(TasklistType.ARCHIVE.index)
+fun TaskDao.getArchivedTasks(): List<TaskEntity> = getTasklist(TasklistType.ARCHIVE.index)
 
-fun TaskDao.getCurrentTasks(): List<Task> = getTasklist(TasklistType.TODO.index)
+fun TaskDao.getCurrentTasks(): List<TaskEntity> = getTasklist(TasklistType.TODO.index)
 
-fun TaskDao.getCompletedTasks(): List<Task> = getTasklist(TasklistType.DONE.index)
+fun TaskDao.getCompletedTasks(): List<TaskEntity> = getTasklist(TasklistType.DONE.index)

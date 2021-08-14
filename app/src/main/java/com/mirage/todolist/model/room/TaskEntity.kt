@@ -7,7 +7,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class Task(
+data class TaskEntity(
     /** Unique ID of the task. Persists through moving task to another list or changing its position */
     @PrimaryKey(autoGenerate = true)
     val id: Long,

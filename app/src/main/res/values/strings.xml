@@ -32,6 +32,9 @@
     <string name="settings_btn_notification_settings">Notification settings</string>
     <string name="settings_btn_sync_with_google_drive">Sync with Google Drive</string>
 
+    <string name="gdrive_acc_picker_title">Select your Google Drive account</string>
+    <string name="gdrive_sync_cancelled_toast">Google Drive synchronization cancelled. Try again</string>
+
     <string name="settings_author">Author: </string>
     <string name="settings_version">Version: </string>
 

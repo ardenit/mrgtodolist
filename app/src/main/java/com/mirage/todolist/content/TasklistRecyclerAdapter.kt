@@ -1,12 +1,18 @@
 package com.mirage.todolist.content
 
+import android.content.Context
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.mirage.todolist.R
+import com.mirage.todolist.viewmodel.TasklistViewModel
 
-class TasklistRecyclerAdapter : RecyclerView.Adapter<TasklistRecyclerAdapter.TasklistViewHolder>(){
+class TasklistRecyclerAdapter(
+    private val context: Context?,
+    private val viewModel: TasklistViewModel
+) : RecyclerView.Adapter<TasklistRecyclerAdapter.TasklistViewHolder>(){
 
     inner class TasklistViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -21,15 +27,15 @@ class TasklistRecyclerAdapter : RecyclerView.Adapter<TasklistRecyclerAdapter.Tas
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TasklistViewHolder {
-        TODO("Not yet implemented")
+        val itemView = LayoutInflater.from(context ?: parent.context)
+            .inflate(R.layout.task_recycler_item, parent, false)
+        return TasklistViewHolder(itemView)
     }
 
     override fun onBindViewHolder(holder: TasklistViewHolder, position: Int) {
-        TODO("Not yet implemented")
+        holder.taskDescriptionView?.text = "onBindViewHolder position=$position"
     }
 
-    override fun getItemCount(): Int {
-        TODO("Not yet implemented")
-    }
+    override fun getItemCount(): Int = viewModel.getTaskCount()
 
 }
