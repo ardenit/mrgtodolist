@@ -1,8 +1,6 @@
 package com.mirage.todolist.viewmodel
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import com.mirage.todolist.content.TasklistType
 import com.mirage.todolist.model.room.TaskEntity
 
 /**
@@ -33,6 +31,6 @@ class TasklistViewModelImpl : TasklistViewModel() {
     }
 
     override fun getTaskCount(): Int {
-        return 5
+        return 50
     }
 }

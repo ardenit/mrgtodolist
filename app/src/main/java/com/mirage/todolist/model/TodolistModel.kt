@@ -1,7 +1,7 @@
 package com.mirage.todolist.model
 
 import android.content.Context
-import com.mirage.todolist.content.TasklistType
+import com.mirage.todolist.viewmodel.TasklistType
 import com.mirage.todolist.viewmodel.MutableLiveTask
 
 interface TodolistModel {

@@ -1,4 +1,4 @@
-package com.mirage.todolist.content
+package com.mirage.todolist.viewmodel
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes

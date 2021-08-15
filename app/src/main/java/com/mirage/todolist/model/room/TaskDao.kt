@@ -1,7 +1,7 @@
 package com.mirage.todolist.model.room
 
 import androidx.room.*
-import com.mirage.todolist.content.TasklistType
+import com.mirage.todolist.viewmodel.TasklistType
 
 @Dao
 interface TaskDao {

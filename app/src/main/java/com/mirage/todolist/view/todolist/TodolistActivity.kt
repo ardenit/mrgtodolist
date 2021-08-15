@@ -1,7 +1,6 @@
-package com.mirage.todolist
+package com.mirage.todolist.view.todolist
 
 import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
@@ -31,8 +30,9 @@ import com.mikepenz.materialdrawer.model.interfaces.iconRes
 import com.mikepenz.materialdrawer.model.interfaces.nameRes
 import com.mikepenz.materialdrawer.util.addItems
 import com.mikepenz.materialdrawer.widget.MaterialDrawerSliderView
-import com.mirage.todolist.content.TasklistFragment
-import com.mirage.todolist.content.TasklistType
+import com.mirage.todolist.R
+import com.mirage.todolist.view.recycler.TasklistFragment
+import com.mirage.todolist.viewmodel.TasklistType
 import com.mirage.todolist.model.gdrive.GDriveConnectExceptionHandler
 import com.mirage.todolist.model.todolistModel
 
@@ -96,7 +96,6 @@ class TodolistActivity : AppCompatActivity() {
         initializeDrawer()
         initializeToolbar()
         initializeViewPager()
-
         val btn: FloatingActionButton = findViewById(R.id.todolist_new_task_btn)
         btn.setOnClickListener(::onGDriveSyncBtnPressed)
         todolistModel.init(this)
@@ -203,6 +202,7 @@ class TodolistActivity : AppCompatActivity() {
         val viewPager: ViewPager2 = findViewById(R.id.view_pager)
         viewPager.offscreenPageLimit = TasklistType.typesCount
         viewPager.adapter = object : FragmentStateAdapter(supportFragmentManager, lifecycle) {
+
             override fun getItemCount(): Int {
                 return TasklistType.typesCount
             }
@@ -212,6 +212,8 @@ class TodolistActivity : AppCompatActivity() {
             }
 
         }
+        viewPager.isUserInputEnabled = false
+        viewPager.currentItem = 1
         val tabs: TabLayout = findViewById(R.id.tabs)
         tabs.setSelectedTabIndicatorColor(ContextCompat.getColor(this, R.color.light_orange))
         tabs.setTabTextColors(ContextCompat.getColor(this, R.color.light_grey),
@@ -221,12 +223,12 @@ class TodolistActivity : AppCompatActivity() {
             tab.setText(type.title)
             tab.setIcon(type.icon)
             tab.icon?.let {
-                val colorStateList = ContextCompat.getColorStateList(this, R.color.todolist_footer_btn_color)
+                val colorStateList = ContextCompat.getColorStateList(this,
+                    R.color.todolist_footer_btn_color
+                )
                 val coloredIcon = DrawableCompat.wrap(it)
                 DrawableCompat.setTintList(coloredIcon, colorStateList)
             }
         }.attach()
-        viewPager.currentItem = 1
     }
-
 }

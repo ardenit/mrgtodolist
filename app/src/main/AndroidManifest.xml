@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TodoApp">
         <activity
-            android:name=".TodolistActivity"
+            android:name=".view.todolist.TodolistActivity"
             android:icon="@mipmap/mrgtodolist"
             android:roundIcon="@mipmap/mrgtodolist"
             android:label="@string/drawer_btn_tasks"

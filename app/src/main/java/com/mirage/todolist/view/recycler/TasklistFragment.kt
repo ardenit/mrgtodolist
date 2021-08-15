@@ -1,4 +1,4 @@
-package com.mirage.todolist.content
+package com.mirage.todolist.view.recycler
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,14 +6,22 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.mirage.todolist.databinding.TodolistContentFragmentBinding
+import com.mirage.todolist.viewmodel.TasklistType
 import com.mirage.todolist.viewmodel.TasklistViewModel
 import com.mirage.todolist.viewmodel.TasklistViewModelImpl
 
 class TasklistFragment : Fragment() {
 
     private lateinit var tasklistViewModel: TasklistViewModel
+    private lateinit var recycler: RecyclerView
+    private lateinit var recyclerAdapter: TasklistRecyclerAdapter
+    private lateinit var itemTouchHelper: ItemTouchHelper
+
     private var _binding: TodolistContentFragmentBinding? = null
 
     // This property is only valid between onCreateView and onDestroyView.
@@ -33,13 +41,21 @@ class TasklistFragment : Fragment() {
 
         _binding = TodolistContentFragmentBinding.inflate(inflater, container, false)
         val root = binding.root
-
-        val recycler = binding.todolistRecyclerView
+        recycler = binding.todolistRecyclerView
         recycler.layoutManager = LinearLayoutManager(context)
-        val recyclerAdapter = TasklistRecyclerAdapter(context, tasklistViewModel)
+        recyclerAdapter = TasklistRecyclerAdapter(context, tasklistViewModel)
         recycler.adapter = recyclerAdapter
-
+        val itemTouchHelperCallback = TasklistItemTouchHelperCallback(recyclerAdapter)
+        itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
+        itemTouchHelper.attachToRecyclerView(recycler)
+        val divider = TasklistItemDecoration()
+        recycler.addItemDecoration(divider)
         return root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     companion object {
@@ -61,10 +77,5 @@ class TasklistFragment : Fragment() {
                 }
             }
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }
