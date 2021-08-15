@@ -24,6 +24,11 @@ abstract class TasklistViewModel : ViewModel() {
     abstract fun getTask(taskID: Long): LiveTask?
 
     /**
+     * Returns a [LiveTask] with a given [taskIndex] in this tasklist, or null if index is invalid
+     */
+    abstract fun getTaskByIndex(taskIndex: Int): LiveTask?
+
+    /**
      * Returns the number of tasks currently in this tasklist
      */
     abstract fun getTaskCount(): Int

@@ -3,7 +3,7 @@ package com.mirage.todolist.viewmodel
 import androidx.lifecycle.MutableLiveData
 
 class MutableLiveTask(
-    override val taskID: Long,
+    override val taskID: TaskID,
     tasklistID: Int,
     taskIndex: Int,
     title: String,

@@ -8,15 +8,7 @@ import com.mirage.todolist.model.room.TaskEntity
  */
 class TasklistViewModelImpl : TasklistViewModel() {
 
-    val type = MutableLiveData<TasklistType>()
-    val taskCount = MutableLiveData<Int>()
-    val tasks: MutableList<MutableLiveData<TaskEntity>> = ArrayList()
 
-    fun removeTask(index: Int) {
-        if (index !in tasks.indices) return
-        tasks.removeAt(index)
-
-    }
 
     override fun addOnNewTaskListener(onNewTask: (LiveTask) -> Unit) {
         TODO("Not yet implemented")
@@ -27,6 +19,10 @@ class TasklistViewModelImpl : TasklistViewModel() {
     }
 
     override fun getTask(taskID: Long): LiveTask? {
+        TODO("Not yet implemented")
+    }
+
+    override fun getTaskByIndex(taskIndex: Int): LiveTask? {
         TODO("Not yet implemented")
     }
 
