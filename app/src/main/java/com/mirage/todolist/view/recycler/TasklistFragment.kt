@@ -11,9 +11,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mirage.todolist.databinding.TodolistContentFragmentBinding
-import com.mirage.todolist.viewmodel.TasklistType
-import com.mirage.todolist.viewmodel.TasklistViewModel
-import com.mirage.todolist.viewmodel.TasklistViewModelImpl
+import com.mirage.todolist.viewmodel.*
 
 class TasklistFragment : Fragment() {
 
@@ -23,14 +21,14 @@ class TasklistFragment : Fragment() {
     private lateinit var itemTouchHelper: ItemTouchHelper
 
     private var _binding: TodolistContentFragmentBinding? = null
-
-    // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val parentViewModel = ViewModelProvider(this.requireActivity()).get(TodolistViewModelImpl::class.java)
         tasklistViewModel = ViewModelProvider(this).get(TasklistViewModelImpl::class.java).apply {
-            type.value = TasklistType.getType(arguments?.getInt(ARG_SECTION_NUMBER) ?: 1)
+            val tasklistID = arguments?.getInt(ARG_SECTION_NUMBER) ?: 1
+            init(parentViewModel, tasklistID)
         }
     }
 
@@ -38,9 +36,18 @@ class TasklistFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = TodolistContentFragmentBinding.inflate(inflater, container, false)
         val root = binding.root
+        initializeRecycler()
+        return root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    private fun initializeRecycler() {
         recycler = binding.todolistRecyclerView
         recycler.layoutManager = LinearLayoutManager(context)
         recyclerAdapter = TasklistRecyclerAdapter(context, tasklistViewModel)
@@ -50,12 +57,6 @@ class TasklistFragment : Fragment() {
         itemTouchHelper.attachToRecyclerView(recycler)
         val divider = TasklistItemDecoration()
         recycler.addItemDecoration(divider)
-        return root
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
     companion object {

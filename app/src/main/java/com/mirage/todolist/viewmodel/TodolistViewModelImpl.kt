@@ -1,7 +1,6 @@
 package com.mirage.todolist.viewmodel
 
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.mirage.todolist.model.*
 
@@ -40,6 +39,22 @@ class TodolistViewModelImpl : TodolistViewModel() {
 
     override fun createNewTask(tasklistID: Int): LiveTask {
         return todolistModel.createNewTask(tasklistID)
+    }
+
+    override fun modifyTask(
+        taskID: TaskID,
+        title: String?,
+        description: String?
+    ) {
+        todolistModel.modifyTask(taskID, title, description)
+    }
+
+    override fun moveTask(taskID: TaskID, newTasklistID: Int) {
+        todolistModel.moveTask(taskID, newTasklistID)
+    }
+
+    override fun moveTaskInList(taskID: TaskID, newTaskIndex: Int) {
+        todolistModel.moveTaskInList(taskID, newTaskIndex)
     }
 
     override fun addOnNewTaskListener(owner: LifecycleOwner, listener: OnNewTaskListener) {

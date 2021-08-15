@@ -18,6 +18,35 @@ abstract class TodolistViewModel : ViewModel(){
     abstract fun createNewTask(tasklistID: Int): LiveTask
 
     /**
+     * Modifies the task with ID [taskID].
+     * If a parameter's value is null, its value remains unchanged.
+     * This method automatically updates "last modified" time.
+     */
+    abstract fun modifyTask(
+        taskID: TaskID,
+        title: String?,
+        description: String?
+    )
+
+    /**
+     * Moves the task with ID [taskID] to another tasklist.
+     * Should be called on task swipe.
+     */
+    abstract fun moveTask(
+        taskID: TaskID,
+        newTasklistID: Int
+    )
+
+    /**
+     * Moves the task to another position inside the tasklist.
+     * Should be called on task drag-and-drop.
+     */
+    abstract fun moveTaskInList(
+        taskID: TaskID,
+        newTaskIndex: Int
+    )
+
+    /**
      * Registers a listener for task creation event
      */
     abstract fun addOnNewTaskListener(owner: LifecycleOwner, listener: OnNewTaskListener)

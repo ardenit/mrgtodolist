@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.mirage.todolist.R
 import com.mirage.todolist.viewmodel.TasklistViewModel
@@ -14,15 +15,10 @@ class TasklistRecyclerAdapter(
     private val viewModel: TasklistViewModel
 ) : RecyclerView.Adapter<TasklistRecyclerAdapter.TasklistViewHolder>(), ItemTouchHelperAdapter {
 
-    inner class TasklistViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class TasklistViewHolder(val itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        var taskTitleView: TextView? = null
-        var taskDescriptionView: TextView? = null
-
-        init {
-            taskTitleView = itemView.findViewById(R.id.task_title)
-            taskDescriptionView = itemView.findViewById(R.id.task_description)
-        }
+        val taskTitleView: TextView = itemView.findViewById(R.id.task_title)
+        val taskDescriptionView: TextView = itemView.findViewById(R.id.task_description)
 
     }
 
@@ -33,26 +29,30 @@ class TasklistRecyclerAdapter(
     }
 
     override fun onBindViewHolder(holder: TasklistViewHolder, position: Int) {
-        holder.taskDescriptionView?.text = "onBindViewHolder position=$position"
+        val lifecycleOwner = holder.itemView.findViewTreeLifecycleOwner() ?: error("No lifecycle owner")
+        val task = viewModel.getTaskByIndex(position) ?: return
+        task.title.observe(lifecycleOwner) {
+            holder.taskTitleView.text = it
+        }
+        task.description.observe(lifecycleOwner) {
+            holder.taskDescriptionView.text = it
+        }
     }
 
     override fun getItemCount(): Int = viewModel.getTaskCount()
 
     override fun onItemMove(fromPosition: Int, toPosition: Int) {
-        //TODO
-        println("move $fromPosition $toPosition")
+        viewModel.dragTask(fromPosition, toPosition)
         notifyItemMoved(fromPosition, toPosition)
     }
 
     override fun onItemSwipeLeft(position: Int) {
-        //TODO
-        println("swipe left $position")
+        viewModel.swipeTaskLeft(position)
         notifyItemRemoved(position)
     }
 
     override fun onItemSwipeRight(position: Int) {
-        //TODO
-        println("swipe right $position")
+        viewModel.swipeTaskRight(position)
         notifyItemRemoved(position)
     }
 

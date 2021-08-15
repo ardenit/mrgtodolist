@@ -71,28 +71,17 @@ class TodolistModelImpl: TodolistModel {
         tasklistSizes[tasklistID] = taskIndex + 1
         localTasks[taskID] = task
         //TODO room query
+        onNewTaskListeners.forEach { it.invoke(task) }
         return task
     }
 
     override fun modifyTask(
         taskID: TaskID,
-        tasklistID: Int?,
-        taskIndex: Int?,
         title: String?,
         description: String?
     ) {
         val task = localTasks[taskID] ?: return
-        val oldTasklistID = task.tasklistID.value ?: HIDDEN_TASKLIST_ID
-        val oldTaskIndex = task.taskIndex.value ?: 0
-        if (tasklistID != null && tasklistID != oldTasklistID) {
-            task.tasklistID.value = tasklistID
-            onMoveTaskListeners.forEach { listener ->
-                listener(task, oldTasklistID, tasklistID, oldTaskIndex, taskIndex ?: oldTaskIndex)
-            }
-        }
-        if (taskIndex != null && taskIndex != task.taskIndex.value) {
-            task.taskIndex.value = taskIndex
-        }
+        //TODO room query
         if (title != null && title != task.title.value) {
             task.title.value = title
         }
@@ -102,7 +91,51 @@ class TodolistModelImpl: TodolistModel {
     }
 
     override fun deleteTask(taskID: TaskID) {
-        modifyTask(taskID, HIDDEN_TASKLIST_ID, null, null, null)
+        moveTask(taskID, HIDDEN_TASKLIST_ID)
+    }
+
+    override fun moveTask(taskID: TaskID, newTasklistID: Int) {
+        val task = localTasks[taskID] ?: return
+        val oldTasklistID = task.tasklistID.value ?: HIDDEN_TASKLIST_ID
+        if (oldTasklistID == newTasklistID) return
+        val oldTaskIndex = task.taskIndex.value ?: 0
+        val newTaskIndex = tasklistSizes[newTasklistID] ?: 0
+        //TODO Room query for task move and index shift
+        localTasks.values.asSequence()
+            .filter { it.tasklistID.value == oldTasklistID }
+            .filter { it.taskIndex.value ?: -1 > oldTaskIndex }
+            .forEach { it.taskIndex.value = (it.taskIndex.value ?: 1) - 1 }
+        localTasks.values.asSequence()
+            .filter { it.tasklistID.value == newTasklistID }
+            .filter { it.taskIndex.value ?: -1 >= newTaskIndex }
+            .forEach { it.taskIndex.value = (it.taskIndex.value ?: -1) + 1 }
+        task.tasklistID.value = newTasklistID
+        task.taskIndex.value = newTaskIndex
+        onMoveTaskListeners.forEach { listener ->
+            listener(task, oldTasklistID, newTasklistID, oldTaskIndex, newTaskIndex)
+        }
+    }
+
+    override fun moveTaskInList(taskID: TaskID, newTaskIndex: Int) {
+        val task = localTasks[taskID] ?: return
+        val tasklistID = task.tasklistID.value ?: return
+        val oldTaskIndex = task.taskIndex.value ?: return
+        if (oldTaskIndex == newTaskIndex) return
+        if (oldTaskIndex < newTaskIndex) {
+            //TODO Room query for index shift
+            localTasks.values.asSequence()
+                .filter { it.tasklistID.value == tasklistID }
+                .filter { it.taskIndex.value in (oldTaskIndex + 1)..newTaskIndex }
+                .forEach { it.taskIndex.value = (it.taskIndex.value ?: 1) - 1 }
+        }
+        else {
+            //TODO Room query for index shift
+            localTasks.values.asSequence()
+                .filter { it.tasklistID.value == tasklistID }
+                .filter { it.taskIndex.value in newTaskIndex until oldTaskIndex }
+                .forEach { it.taskIndex.value = (it.taskIndex.value ?: - 1) + 1 }
+        }
+        task.taskIndex.value = newTaskIndex
     }
 
     override fun getAllTasks(): Map<TaskID, LiveTask> {

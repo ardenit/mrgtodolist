@@ -48,8 +48,6 @@ interface TodolistModel {
      */
     fun modifyTask(
         taskID: TaskID,
-        tasklistID: Int?,
-        taskIndex: Int?,
         title: String?,
         description: String?
     )
@@ -60,6 +58,22 @@ interface TodolistModel {
      * This method automatically updates "last modified" time.
      */
     fun deleteTask(taskID: TaskID)
+
+    /**
+     * Moves the task with ID [taskID] to another tasklist.
+     */
+    fun moveTask(
+        taskID: TaskID,
+        newTasklistID: Int
+    )
+
+    /**
+     * Moves the task to another position inside the tasklist.
+     */
+    fun moveTaskInList(
+        taskID: TaskID,
+        newTaskIndex: Int
+    )
 
     /**
      * Returns a map of all tasks (including hidden/removed ones).

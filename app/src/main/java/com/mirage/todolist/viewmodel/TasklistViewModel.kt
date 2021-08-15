@@ -19,6 +19,21 @@ abstract class TasklistViewModel : ViewModel() {
     abstract fun init(parentViewModel: TodolistViewModel, tasklistID: Int)
 
     /**
+     * Moves task to another tasklist
+     */
+    abstract fun swipeTaskLeft(taskIndex: Int)
+
+    /**
+     * Moves task to another tasklist
+     */
+    abstract fun swipeTaskRight(taskIndex: Int)
+
+    /**
+     * Moves task to another position in the same tasklist
+     */
+    abstract fun dragTask(fromIndex: Int, toIndex: Int)
+
+    /**
      * Registers a listener for task creation event in this tasklist
      */
     abstract fun addOnNewTaskListener(owner: LifecycleOwner, listener: OnNewTaskListener)
