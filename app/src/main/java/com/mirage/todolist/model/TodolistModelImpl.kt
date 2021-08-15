@@ -12,10 +12,14 @@ import com.mirage.todolist.viewmodel.TasklistType
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet
+import kotlin.collections.LinkedHashMap
 
 private const val ACC_NAME_KEY = "account_name"
 private const val HIDDEN_TASKLIST_ID = -1
 
+/**
+ * See [TodolistModel] for API documentation
+ */
 class TodolistModelImpl: TodolistModel {
 
     private val gDriveRestApi = GDriveRestApi()
@@ -24,12 +28,12 @@ class TodolistModelImpl: TodolistModel {
     private var email: String? = null
 
     /** Local cache for tasks, key is task's unique taskID */
-    private var localTasks: MutableMap<TaskID, MutableLiveTask> = HashMap()
-    private val tasklistSizes: MutableMap<Int, Int> = HashMap()
+    private var localTasks: MutableMap<TaskID, MutableLiveTask> = LinkedHashMap()
+    private val tasklistSizes: MutableMap<Int, Int> = LinkedHashMap()
 
-    private val onNewTaskListeners: MutableSet<OnNewTaskListener> = HashSet()
-    private val onMoveTaskListeners: MutableSet<OnMoveTaskListener> = HashSet()
-    private val onFullUpdateListeners: MutableSet<OnFullUpdateListener> = HashSet()
+    private val onNewTaskListeners: MutableSet<OnNewTaskListener> = LinkedHashSet()
+    private val onMoveTaskListeners: MutableSet<OnMoveTaskListener> = LinkedHashSet()
+    private val onFullUpdateListeners: MutableSet<OnFullUpdateListener> = LinkedHashSet()
 
     override fun init(appCtx: Context) {
         this.appCtx = appCtx.applicationContext
@@ -53,7 +57,7 @@ class TodolistModelImpl: TodolistModel {
         return email
     }
 
-    override fun setGDriveAccountEmail(newEmail: String, exHandler: GDriveConnectExceptionHandler) {
+    override fun setGDriveAccountEmail(newEmail: String?, exHandler: GDriveConnectExceptionHandler) {
         email = newEmail
         prefs.edit().putString(ACC_NAME_KEY, email).apply()
         gDriveRestApi.init(appCtx, email)
@@ -79,10 +83,11 @@ class TodolistModelImpl: TodolistModel {
     ) {
         val task = localTasks[taskID] ?: return
         val oldTasklistID = task.tasklistID.value ?: HIDDEN_TASKLIST_ID
+        val oldTaskIndex = task.taskIndex.value ?: 0
         if (tasklistID != null && tasklistID != oldTasklistID) {
             task.tasklistID.value = tasklistID
             onMoveTaskListeners.forEach { listener ->
-                listener(task, oldTasklistID, tasklistID)
+                listener(task, oldTasklistID, tasklistID, oldTaskIndex, taskIndex ?: oldTaskIndex)
             }
         }
         if (taskIndex != null && taskIndex != task.taskIndex.value) {
@@ -120,11 +125,11 @@ class TodolistModelImpl: TodolistModel {
         onMoveTaskListeners.remove(listener)
     }
 
-    override fun addFullTasklistUpdateListener(listener: OnFullUpdateListener) {
+    override fun addOnFullUpdateListener(listener: OnFullUpdateListener) {
         onFullUpdateListeners.add(listener)
     }
 
-    override fun removeFullTasklistUpdateListener(listener: OnFullUpdateListener) {
+    override fun removeOnFullUpdateListener(listener: OnFullUpdateListener) {
         onFullUpdateListeners.remove(listener)
     }
 }

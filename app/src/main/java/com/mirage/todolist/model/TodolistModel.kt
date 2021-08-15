@@ -1,6 +1,7 @@
 package com.mirage.todolist.model
 
 import android.content.Context
+import com.google.android.gms.tasks.Task
 import com.mirage.todolist.model.gdrive.GDriveConnectExceptionHandler
 import com.mirage.todolist.viewmodel.LiveTask
 import com.mirage.todolist.viewmodel.TasklistType
@@ -11,8 +12,8 @@ private val todolistModelInstance: TodolistModel = TodolistModelImpl()
 fun getTodolistModel(): TodolistModel = todolistModelInstance
 
 typealias OnNewTaskListener = (newTask: LiveTask) -> Unit
-typealias OnMoveTaskListener = (task: LiveTask, oldTasklist: Int, newTasklist: Int) -> Unit
-typealias OnFullUpdateListener = (newTasks: List<LiveTask>) -> Unit
+typealias OnMoveTaskListener = (task: LiveTask, oldTasklistID: Int, newTasklistID: Int, oldTaskIndex: Int, newTaskIndex: Int) -> Unit
+typealias OnFullUpdateListener = (newTasks: Map<TaskID, LiveTask>) -> Unit
 
 interface TodolistModel {
 
@@ -33,7 +34,7 @@ interface TodolistModel {
      * Changes Google Drive email.
      * Should be invoked when user selects new account for synchronization.
      */
-    fun setGDriveAccountEmail(newEmail: String, exHandler: GDriveConnectExceptionHandler)
+    fun setGDriveAccountEmail(newEmail: String?, exHandler: GDriveConnectExceptionHandler)
 
     /**
      * Creates a new task in a given [tasklistID] and returns it.
@@ -62,7 +63,6 @@ interface TodolistModel {
 
     /**
      * Returns a map of all tasks (including hidden/removed ones).
-     * This method is intended to be used on view initialization.
      */
     fun getAllTasks(): Map<TaskID, LiveTask>
 
@@ -84,8 +84,8 @@ interface TodolistModel {
      * Adds a listener for tasklist update events coming from model independently from user actions
      * (i.e. updates performed on another device using the same Google Drive account).
      */
-    fun addFullTasklistUpdateListener(listener: OnFullUpdateListener)
+    fun addOnFullUpdateListener(listener: OnFullUpdateListener)
 
-    fun removeFullTasklistUpdateListener(listener: OnFullUpdateListener)
+    fun removeOnFullUpdateListener(listener: OnFullUpdateListener)
 
 }
