@@ -29,6 +29,9 @@ class TasklistViewModelImpl : TasklistViewModel() {
         initialized = true
         todolistViewModel = parentViewModel
         this.tasklistID = tasklistID
+        tasksSlice = todolistViewModel.getAllTasks().filter { (_, task) ->
+            task.tasklistID.value == this.tasklistID
+        }.toMutableMap()
         onNewTaskListener = { newTask ->
             if (newTask.tasklistID.value == this.tasklistID) {
                 tasksSlice[newTask.taskID] = newTask
@@ -50,6 +53,10 @@ class TasklistViewModelImpl : TasklistViewModel() {
         todolistViewModel.addOnNewTaskPrioritizedListener(onNewTaskListener)
         todolistViewModel.addOnMoveTaskPrioritizedListener(onMoveTaskListener)
         todolistViewModel.addOnFullUpdatePrioritizedListener(onFullUpdateListener)
+    }
+
+    override fun getTasklistID(): Int {
+        return tasklistID
     }
 
     override fun swipeTaskLeft(taskIndex: Int) {

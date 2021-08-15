@@ -209,7 +209,7 @@ class TodolistActivity : AppCompatActivity() {
             }
 
             override fun createFragment(position: Int): Fragment {
-                return TasklistFragment.newInstance(position + 1)
+                return TasklistFragment.newInstance(position)
             }
 
         }

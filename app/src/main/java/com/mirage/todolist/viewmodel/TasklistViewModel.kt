@@ -19,6 +19,11 @@ abstract class TasklistViewModel : ViewModel() {
     abstract fun init(parentViewModel: TodolistViewModel, tasklistID: Int)
 
     /**
+     * Returns the ID of a tasklist associated with this viewmodel
+     */
+    abstract fun getTasklistID(): Int
+
+    /**
      * Moves task to another tasklist
      */
     abstract fun swipeTaskLeft(taskIndex: Int)

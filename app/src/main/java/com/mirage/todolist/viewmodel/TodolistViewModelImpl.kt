@@ -99,6 +99,10 @@ class TodolistViewModelImpl : TodolistViewModel() {
         return todolistModel.getAllTasks()[taskID]
     }
 
+    override fun getAllTasks(): Map<TaskID, LiveTask> {
+        return todolistModel.getAllTasks()
+    }
+
     override fun onCleared() {
         todolistModel.removeOnNewTaskListener(modelOnNewTaskListener)
         todolistModel.removeOnMoveTaskListener(modelOnMoveTaskListener)

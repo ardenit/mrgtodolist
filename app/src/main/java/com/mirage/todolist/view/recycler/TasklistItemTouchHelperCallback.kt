@@ -2,9 +2,11 @@ package com.mirage.todolist.view.recycler
 
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.mirage.todolist.viewmodel.TasklistType
 
 class TasklistItemTouchHelperCallback(
-    private val adapter: ItemTouchHelperAdapter
+    private val adapter: ItemTouchHelperAdapter,
+    private val tasklistID: Int
 ) : ItemTouchHelper.Callback() {
 
     override fun getMovementFlags(
@@ -12,7 +14,9 @@ class TasklistItemTouchHelperCallback(
         viewHolder: RecyclerView.ViewHolder
     ): Int {
         val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
-        val swipeFlags = ItemTouchHelper.START or ItemTouchHelper.END
+        var swipeFlags = 0
+        if (tasklistID > 0) swipeFlags = swipeFlags or ItemTouchHelper.START
+        if (tasklistID < TasklistType.values().size - 1) swipeFlags = swipeFlags or ItemTouchHelper.END
         return makeMovementFlags(dragFlags, swipeFlags)
     }
 

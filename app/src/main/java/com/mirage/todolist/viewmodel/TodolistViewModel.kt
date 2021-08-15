@@ -88,4 +88,6 @@ abstract class TodolistViewModel : ViewModel(){
      */
     abstract fun getTask(taskID: TaskID): LiveTask?
 
+    abstract fun getAllTasks(): Map<TaskID, LiveTask>
+
 }

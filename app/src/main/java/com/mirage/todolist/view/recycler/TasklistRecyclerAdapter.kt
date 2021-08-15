@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.mirage.todolist.R
@@ -12,10 +13,11 @@ import com.mirage.todolist.viewmodel.TasklistViewModel
 
 class TasklistRecyclerAdapter(
     private val context: Context?,
-    private val viewModel: TasklistViewModel
+    private val viewModel: TasklistViewModel,
+    private val lifecycleOwner: LifecycleOwner
 ) : RecyclerView.Adapter<TasklistRecyclerAdapter.TasklistViewHolder>(), ItemTouchHelperAdapter {
 
-    inner class TasklistViewHolder(val itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class TasklistViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         val taskTitleView: TextView = itemView.findViewById(R.id.task_title)
         val taskDescriptionView: TextView = itemView.findViewById(R.id.task_description)
@@ -29,7 +31,6 @@ class TasklistRecyclerAdapter(
     }
 
     override fun onBindViewHolder(holder: TasklistViewHolder, position: Int) {
-        val lifecycleOwner = holder.itemView.findViewTreeLifecycleOwner() ?: error("No lifecycle owner")
         val task = viewModel.getTaskByIndex(position) ?: return
         task.title.observe(lifecycleOwner) {
             holder.taskTitleView.text = it
