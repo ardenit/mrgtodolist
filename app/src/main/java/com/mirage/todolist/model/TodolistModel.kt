@@ -61,11 +61,10 @@ interface TodolistModel {
     fun deleteTask(taskID: TaskID)
 
     /**
-     * Returns a list of all tasks (including hidden/removed ones).
+     * Returns a map of all tasks (including hidden/removed ones).
      * This method is intended to be used on view initialization.
-     * Returned list may be saved and then used in view model.
      */
-    fun getAllTasks(): List<LiveTask>
+    fun getAllTasks(): Map<TaskID, LiveTask>
 
     /**
      * Adds a listener for new task event

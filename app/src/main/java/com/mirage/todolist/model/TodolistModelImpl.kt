@@ -11,8 +11,10 @@ import com.mirage.todolist.viewmodel.TaskID
 import com.mirage.todolist.viewmodel.TasklistType
 import java.util.*
 import kotlin.collections.HashMap
+import kotlin.collections.HashSet
 
 private const val ACC_NAME_KEY = "account_name"
+private const val HIDDEN_TASKLIST_ID = -1
 
 class TodolistModelImpl: TodolistModel {
 
@@ -25,11 +27,25 @@ class TodolistModelImpl: TodolistModel {
     private var localTasks: MutableMap<TaskID, MutableLiveTask> = HashMap()
     private val tasklistSizes: MutableMap<Int, Int> = HashMap()
 
+    private val onNewTaskListeners: MutableSet<OnNewTaskListener> = HashSet()
+    private val onMoveTaskListeners: MutableSet<OnMoveTaskListener> = HashSet()
+    private val onFullUpdateListeners: MutableSet<OnFullUpdateListener> = HashSet()
 
     override fun init(appCtx: Context) {
         this.appCtx = appCtx.applicationContext
         prefs = PreferenceManager.getDefaultSharedPreferences(this.appCtx)
         gDriveRestApi.init(this.appCtx, email)
+
+        //TODO load tasks from room and start sync with gdrive
+        repeat(3) { tasklistID ->
+            val tasksCount = 20
+            repeat(tasksCount) { taskIndex ->
+                val id = UUID.randomUUID()
+                val task = MutableLiveTask(id, tasklistID, taskIndex, "Title", "init $tasklistID $taskIndex")
+                localTasks[id] = task
+            }
+            tasklistSizes[tasklistID] = tasksCount
+        }
     }
 
     override fun getGDriveAccountEmail(): String? {
@@ -62,38 +78,53 @@ class TodolistModelImpl: TodolistModel {
         description: String?
     ) {
         val task = localTasks[taskID] ?: return
-
+        val oldTasklistID = task.tasklistID.value ?: HIDDEN_TASKLIST_ID
+        if (tasklistID != null && tasklistID != oldTasklistID) {
+            task.tasklistID.value = tasklistID
+            onMoveTaskListeners.forEach { listener ->
+                listener(task, oldTasklistID, tasklistID)
+            }
+        }
+        if (taskIndex != null && taskIndex != task.taskIndex.value) {
+            task.taskIndex.value = taskIndex
+        }
+        if (title != null && title != task.title.value) {
+            task.title.value = title
+        }
+        if (description != null && description != task.description.value) {
+            task.description.value = description
+        }
     }
 
     override fun deleteTask(taskID: TaskID) {
-        TODO("Not yet implemented")
+        modifyTask(taskID, HIDDEN_TASKLIST_ID, null, null, null)
     }
 
-    override fun getAllTasks(): MutableList<MutableLiveTask> {
-        TODO("Not yet implemented")
+    override fun getAllTasks(): Map<TaskID, LiveTask> {
+        return localTasks
     }
 
     override fun addOnNewTaskListener(listener: OnNewTaskListener) {
-        TODO("Not yet implemented")
+        onNewTaskListeners.add(listener)
     }
 
     override fun removeOnNewTaskListener(listener: OnNewTaskListener) {
-        TODO("Not yet implemented")
+        onNewTaskListeners.remove(listener)
     }
 
     override fun addOnMoveTaskListener(listener: OnMoveTaskListener) {
-        TODO("Not yet implemented")
+        onMoveTaskListeners.add(listener)
     }
 
     override fun removeOnMoveTaskListener(listener: OnMoveTaskListener) {
-        TODO("Not yet implemented")
+        onMoveTaskListeners.remove(listener)
     }
 
     override fun addFullTasklistUpdateListener(listener: OnFullUpdateListener) {
-        TODO("Not yet implemented")
+        onFullUpdateListeners.add(listener)
     }
 
     override fun removeFullTasklistUpdateListener(listener: OnFullUpdateListener) {
-        TODO("Not yet implemented")
+        onFullUpdateListeners.remove(listener)
     }
 }
