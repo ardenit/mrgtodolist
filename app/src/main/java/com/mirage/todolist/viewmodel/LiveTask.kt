@@ -7,8 +7,8 @@ typealias TaskID = UUID
 
 interface LiveTask {
     val taskID: TaskID
-    val tasklistID: LiveData<Int>
-    val taskIndex: LiveData<Int>
+    val tasklistID: Int
+    val taskIndex: Int
     val title: LiveData<String>
     val description: LiveData<String>
 }

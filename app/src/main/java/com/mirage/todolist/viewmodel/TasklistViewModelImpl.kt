@@ -30,10 +30,10 @@ class TasklistViewModelImpl : TasklistViewModel() {
         todolistViewModel = parentViewModel
         this.tasklistID = tasklistID
         tasksSlice = todolistViewModel.getAllTasks().filter { (_, task) ->
-            task.tasklistID.value == this.tasklistID
+            task.tasklistID == this.tasklistID
         }.toMutableMap()
         onNewTaskListener = { newTask ->
-            if (newTask.tasklistID.value == this.tasklistID) {
+            if (newTask.tasklistID == this.tasklistID) {
                 tasksSlice[newTask.taskID] = newTask
             }
         }
@@ -47,7 +47,7 @@ class TasklistViewModelImpl : TasklistViewModel() {
         }
         onFullUpdateListener = { newTasks ->
             tasksSlice = newTasks.filter { (_, task) ->
-                task.tasklistID.value == this.tasklistID
+                task.tasklistID == this.tasklistID
             }.toMutableMap()
         }
         todolistViewModel.addOnNewTaskPrioritizedListener(onNewTaskListener)
@@ -80,7 +80,7 @@ class TasklistViewModelImpl : TasklistViewModel() {
 
     override fun addOnNewTaskListener(owner: LifecycleOwner, listener: OnNewTaskListener) {
         todolistViewModel.addOnNewTaskListener(owner) { newTask ->
-            if (newTask.tasklistID.value == this.tasklistID) {
+            if (newTask.tasklistID == this.tasklistID) {
                 listener(newTask)
             }
         }
@@ -110,7 +110,7 @@ class TasklistViewModelImpl : TasklistViewModel() {
     }
 
     override fun getTaskByIndex(taskIndex: Int): LiveTask? {
-        return tasksSlice.values.find { it.taskIndex.value == taskIndex }
+        return tasksSlice.values.find { it.taskIndex == taskIndex }
     }
 
     override fun getTaskCount(): Int {

@@ -45,7 +45,7 @@ class TodolistModelImpl: TodolistModel {
             val tasksCount = 20
             repeat(tasksCount) { taskIndex ->
                 val id = UUID.randomUUID()
-                val task = MutableLiveTask(id, tasklistID, taskIndex, "Title", "init $tasklistID $taskIndex")
+                val task = MutableLiveTask(id, tasklistID, taskIndex, "init $tasklistID $taskIndex", "init $tasklistID $taskIndex")
                 localTasks[id] = task
             }
             tasklistSizes[tasklistID] = tasksCount
@@ -96,21 +96,23 @@ class TodolistModelImpl: TodolistModel {
 
     override fun moveTask(taskID: TaskID, newTasklistID: Int) {
         val task = localTasks[taskID] ?: return
-        val oldTasklistID = task.tasklistID.value ?: HIDDEN_TASKLIST_ID
+        val oldTasklistID = task.tasklistID
         if (oldTasklistID == newTasklistID) return
-        val oldTaskIndex = task.taskIndex.value ?: 0
+        val oldTaskIndex = task.taskIndex
         val newTaskIndex = tasklistSizes[newTasklistID] ?: 0
         //TODO Room query for task move and index shift
+        tasklistSizes[oldTasklistID] = (tasklistSizes[oldTasklistID] ?: 1) - 1
+        tasklistSizes[newTasklistID] = (tasklistSizes[newTasklistID] ?: 0) + 1
         localTasks.values.asSequence()
-            .filter { it.tasklistID.value == oldTasklistID }
-            .filter { it.taskIndex.value ?: -1 > oldTaskIndex }
-            .forEach { it.taskIndex.value = (it.taskIndex.value ?: 1) - 1 }
+            .filter { it.tasklistID == oldTasklistID }
+            .filter { it.taskIndex > oldTaskIndex }
+            .forEach { it.taskIndex = (it.taskIndex ?: 1) - 1 }
         localTasks.values.asSequence()
-            .filter { it.tasklistID.value == newTasklistID }
-            .filter { it.taskIndex.value ?: -1 >= newTaskIndex }
-            .forEach { it.taskIndex.value = (it.taskIndex.value ?: -1) + 1 }
-        task.tasklistID.value = newTasklistID
-        task.taskIndex.value = newTaskIndex
+            .filter { it.tasklistID == newTasklistID }
+            .filter { it.taskIndex >= newTaskIndex }
+            .forEach { it.taskIndex = (it.taskIndex ?: -1) + 1 }
+        task.tasklistID = newTasklistID
+        task.taskIndex = newTaskIndex
         onMoveTaskListeners.forEach { listener ->
             listener(task, oldTasklistID, newTasklistID, oldTaskIndex, newTaskIndex)
         }
@@ -118,24 +120,24 @@ class TodolistModelImpl: TodolistModel {
 
     override fun moveTaskInList(taskID: TaskID, newTaskIndex: Int) {
         val task = localTasks[taskID] ?: return
-        val tasklistID = task.tasklistID.value ?: return
-        val oldTaskIndex = task.taskIndex.value ?: return
+        val tasklistID = task.tasklistID
+        val oldTaskIndex = task.taskIndex
         if (oldTaskIndex == newTaskIndex) return
         if (oldTaskIndex < newTaskIndex) {
             //TODO Room query for index shift
             localTasks.values.asSequence()
-                .filter { it.tasklistID.value == tasklistID }
-                .filter { it.taskIndex.value in (oldTaskIndex + 1)..newTaskIndex }
-                .forEach { it.taskIndex.value = (it.taskIndex.value ?: 1) - 1 }
+                .filter { it.tasklistID == tasklistID }
+                .filter { it.taskIndex in (oldTaskIndex + 1)..newTaskIndex }
+                .forEach { it.taskIndex = it.taskIndex - 1 }
         }
         else {
             //TODO Room query for index shift
             localTasks.values.asSequence()
-                .filter { it.tasklistID.value == tasklistID }
-                .filter { it.taskIndex.value in newTaskIndex until oldTaskIndex }
-                .forEach { it.taskIndex.value = (it.taskIndex.value ?: - 1) + 1 }
+                .filter { it.tasklistID == tasklistID }
+                .filter { it.taskIndex in newTaskIndex until oldTaskIndex }
+                .forEach { it.taskIndex = it.taskIndex + 1 }
         }
-        task.taskIndex.value = newTaskIndex
+        task.taskIndex = newTaskIndex
     }
 
     override fun getAllTasks(): Map<TaskID, LiveTask> {
