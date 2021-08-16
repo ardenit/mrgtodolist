@@ -1,7 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-
-    <style name="Theme.TodoApp" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="Theme.TodoApp" parent="Theme.AppCompat.DayNight.DarkActionBar">
         <item name="colorPrimary">@color/light_blue</item>
         <item name="colorPrimaryDark">@color/dark_blue</item>
         <item name="colorAccent">@color/light_orange</item>
@@ -15,6 +14,17 @@
     <style name="Theme.TodoApp.SettingsActivity" parent="Theme.TodoApp">
         <item name="windowActionBar">true</item>
         <item name="windowNoTitle">false</item>
+        <item name="android:textColorPrimary">@color/primary_text</item>
+        <item name="android:textColorSecondary">@color/secondary_text</item>
+        <item name="android:textColorTertiary">@color/tertiary_text</item>
+        <item name="android:actionBarStyle">@style/Theme.TodoApp.SettingsActionBar</item>
+    </style>
+
+    <style name="Theme.TodoApp.SettingsActionBar" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorPrimary">@color/light_blue</item>
+        <item name="windowActionBar">true</item>
+        <item name="android:background">@color/light_blue</item>
+        <item name="android:textColorPrimary">@color/white</item>
     </style>
 
     <style name="Theme.TodoApp.NavigationDrawer" parent="Theme.MaterialComponents.DayNight.NoActionBar">

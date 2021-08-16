@@ -5,6 +5,7 @@
     android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/tasklist_background"
     tools:context=".view.recycler.TasklistFragment">
 
     <androidx.recyclerview.widget.RecyclerView

@@ -10,6 +10,11 @@
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
 
+    <color name="tasklist_background">@android:color/background_light</color>
+    <color name="primary_text">@android:color/black</color>
+    <color name="secondary_text">@android:color/darker_gray</color>
+    <color name="tertiary_text">@android:color/darker_gray</color>
+
     <color name="archive_btn">#F4811E</color>
     <color name="todo_btn">#0082B9</color>
     <color name="done_btn">#ABCB46</color>

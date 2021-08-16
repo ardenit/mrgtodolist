@@ -2,6 +2,13 @@
     <string-array name="change_theme_entries">
         <item>Light</item>
         <item>Dark</item>
+        <item>Use system theme</item>
+    </string-array>
+
+    <string-array name="change_theme_entry_values">
+        <item>2</item>
+        <item>1</item>
+        <item>-1</item>
     </string-array>
 
     <string-array name="password_options">
@@ -10,5 +17,13 @@
         <item>Graphical key</item>
         <item>Password</item>
         <item>Fingerprint</item>
+    </string-array>
+
+    <string-array name="notification_time_options">
+        <item>Never</item>
+        <item>In 5 minutes</item>
+        <item>In 10 minutes</item>
+        <item>In 30 minutes</item>
+        <item>In 1 hour</item>
     </string-array>
 </resources>

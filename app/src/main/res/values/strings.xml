@@ -29,9 +29,20 @@
     <string name="settings_title_synchronization">Synchronization</string>
 
     <string name="settings_btn_theme">Change theme</string>
-    <string name="settings_btn_password">Set password</string>
-    <string name="settings_btn_notification_settings">Notification settings</string>
+    <string name="settings_btn_password">Set protection</string>
+    <string name="settings_btn_notifications_sync">Notify about task synchronization</string>
+    <string name="settings_btn_notifications_datetime">Notify about future tasks</string>
     <string name="settings_btn_sync_with_google_drive">Sync with Google Drive</string>
+
+    <string name="settings_password_no_protection">No protection</string>
+    <string name="settings_password_tap_to_unlock">Tap to unlock</string>
+    <string name="settings_password_graphical_key">Graphical key</string>
+    <string name="settings_password_password">Password</string>
+    <string name="settings_password_fingerprint">Fingerprint</string>
+
+    <string name="settings_sync_status_no_sync">Synchronization not configured</string>
+    <string name="settings_sync_status_ok">Synchronization enabled with account </string>
+    <string name="settings_sync_choose_account_btn">Select synchronization account</string>
 
     <string name="gdrive_acc_picker_title">Select your Google Drive account</string>
     <string name="gdrive_sync_cancelled_toast">Google Drive synchronization cancelled. Try again</string>

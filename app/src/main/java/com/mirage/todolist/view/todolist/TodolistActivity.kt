@@ -171,6 +171,7 @@ class TodolistActivity : AppCompatActivity() {
     }
 
     private fun openSettings() {
+        drawerLayout.close()
         startActivity(Intent(this, SettingsActivity::class.java))
     }
 

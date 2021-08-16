@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="tasklist_background">@android:color/background_dark</color>
+    <color name="primary_text">@android:color/white</color>
+    <color name="secondary_text">@android:color/darker_gray</color>
+    <color name="tertiary_text">@android:color/darker_gray</color>
+
+</resources>

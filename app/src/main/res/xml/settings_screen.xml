@@ -1,16 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory android:title="@string/settings_title_appearance">
+    <PreferenceCategory
+        android:title="@string/settings_title_appearance"
+        android:icon="@drawable/baseline_dark_mode_24">
+        <DropDownPreference
+            android:key="change_theme"
+            android:title="@string/settings_btn_theme"
+            app:useSimpleSummaryProvider="true"
+            android:entries="@array/change_theme_entries"
+            android:entryValues="@array/change_theme_entry_values"/>
+    </PreferenceCategory>
 
+    <PreferenceCategory
+        android:title="@string/settings_title_privacy"
+        android:icon="@drawable/baseline_lock_24">
+        <Preference
+            android:key="set_protection"
+            android:title="@string/settings_btn_password"
+            android:summary="@string/settings_password_no_protection"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/settings_title_notifications"
+        android:icon="@drawable/baseline_notifications_active_24">
+        <SwitchPreference
+            android:key="notify_on_sync"
+            android:title="@string/settings_btn_notifications_sync"/>
         <ListPreference
-            android:defaultValue="1"
-            android:entries="@android:array/organizationTypes"
-            android:entryValues="@android:array/organizationTypes"
-            android:key="list_preference_1"
-            android:title="List preference" />
+            android:key="notify_on_datetime"
+            android:title="@string/settings_btn_notifications_datetime"
+            app:useSimpleSummaryProvider="true"
+            android:entries="@array/notification_time_options"
+            android:entryValues="@array/notification_time_options"/>
     </PreferenceCategory>
-    <PreferenceCategory android:title="Preference category">
 
+    <PreferenceCategory
+        android:title="@string/settings_title_synchronization"
+        android:icon="@drawable/baseline_add_to_drive_24">
+        <Preference
+            android:key="sync_select_acc"
+            android:summary="@string/settings_sync_status_no_sync"
+            android:title="@string/settings_sync_choose_account_btn"/>
     </PreferenceCategory>
+
 </PreferenceScreen>
