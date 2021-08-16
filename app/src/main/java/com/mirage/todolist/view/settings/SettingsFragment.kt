@@ -4,17 +4,14 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.*
 import com.mirage.todolist.R
-
-/** Keys used for preference items in res/xml/settings_screen.xml */
-private const val CHANGE_THEME_KEY = "change_theme"
-private const val SET_PROTECTION_KEY = "set_protection"
-private const val NOTIFY_ON_SYNC_KEY = "notify_on_sync"
-private const val NOTIFY_ON_DATETIME_KEY = "notify_on_datetime"
-private const val SYNC_SELECT_ACC_KEY = "sync_select_acc"
-
-private const val THEME_LIGHT_VALUE = "1"
-private const val THEME_DARK_VALUE = "2"
-private const val THEME_SYSTEM_VALUE = "3"
+import com.mirage.todolist.view.settings.SettingsKeys.CHANGE_THEME_KEY
+import com.mirage.todolist.view.settings.SettingsKeys.NOTIFY_ON_DATETIME_KEY
+import com.mirage.todolist.view.settings.SettingsKeys.NOTIFY_ON_SYNC_KEY
+import com.mirage.todolist.view.settings.SettingsKeys.SET_PROTECTION_KEY
+import com.mirage.todolist.view.settings.SettingsKeys.SYNC_SELECT_ACC_KEY
+import com.mirage.todolist.view.settings.SettingsKeys.THEME_DARK_VALUE
+import com.mirage.todolist.view.settings.SettingsKeys.THEME_LIGHT_VALUE
+import com.mirage.todolist.view.settings.SettingsKeys.THEME_SYSTEM_VALUE
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
@@ -38,10 +35,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
         changeThemePreference.setOnPreferenceChangeListener { _, newValue ->
             when (newValue) {
                 THEME_LIGHT_VALUE -> {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
                 }
                 THEME_DARK_VALUE -> {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                 }
                 THEME_SYSTEM_VALUE -> {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)

@@ -2,6 +2,7 @@ package com.mirage.todolist.view.todolist
 
 import android.app.Activity
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
@@ -11,12 +12,12 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ShareCompat
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
-import androidx.core.content.IntentCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.preference.PreferenceManager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.gms.auth.GoogleAuthUtil
@@ -29,7 +30,6 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.mikepenz.materialdrawer.model.DividerDrawerItem
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem
-import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.iconRes
 import com.mikepenz.materialdrawer.model.interfaces.nameRes
 import com.mikepenz.materialdrawer.util.addItems
@@ -40,6 +40,7 @@ import com.mirage.todolist.viewmodel.TasklistType
 import com.mirage.todolist.model.gdrive.GDriveConnectExceptionHandler
 import com.mirage.todolist.model.getTodolistModel
 import com.mirage.todolist.view.settings.SettingsActivity
+import com.mirage.todolist.view.settings.SettingsKeys
 
 
 class TodolistActivity : AppCompatActivity() {
@@ -51,6 +52,8 @@ class TodolistActivity : AppCompatActivity() {
     private lateinit var tasksDrawerItem: PrimaryDrawerItem
     private lateinit var tagsDrawerItem: PrimaryDrawerItem
     private lateinit var settingsDrawerItem: SecondaryDrawerItem
+
+    private lateinit var sharedPreferences: SharedPreferences
 
     //TODO Inject
     private val todolistModel = getTodolistModel()
@@ -101,6 +104,7 @@ class TodolistActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.todolist_root)
+        initializePreferences()
         initializeDrawer()
         initializeToolbar()
         initializeViewPager()
@@ -173,6 +177,24 @@ class TodolistActivity : AppCompatActivity() {
     private fun openSettings() {
         drawerLayout.close()
         startActivity(Intent(this, SettingsActivity::class.java))
+    }
+
+    private fun initializePreferences() {
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        when (sharedPreferences.getString(SettingsKeys.CHANGE_THEME_KEY, SettingsKeys.THEME_LIGHT_VALUE)) {
+            SettingsKeys.THEME_LIGHT_VALUE -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                sharedPreferences.edit()
+                    .putString(SettingsKeys.CHANGE_THEME_KEY, SettingsKeys.THEME_LIGHT_VALUE)
+                    .apply()
+            }
+            SettingsKeys.THEME_DARK_VALUE -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            }
+            SettingsKeys.THEME_SYSTEM_VALUE -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            }
+        }
     }
 
     private fun initializeDrawer() {
