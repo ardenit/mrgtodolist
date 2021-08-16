@@ -1,6 +1,7 @@
 package com.mirage.todolist.view.todolist
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
@@ -10,7 +11,9 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ShareCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.IntentCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -26,6 +29,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.mikepenz.materialdrawer.model.DividerDrawerItem
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.iconRes
 import com.mikepenz.materialdrawer.model.interfaces.nameRes
 import com.mikepenz.materialdrawer.util.addItems
@@ -35,6 +39,7 @@ import com.mirage.todolist.view.recycler.TasklistFragment
 import com.mirage.todolist.viewmodel.TasklistType
 import com.mirage.todolist.model.gdrive.GDriveConnectExceptionHandler
 import com.mirage.todolist.model.getTodolistModel
+import com.mirage.todolist.view.settings.SettingsActivity
 
 
 class TodolistActivity : AppCompatActivity() {
@@ -165,6 +170,10 @@ class TodolistActivity : AppCompatActivity() {
         accPickerResultLauncher.launch(intent)
     }
 
+    private fun openSettings() {
+        startActivity(Intent(this, SettingsActivity::class.java))
+    }
+
     private fun initializeDrawer() {
         drawerLayout = findViewById(R.id.act_main_root_layout)
         drawerSlider = findViewById(R.id.act_main_nav_slider)
@@ -185,8 +194,14 @@ class TodolistActivity : AppCompatActivity() {
         settingsDrawerItem = SecondaryDrawerItem().apply {
             nameRes = R.string.drawer_btn_settings
             iconRes = R.drawable.ic_drawer_settings
+            isSelectable = false
+        }
+        settingsDrawerItem.onDrawerItemClickListener = { _, _, _ ->
+            openSettings()
+            true
         }
         drawerSlider.addItems(tasksDrawerItem, tagsDrawerItem, DividerDrawerItem(), settingsDrawerItem)
+        drawerSlider.selectedItemPosition = 0
     }
 
     private fun initializeToolbar() {

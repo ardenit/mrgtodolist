@@ -24,6 +24,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".view.settings.SettingsActivity"
+            android:icon="@mipmap/mrgtodolist"
+            android:roundIcon="@mipmap/mrgtodolist"
+            android:label="@string/settings_activity_title"
+            android:theme="@style/Theme.TodoApp.SettingsActivity"
+            android:exported="false">
+        </activity>
     </application>
 
 </manifest>

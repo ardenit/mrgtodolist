@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/settings_title_appearance">
+
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@android:array/organizationTypes"
+            android:entryValues="@android:array/organizationTypes"
+            android:key="list_preference_1"
+            android:title="List preference" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Preference category">
+
+    </PreferenceCategory>
+</PreferenceScreen>

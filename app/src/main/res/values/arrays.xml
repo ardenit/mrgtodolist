@@ -1,0 +1,14 @@
+<resources>
+    <string-array name="change_theme_entries">
+        <item>Light</item>
+        <item>Dark</item>
+    </string-array>
+
+    <string-array name="password_options">
+        <item>No protection</item>
+        <item>Tap to unblock</item>
+        <item>Graphical key</item>
+        <item>Password</item>
+        <item>Fingerprint</item>
+    </string-array>
+</resources>

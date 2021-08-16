@@ -12,6 +12,11 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="Theme.TodoApp.SettingsActivity" parent="Theme.TodoApp">
+        <item name="windowActionBar">true</item>
+        <item name="windowNoTitle">false</item>
+    </style>
+
     <style name="Theme.TodoApp.NavigationDrawer" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="materialDrawerStyle">@style/Widget.MaterialDrawerStyle</item>
         <item name="materialDrawerHeaderStyle">@style/Widget.MaterialDrawerHeaderStyle</item>
