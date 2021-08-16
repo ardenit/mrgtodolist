@@ -50,7 +50,7 @@ class TasklistFragment : Fragment() {
     private fun initializeRecycler() {
         recycler = binding.todolistRecyclerView
         recycler.layoutManager = LinearLayoutManager(context)
-        recyclerAdapter = TasklistRecyclerAdapter(context, tasklistViewModel, viewLifecycleOwner)
+        recyclerAdapter = TasklistRecyclerAdapter(requireContext(), tasklistViewModel, viewLifecycleOwner)
         recycler.adapter = recyclerAdapter
         val itemTouchHelperCallback = TasklistItemTouchHelperCallback(recyclerAdapter, tasklistViewModel.getTasklistID())
         itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)

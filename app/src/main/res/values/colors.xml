@@ -1,10 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="lighter_blue">#0082B9</color>
     <color name="light_blue">#1072BB</color>
     <color name="dark_blue">#01416F</color>
     <color name="light_orange">#F4811E</color>
     <color name="dark_orange">#EF7F2D</color>
+    <color name="light_green">#ABCB46</color>
     <color name="light_grey">@android:color/darker_gray</color>
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
+
+    <color name="archive_btn">#F4811E</color>
+    <color name="todo_btn">#0082B9</color>
+    <color name="done_btn">#ABCB46</color>
+
+    <color name="archive_stroke">#EA7A1A</color>
+    <color name="archive_fill">#DCA373</color>
+    <color name="archive_fill_focused">#D57D32</color>
+
+    <color name="todo_stroke">#1491F4</color>
+    <color name="todo_fill">#AEC9E8</color>
+    <color name="todo_fill_focused">#6297D1</color>
+
+    <color name="done_stroke">#A5CC2B</color>
+    <color name="done_fill">#C7DA8E</color>
+    <color name="done_fill_focused">#AAC35D</color>
 </resources>
