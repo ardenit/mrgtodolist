@@ -12,7 +12,6 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -181,20 +180,6 @@ class TodolistActivity : AppCompatActivity() {
 
     private fun initializePreferences() {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        when (sharedPreferences.getString(SettingsKeys.CHANGE_THEME_KEY, SettingsKeys.THEME_LIGHT_VALUE)) {
-            SettingsKeys.THEME_LIGHT_VALUE -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                sharedPreferences.edit()
-                    .putString(SettingsKeys.CHANGE_THEME_KEY, SettingsKeys.THEME_LIGHT_VALUE)
-                    .apply()
-            }
-            SettingsKeys.THEME_DARK_VALUE -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            }
-            SettingsKeys.THEME_SYSTEM_VALUE -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-            }
-        }
     }
 
     private fun initializeDrawer() {
@@ -251,8 +236,10 @@ class TodolistActivity : AppCompatActivity() {
             }
 
         }
+        if (viewPager.currentItem != 1) {
+            viewPager.setCurrentItem(1, false)
+        }
         viewPager.isUserInputEnabled = false
-        viewPager.currentItem = 1
         val tabs: TabLayout = findViewById(R.id.tabs)
         tabs.setSelectedTabIndicatorColor(ContextCompat.getColor(this, R.color.light_orange))
         tabs.setTabTextColors(ContextCompat.getColor(this, R.color.light_grey),

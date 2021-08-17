@@ -11,12 +11,20 @@
         <item>3</item>
     </string-array>
 
-    <string-array name="password_options">
+    <string-array name="set_protection_entries">
         <item>No protection</item>
         <item>Tap to unblock</item>
         <item>Graphical key</item>
         <item>Password</item>
         <item>Fingerprint</item>
+    </string-array>
+
+    <string-array name="set_protection_entry_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
     </string-array>
 
     <string-array name="notification_time_options">

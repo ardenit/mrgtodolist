@@ -11,6 +11,14 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="Theme.TodoApp.LockScreenActivity" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/light_blue</item>
+        <item name="colorPrimaryDark">@color/light_blue</item>
+        <item name="colorAccent">@color/light_orange</item>
+        <item name="android:background">@color/light_blue</item>
+        <item name="android:navigationBarColor">@color/light_blue</item>
+    </style>
+
     <style name="Theme.TodoApp.SettingsActivity" parent="Theme.TodoApp">
         <item name="windowActionBar">true</item>
         <item name="windowNoTitle">false</item>
