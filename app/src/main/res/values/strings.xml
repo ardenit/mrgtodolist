@@ -47,6 +47,12 @@
     <string name="protection_password">Add password</string>
     <string name="protection_fingerprint">Require fingerprint</string>
 
+    <string name="protection_result_none">Lock screen protection disabled</string>
+    <string name="protection_result_tap">Tap is now required to unlock</string>
+    <string name="protection_result_graphical">Graphical key successfully added</string>
+    <string name="protection_result_password">Password successfully added</string>
+    <string name="protection_result_fingerprint">Fingerprint protection activated</string>
+
     <string name="lockscreen_tap_to_unlock">Tap screen to unlock</string>
     <string name="lockscreen_enter_graphical">Enter graphical key to unlock</string>
     <string name="lockscreen_enter_password">Enter password to unlock</string>

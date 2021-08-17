@@ -2,7 +2,9 @@ package com.mirage.todolist.view.settings
 
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentManager
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceScreen
@@ -10,12 +12,15 @@ import com.mirage.todolist.R
 
 class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
+    private lateinit var settingsFragment: SettingsFragment
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings_activity)
+        settingsFragment = SettingsFragment()
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.settings, SettingsFragment())
+            .replace(R.id.settings, settingsFragment)
             .commit()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
@@ -28,6 +33,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
             pref.fragment)
         fragment.arguments = args
         fragment.setTargetFragment(caller, 0)
+        (fragment as? ProtectionSettingsFragment)?.onOptionSelected = ::onProtectionOptionSelected
         supportFragmentManager.beginTransaction()
             .replace(R.id.settings, fragment)
             .addToBackStack(null)
@@ -36,6 +42,24 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
             supportActionBar?.setTitle(R.string.protection_action_bar_title)
         }
         return true
+    }
+
+    private fun onProtectionOptionSelected(key: String?) {
+        when (key) {
+            SettingsKeys.PROTECTION_NONE_KEY -> {
+                onBackPressed()
+                settingsFragment.updateSummaries()
+                Toast.makeText(this, R.string.protection_result_none, Toast.LENGTH_SHORT).show()
+            }
+            SettingsKeys.PROTECTION_TAP_KEY -> {
+                onBackPressed()
+                settingsFragment.updateSummaries()
+                Toast.makeText(this, R.string.protection_result_tap, Toast.LENGTH_SHORT).show()
+            }
+            else -> {
+
+            }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

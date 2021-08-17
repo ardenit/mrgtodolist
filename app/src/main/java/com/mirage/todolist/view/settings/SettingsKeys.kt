@@ -19,12 +19,6 @@ object SettingsKeys {
     const val THEME_DARK_VALUE = "2"
     const val THEME_SYSTEM_VALUE = "3"
 
-    const val PROTECTION_NONE_VALUE = "1"
-    const val PROTECTION_TAP_VALUE = "2"
-    const val PROTECTION_GRAPHICAL_KEY_VALUE = "3"
-    const val PROTECTION_PASSWORD_VALUE = "4"
-    const val PROTECTION_FINGERPRINT_VALUE = "5"
-
     const val NOTIFY_DATETIME_NEVER = "1"
     const val NOTIFY_DATETIME_5_MIN = "2"
     const val NOTIFY_DATETIME_10_MIN = "3"
