@@ -3,9 +3,12 @@ package com.mirage.todolist.view.lockscreen
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.mirage.todolist.R
 import com.mirage.todolist.view.settings.SettingsKeys
@@ -15,7 +18,7 @@ import kotlinx.coroutines.*
 class LockScreenActivity : AppCompatActivity() {
 
     private lateinit var sharedPreferences: SharedPreferences
-    private val coroutineScope = CoroutineScope(SupervisorJob())
+    private val coroutineScope = lifecycleScope
 
     private val todolistResultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -31,6 +34,22 @@ class LockScreenActivity : AppCompatActivity() {
         processNotificationPreference()
     }
 
+    private fun initializeSplashScreen() {
+        setContentView(R.layout.lockscreen_splash)
+        coroutineScope.launch(Dispatchers.Main) {
+            delay(1000)
+            openTodolist()
+        }
+    }
+
+    private fun initializeTapToUnlockScreen() {
+        setContentView(R.layout.lockscreen_tap)
+        val rootLayout: ConstraintLayout = findViewById(R.id.lockscreen_tap_root)
+        rootLayout.setOnClickListener {
+            openTodolist()
+        }
+    }
+
     private fun openTodolist() {
         val intent = Intent(this, TodolistActivity::class.java)
         todolistResultLauncher.launch(intent)
@@ -42,11 +61,10 @@ class LockScreenActivity : AppCompatActivity() {
                 sharedPreferences.edit()
                     .putString(SettingsKeys.SET_PROTECTION_KEY, SettingsKeys.PROTECTION_NONE_VALUE)
                     .apply()
-                setContentView(R.layout.lockscreen_splash)
-                coroutineScope.launch(Dispatchers.Main) {
-                    delay(1000)
-                    openTodolist()
-                }
+                initializeSplashScreen()
+            }
+            SettingsKeys.PROTECTION_TAP_VALUE -> {
+                initializeTapToUnlockScreen()
             }
         }
     }

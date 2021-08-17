@@ -40,6 +40,11 @@
     <string name="settings_password_password">Password</string>
     <string name="settings_password_fingerprint">Fingerprint</string>
 
+    <string name="lockscreen_tap_to_unlock">Tap screen to unlock</string>
+    <string name="lockscreen_enter_graphical">Enter graphical key to unlock</string>
+    <string name="lockscreen_enter_password">Enter password to unlock</string>
+    <string name="lockscreen_use_fingerprint">Touch screen to unlock</string>
+
     <string name="settings_sync_status_no_sync">Synchronization not configured</string>
     <string name="settings_sync_status_ok">Synchronization enabled with account </string>
     <string name="settings_sync_choose_account_btn">Select synchronization account</string>
