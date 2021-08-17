@@ -56,6 +56,11 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
                 settingsFragment.updateSummaries()
                 Toast.makeText(this, R.string.protection_result_tap, Toast.LENGTH_SHORT).show()
             }
+            SettingsKeys.PROTECTION_PASSWORD_KEY -> {
+                onBackPressed()
+                settingsFragment.updateSummaries()
+                Toast.makeText(this, R.string.protection_result_password, Toast.LENGTH_SHORT).show()
+            }
             else -> {
 
             }

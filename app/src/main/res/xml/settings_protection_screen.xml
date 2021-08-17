@@ -14,7 +14,7 @@
         android:key="protection_graphical"
         android:title="@string/protection_graphical"
         android:icon="@drawable/baseline_apps_24"/>
-    <Preference
+    <EditTextPreference
         android:key="protection_password"
         android:title="@string/protection_password"
         android:icon="@drawable/baseline_password_24"/>

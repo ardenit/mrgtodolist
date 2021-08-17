@@ -108,7 +108,6 @@ class TodolistActivity : AppCompatActivity() {
         initializeViewPager()
         val btn: FloatingActionButton = findViewById(R.id.todolist_new_task_btn)
         btn.setOnClickListener(::onGDriveSyncBtnPressed)
-        todolistModel.init(applicationContext)
         if (activityInstancesCount != 0) {
             finish()
         }

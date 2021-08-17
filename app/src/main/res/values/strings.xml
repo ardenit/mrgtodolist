@@ -46,6 +46,8 @@
     <string name="protection_graphical">Add graphical key</string>
     <string name="protection_password">Add password</string>
     <string name="protection_fingerprint">Require fingerprint</string>
+    <string name="protection_password_empty"/>
+    <string name="protection_password_invalid">Password must contain at least 4 characters and contain only letters or symbols _-!@#$</string>
 
     <string name="protection_result_none">Lock screen protection disabled</string>
     <string name="protection_result_tap">Tap is now required to unlock</string>
@@ -57,6 +59,9 @@
     <string name="lockscreen_enter_graphical">Enter graphical key to unlock</string>
     <string name="lockscreen_enter_password">Enter password to unlock</string>
     <string name="lockscreen_use_fingerprint">Touch screen to unlock</string>
+    <string name="lockscreen_password_hint">Password</string>
+    <string name="lockscreen_password_btn">Enter</string>
+    <string name="lockscreen_password_wrong">Wrong password</string>
 
     <string name="settings_sync_status_no_sync">Synchronization not configured</string>
     <string name="settings_sync_status_ok">Synchronization enabled with account </string>

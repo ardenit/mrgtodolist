@@ -1,21 +1,23 @@
 package com.mirage.todolist.view.lockscreen
 
-import android.animation.ArgbEvaluator
-import android.animation.ValueAnimator
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.View
+import android.view.KeyEvent
+import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.mirage.todolist.R
-import com.mirage.todolist.view.recycler.progressedColor
+import com.mirage.todolist.model.TodolistModel
+import com.mirage.todolist.model.getTodolistModel
+import com.mirage.todolist.view.settings.PasswordValidator
 import com.mirage.todolist.view.settings.SettingsKeys
 import com.mirage.todolist.view.todolist.TodolistActivity
 import kotlinx.coroutines.*
@@ -27,6 +29,9 @@ class LockScreenActivity : AppCompatActivity() {
 
     private lateinit var sharedPreferences: SharedPreferences
     private val coroutineScope = lifecycleScope
+
+    //TODO inject
+    private val todolistModel: TodolistModel = getTodolistModel()
 
     private val todolistResultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -40,6 +45,7 @@ class LockScreenActivity : AppCompatActivity() {
         processProtectionPreference()
         processThemePreference()
         processNotificationPreference()
+        todolistModel.init(applicationContext)
     }
 
     private fun initializeSplashScreen() {
@@ -69,6 +75,34 @@ class LockScreenActivity : AppCompatActivity() {
         }
     }
 
+    private fun initializePasswordScreen() {
+        setContentView(R.layout.lockscreen_password)
+        val passwordInput: EditText = findViewById(R.id.password_input)
+        passwordInput.setOnKeyListener { view, keyCode, keyEvent ->
+            if ((keyEvent.action == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                confirmPassword(passwordInput)
+                true
+            }
+            else false
+        }
+        val passwordInputBtn: Button = findViewById(R.id.password_input_btn)
+        passwordInputBtn.setOnClickListener {
+            confirmPassword(passwordInput)
+        }
+    }
+
+    private fun confirmPassword(passwordInput: EditText) {
+        val input = passwordInput.text.toString()
+        val inputHash = PasswordValidator.getSHA256(input)
+        val validHash = sharedPreferences.getString(SettingsKeys.PROTECTION_PASSWORD_HASH_KEY, "")
+        if (inputHash == validHash) {
+            openTodolist()
+        }
+        else {
+            Toast.makeText(this, R.string.lockscreen_password_wrong, Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun openTodolist() {
         val intent = Intent(this, TodolistActivity::class.java)
         todolistResultLauncher.launch(intent)
@@ -84,6 +118,9 @@ class LockScreenActivity : AppCompatActivity() {
             }
             SettingsKeys.PROTECTION_TAP_KEY -> {
                 initializeTapToUnlockScreen()
+            }
+            SettingsKeys.PROTECTION_PASSWORD_KEY -> {
+                initializePasswordScreen()
             }
             else -> {
                 sharedPreferences.edit()
