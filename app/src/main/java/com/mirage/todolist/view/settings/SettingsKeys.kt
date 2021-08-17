@@ -16,6 +16,7 @@ object SettingsKeys {
     const val PROTECTION_FINGERPRINT_KEY = "protection_fingerprint"
 
     const val PROTECTION_PASSWORD_HASH_KEY = "password_hash"
+    const val PROTECTION_GRAPHICAL_HASH_KEY = "graphical_key_hash"
 
     const val THEME_LIGHT_VALUE = "1"
     const val THEME_DARK_VALUE = "2"

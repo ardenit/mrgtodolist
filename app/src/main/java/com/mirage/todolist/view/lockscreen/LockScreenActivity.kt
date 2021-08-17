@@ -12,8 +12,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
+import com.andrognito.patternlockview.PatternLockView
+import com.andrognito.patternlockview.listener.PatternLockViewListener
+import com.andrognito.patternlockview.utils.PatternLockUtils
 import com.mirage.todolist.R
 import com.mirage.todolist.model.TodolistModel
 import com.mirage.todolist.model.getTodolistModel
@@ -75,6 +79,31 @@ class LockScreenActivity : AppCompatActivity() {
         }
     }
 
+    private fun initializeGraphicalKeyScreen() {
+        setContentView(R.layout.lockscreen_graphical_key)
+        val patternLock: PatternLockView = findViewById(R.id.graphical_key_pattern_lock)
+        patternLock.addPatternLockListener(object : PatternLockViewListener {
+
+            override fun onStarted() { }
+
+            override fun onProgress(progressPattern: MutableList<PatternLockView.Dot>?) { }
+
+            override fun onComplete(pattern: MutableList<PatternLockView.Dot>?) {
+                val patternString = PatternLockUtils.patternToString(patternLock, pattern)
+                val patternHash = PasswordValidator.getSHA256(patternString)
+                val validHash = sharedPreferences.getString(SettingsKeys.PROTECTION_GRAPHICAL_HASH_KEY, "")
+                if (patternHash == validHash) {
+                    openTodolist()
+                }
+                else {
+                    patternLock.clearPattern()
+                }
+            }
+
+            override fun onCleared() { }
+        })
+    }
+
     private fun initializePasswordScreen() {
         setContentView(R.layout.lockscreen_password)
         val passwordInput: EditText = findViewById(R.id.password_input)
@@ -118,6 +147,9 @@ class LockScreenActivity : AppCompatActivity() {
             }
             SettingsKeys.PROTECTION_TAP_KEY -> {
                 initializeTapToUnlockScreen()
+            }
+            SettingsKeys.PROTECTION_GRAPHICAL_KEY -> {
+                initializeGraphicalKeyScreen()
             }
             SettingsKeys.PROTECTION_PASSWORD_KEY -> {
                 initializePasswordScreen()
