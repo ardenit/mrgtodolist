@@ -35,9 +35,13 @@ class TodolistModelImpl: TodolistModel {
     private val onMoveTaskListeners: MutableSet<OnMoveTaskListener> = LinkedHashSet()
     private val onFullUpdateListeners: MutableSet<OnFullUpdateListener> = LinkedHashSet()
 
+    private var initialized = false
+
     override fun init(appCtx: Context) {
         this.appCtx = appCtx.applicationContext
         prefs = PreferenceManager.getDefaultSharedPreferences(this.appCtx)
+        if (initialized) return
+        initialized = true
         gDriveRestApi.init(this.appCtx, email)
 
         //TODO load tasks from room and start sync with gdrive

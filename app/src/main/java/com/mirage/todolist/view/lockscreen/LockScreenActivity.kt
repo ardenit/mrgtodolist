@@ -3,6 +3,7 @@ package com.mirage.todolist.view.lockscreen
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceManager
@@ -16,15 +17,23 @@ class LockScreenActivity : AppCompatActivity() {
     private lateinit var sharedPreferences: SharedPreferences
     private val coroutineScope = CoroutineScope(SupervisorJob())
 
+    private val todolistResultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        finish()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         processProtectionPreference()
         processThemePreference()
+        processNotificationPreference()
     }
 
     private fun openTodolist() {
-        startActivity(Intent(this, TodolistActivity::class.java))
+        val intent = Intent(this, TodolistActivity::class.java)
+        todolistResultLauncher.launch(intent)
     }
 
     private fun processProtectionPreference() {
@@ -55,6 +64,16 @@ class LockScreenActivity : AppCompatActivity() {
             }
             SettingsKeys.THEME_SYSTEM_VALUE -> {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            }
+        }
+    }
+
+    private fun processNotificationPreference() {
+        when (sharedPreferences.getString(SettingsKeys.NOTIFY_ON_DATETIME_KEY, SettingsKeys.NOTIFY_DATETIME_NEVER)) {
+            SettingsKeys.NOTIFY_DATETIME_NEVER -> {
+                sharedPreferences.edit()
+                    .putString(SettingsKeys.NOTIFY_ON_DATETIME_KEY, SettingsKeys.NOTIFY_DATETIME_NEVER)
+                    .apply()
             }
         }
     }

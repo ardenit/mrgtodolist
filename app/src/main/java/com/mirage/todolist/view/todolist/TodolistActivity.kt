@@ -39,7 +39,6 @@ import com.mirage.todolist.viewmodel.TasklistType
 import com.mirage.todolist.model.gdrive.GDriveConnectExceptionHandler
 import com.mirage.todolist.model.getTodolistModel
 import com.mirage.todolist.view.settings.SettingsActivity
-import com.mirage.todolist.view.settings.SettingsKeys
 
 
 class TodolistActivity : AppCompatActivity() {
@@ -110,8 +109,11 @@ class TodolistActivity : AppCompatActivity() {
         val btn: FloatingActionButton = findViewById(R.id.todolist_new_task_btn)
         btn.setOnClickListener(::onGDriveSyncBtnPressed)
         todolistModel.init(applicationContext)
-        if (savedInstanceState == null) {
-
+        if (activityInstancesCount != 0) {
+            finish()
+        }
+        else {
+            ++activityInstancesCount
         }
     }
 
@@ -120,7 +122,15 @@ class TodolistActivity : AppCompatActivity() {
             drawerLayout.close()
         }
         else {
-            super.onBackPressed()
+            setResult(0)
+            finish()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (activityInstancesCount != 0) {
+            --activityInstancesCount
         }
     }
 
@@ -135,7 +145,6 @@ class TodolistActivity : AppCompatActivity() {
         if (navDrawerOpened) {
             drawerLayout.open()
         }
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -256,5 +265,11 @@ class TodolistActivity : AppCompatActivity() {
                 DrawableCompat.setTintList(coloredIcon, colorStateList)
             }
         }.attach()
+    }
+
+    companion object {
+
+        /** Workaround for night theme bug with recreating activities */
+        private var activityInstancesCount = 0
     }
 }

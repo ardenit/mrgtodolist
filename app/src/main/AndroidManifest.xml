@@ -26,6 +26,7 @@
         </activity>
         <activity
             android:name=".view.todolist.TodolistActivity"
+            android:launchMode="singleTop"
             android:icon="@mipmap/mrgtodolist"
             android:roundIcon="@mipmap/mrgtodolist"
             android:label="@string/drawer_btn_tasks"

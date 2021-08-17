@@ -32,8 +32,8 @@
             android:key="notify_on_datetime"
             android:title="@string/settings_btn_notifications_datetime"
             app:useSimpleSummaryProvider="true"
-            android:entries="@array/notification_time_options"
-            android:entryValues="@array/notification_time_options"/>
+            android:entries="@array/notify_datetime_entries"
+            android:entryValues="@array/notify_datetime_entry_values"/>
     </PreferenceCategory>
 
     <PreferenceCategory

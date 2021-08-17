@@ -18,4 +18,10 @@ object SettingsKeys {
     const val PROTECTION_GRAPHICAL_KEY_VALUE = "3"
     const val PROTECTION_PASSWORD_VALUE = "4"
     const val PROTECTION_FINGERPRINT_VALUE = "5"
+
+    const val NOTIFY_DATETIME_NEVER = "1"
+    const val NOTIFY_DATETIME_5_MIN = "2"
+    const val NOTIFY_DATETIME_10_MIN = "3"
+    const val NOTIFY_DATETIME_30_MIN = "4"
+    const val NOTIFY_DATETIME_1_HOUR = "5"
 }

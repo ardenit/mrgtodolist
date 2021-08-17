@@ -18,6 +18,8 @@ class TasklistItemTouchHelperCallback(
     private val tasklistID: Int
 ) : ItemTouchHelper.Callback() {
 
+    private var draggedItem: TasklistRecyclerAdapter.TasklistViewHolder? = null
+
     override fun getMovementFlags(
         recyclerView: RecyclerView,
         viewHolder: RecyclerView.ViewHolder
@@ -34,14 +36,12 @@ class TasklistItemTouchHelperCallback(
         viewHolder: RecyclerView.ViewHolder,
         target: RecyclerView.ViewHolder
     ): Boolean {
-        adapter.onItemMove(viewHolder.layoutPosition, target.layoutPosition)
-        target as TasklistRecyclerAdapter.TasklistViewHolder
-        target.background.setColor(target.fillColor)
+        adapter.onItemMove(viewHolder.absoluteAdapterPosition, target.absoluteAdapterPosition)
         return true
     }
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-        val position = viewHolder.layoutPosition
+        val position = viewHolder.absoluteAdapterPosition
         if (direction == ItemTouchHelper.START) {
             adapter.onItemSwipeLeft(position)
         }
@@ -56,6 +56,23 @@ class TasklistItemTouchHelperCallback(
 
     override fun isItemViewSwipeEnabled(): Boolean {
         return true
+    }
+
+    override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+        super.onSelectedChanged(viewHolder, actionState)
+        if (viewHolder == null) {
+            draggedItem?.run {
+                background.setColor(fillColor)
+            }
+            draggedItem = null
+        }
+        else {
+            viewHolder as TasklistRecyclerAdapter.TasklistViewHolder
+            if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
+                viewHolder.background.setColor(viewHolder.fillColorFocused)
+                draggedItem = viewHolder
+            }
+        }
     }
 
     override fun onChildDraw(
@@ -94,9 +111,6 @@ class TasklistItemTouchHelperCallback(
                         viewHolder.background.setStroke(STROKE_WIDTH, viewHolder.strokeColor)
                     }
                 }
-            }
-            ItemTouchHelper.ACTION_STATE_DRAG -> {
-                viewHolder.background.setColor(viewHolder.fillColorFocused)
             }
         }
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)

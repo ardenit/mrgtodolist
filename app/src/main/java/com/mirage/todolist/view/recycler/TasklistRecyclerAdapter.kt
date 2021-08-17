@@ -9,12 +9,15 @@ import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.coroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import com.mirage.todolist.R
 import com.mirage.todolist.viewmodel.TasklistType
 import com.mirage.todolist.viewmodel.TasklistViewModel
+import kotlinx.coroutines.*
 
 const val STROKE_WIDTH = 8
+private const val RECYCLER_REMOVAL_DELAY = 1000L
 
 class TasklistRecyclerAdapter(
     private val context: Context,
@@ -90,11 +93,13 @@ class TasklistRecyclerAdapter(
 
     override fun onItemSwipeLeft(position: Int) {
         viewModel.swipeTaskLeft(position)
+        println("SWIPE LEFT $position")
         notifyItemRemoved(position)
     }
 
     override fun onItemSwipeRight(position: Int) {
         viewModel.swipeTaskRight(position)
+        println("SWIPE RIGHT $position")
         notifyItemRemoved(position)
     }
 }
