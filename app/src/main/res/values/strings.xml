@@ -40,6 +40,13 @@
     <string name="settings_password_password">Password</string>
     <string name="settings_password_fingerprint">Fingerprint</string>
 
+    <string name="protection_action_bar_title">Lock screen protection</string>
+    <string name="protection_none">Disable lock screen protection</string>
+    <string name="protection_tap">Require tap to unlock</string>
+    <string name="protection_graphical">Add graphical key</string>
+    <string name="protection_password">Add password</string>
+    <string name="protection_fingerprint">Require fingerprint</string>
+
     <string name="lockscreen_tap_to_unlock">Tap screen to unlock</string>
     <string name="lockscreen_enter_graphical">Enter graphical key to unlock</string>
     <string name="lockscreen_enter_password">Enter password to unlock</string>
