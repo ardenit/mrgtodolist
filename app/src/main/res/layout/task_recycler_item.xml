@@ -7,33 +7,94 @@
     android:layout_height="wrap_content"
     android:background="@drawable/round_corner">
 
-    <TextView
-        android:id="@+id/task_title"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:id="@+id/task_item_header"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:text="@string/task_default_title"
-        android:textColor="@android:color/primary_text_light"
-        android:textSize="18sp"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/task_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_weight="1"
+            android:text="@string/task_default_title"
+            android:textColor="@android:color/primary_text_light"
+            android:textSize="24sp" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/task_tags"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_weight="1">
+
+        </com.google.android.material.chip.ChipGroup>
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/task_description"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:text="@string/task_default_description"
         android:textColor="@android:color/secondary_text_light"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@+id/task_datetime"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/task_title" />
+        app:layout_constraintTop_toBottomOf="@+id/task_item_header" />
+
+    <TextView
+        android:id="@+id/task_datetime"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/task_default_description"
+        android:textColor="@android:color/secondary_text_light"
+        android:textSize="16sp"
+        app:drawableStartCompat="@drawable/baseline_event_24"
+        app:layout_constraintBottom_toTopOf="@id/task_place"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/task_place"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/task_default_description"
+        android:textColor="@android:color/secondary_text_light"
+        android:textSize="16sp"
+        app:drawableStartCompat="@drawable/baseline_place_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/task_edit_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="#00000000"
+        android:contentDescription="@string/task_edit_btn"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/edit_round_btn" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

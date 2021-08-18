@@ -8,6 +8,7 @@
 
     <string name="task_default_title">Task</string>
     <string name="task_default_description">No description</string>
+    <string name="task_edit_btn">Edit task</string>
 
     <string name="toolbar_title_archive">Archive</string>
     <string name="toolbar_title_todo">Current tasks</string>
