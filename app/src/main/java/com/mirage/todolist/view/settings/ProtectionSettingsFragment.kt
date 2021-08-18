@@ -2,7 +2,9 @@ package com.mirage.todolist.view.settings
 
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.preference.*
 import com.mirage.todolist.R
 import com.mirage.todolist.view.settings.SettingsKeys.PROTECTION_FINGERPRINT_KEY
@@ -29,6 +31,11 @@ class ProtectionSettingsFragment : PreferenceFragmentCompat() {
         initializePreferences()
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        view.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.tasklist_background))
+    }
+
     override fun onPreferenceTreeClick(preference: Preference?): Boolean {
         when (preference?.key) {
             PROTECTION_NONE_KEY -> {
@@ -44,7 +51,7 @@ class ProtectionSettingsFragment : PreferenceFragmentCompat() {
                 onOptionSelected?.invoke(PROTECTION_TAP_KEY)
             }
             PROTECTION_GRAPHICAL_KEY -> {
-
+                onOptionSelected?.invoke(PROTECTION_GRAPHICAL_KEY)
             }
             PROTECTION_FINGERPRINT_KEY -> {
 

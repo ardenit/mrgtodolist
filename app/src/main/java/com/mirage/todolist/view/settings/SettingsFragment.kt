@@ -2,7 +2,9 @@ package com.mirage.todolist.view.settings
 
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
 import androidx.preference.*
 import com.mirage.todolist.R
 import com.mirage.todolist.view.settings.SettingsKeys.CHANGE_THEME_KEY
@@ -33,6 +35,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
         setPreferencesFromResource(R.xml.settings_screen, rootKey)
         initializePreferences()
         updateSummaries()
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        view.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.tasklist_background))
     }
 
     fun updateSummaries() {

@@ -10,9 +10,18 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceScreen
 import com.mirage.todolist.R
 
+enum class SettingsScreen {
+    ROOT,
+    PROTECTION,
+    GRAPHICAL_KEY
+}
+
 class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
     private lateinit var settingsFragment: SettingsFragment
+    private var protectionFragment: ProtectionSettingsFragment? = null
+    private lateinit var graphicalKeyFragment: GraphicalKeyFragment
+    private var settingsScreen = SettingsScreen.ROOT
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,6 +33,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
             .commit()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
+        settingsScreen = SettingsScreen.ROOT
     }
 
     override fun onPreferenceStartFragment(caller: PreferenceFragmentCompat, pref: Preference): Boolean {
@@ -33,7 +43,9 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
             pref.fragment)
         fragment.arguments = args
         fragment.setTargetFragment(caller, 0)
-        (fragment as? ProtectionSettingsFragment)?.onOptionSelected = ::onProtectionOptionSelected
+        protectionFragment = fragment as? ProtectionSettingsFragment
+        settingsScreen = SettingsScreen.PROTECTION
+        protectionFragment?.onOptionSelected = ::onProtectionOptionSelected
         supportFragmentManager.beginTransaction()
             .replace(R.id.settings, fragment)
             .addToBackStack(null)
@@ -56,6 +68,9 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
                 settingsFragment.updateSummaries()
                 Toast.makeText(this, R.string.protection_result_tap, Toast.LENGTH_SHORT).show()
             }
+            SettingsKeys.PROTECTION_GRAPHICAL_KEY -> {
+                openGraphicalKeyFragment()
+            }
             SettingsKeys.PROTECTION_PASSWORD_KEY -> {
                 onBackPressed()
                 settingsFragment.updateSummaries()
@@ -67,6 +82,17 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
         }
     }
 
+    private fun openGraphicalKeyFragment() {
+        settingsScreen = SettingsScreen.GRAPHICAL_KEY
+        graphicalKeyFragment = GraphicalKeyFragment()
+        graphicalKeyFragment.setTargetFragment(protectionFragment, 0)
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.settings, graphicalKeyFragment)
+            .addToBackStack(null)
+            .commit()
+        supportActionBar?.setTitle(R.string.protection_create_graphical_title)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
             onBackPressed()
@@ -75,7 +101,17 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
     }
 
     override fun onBackPressed() {
-        supportActionBar?.setTitle(R.string.settings_activity_title)
+        when (settingsScreen) {
+            SettingsScreen.ROOT -> { }
+            SettingsScreen.PROTECTION -> {
+                supportActionBar?.setTitle(R.string.settings_activity_title)
+                settingsScreen = SettingsScreen.ROOT
+            }
+            SettingsScreen.GRAPHICAL_KEY -> {
+                supportActionBar?.setTitle(R.string.protection_action_bar_title)
+                settingsScreen = SettingsScreen.PROTECTION
+            }
+        }
         super.onBackPressed()
     }
 }

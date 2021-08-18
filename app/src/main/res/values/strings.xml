@@ -48,6 +48,9 @@
     <string name="protection_fingerprint">Require fingerprint</string>
     <string name="protection_password_empty"/>
     <string name="protection_password_invalid">Password must contain at least 4 characters and contain only letters or symbols _-!@#$</string>
+    <string name="protection_create_graphical_btn">Save key</string>
+    <string name="protection_create_graphical_title">Add graphical key</string>
+    <string name="protection_create_graphical_empty">Graphical key must not be empty</string>
 
     <string name="protection_result_none">Lock screen protection disabled</string>
     <string name="protection_result_tap">Tap is now required to unlock</string>
