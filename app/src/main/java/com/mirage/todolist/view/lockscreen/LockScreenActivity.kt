@@ -11,8 +11,10 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.biometric.BiometricPrompt
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.hardware.fingerprint.FingerprintManagerCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.andrognito.patternlockview.PatternLockView
@@ -23,8 +25,11 @@ import com.mirage.todolist.model.TodolistModel
 import com.mirage.todolist.model.getTodolistModel
 import com.mirage.todolist.view.settings.PasswordValidator
 import com.mirage.todolist.view.settings.SettingsKeys
+import com.mirage.todolist.view.settings.showToast
 import com.mirage.todolist.view.todolist.TodolistActivity
 import kotlinx.coroutines.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import kotlin.math.abs
 
 private const val TAP_HINT_TEXT_ANIMATION_DURATION = 4000L
@@ -33,6 +38,9 @@ class LockScreenActivity : AppCompatActivity() {
 
     private lateinit var sharedPreferences: SharedPreferences
     private val coroutineScope = lifecycleScope
+    private lateinit var executor: ExecutorService
+    private lateinit var biometricPrompt: BiometricPrompt
+    private lateinit var promptInfo: BiometricPrompt.PromptInfo
 
     //TODO inject
     private val todolistModel: TodolistModel = getTodolistModel()
@@ -45,6 +53,7 @@ class LockScreenActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        executor = Executors.newSingleThreadExecutor()
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         processProtectionPreference()
         processThemePreference()
@@ -120,6 +129,64 @@ class LockScreenActivity : AppCompatActivity() {
         }
     }
 
+    private fun initializeFingerprintScreen() {
+        // If fingerprint was deleted from device, don't require it
+        val fingerprintManager = FingerprintManagerCompat.from(this)
+        if (!fingerprintManager.isHardwareDetected || !fingerprintManager.hasEnrolledFingerprints()) {
+            initializeSplashScreen()
+            sharedPreferences.edit()
+                .putString(SettingsKeys.SET_PROTECTION_KEY, SettingsKeys.PROTECTION_NONE_KEY)
+                .apply()
+            return
+        }
+        setContentView(R.layout.lockscreen_fingerprint)
+        val rootLayout: ConstraintLayout = findViewById(R.id.fingerprint_root)
+        rootLayout.setOnClickListener {
+            requireFingerprint()
+        }
+        val hintText: TextView = findViewById(R.id.fingerprint_subtitle)
+        val startTime = System.currentTimeMillis()
+        coroutineScope.launch {
+            while (true) {
+                val time = System.currentTimeMillis() - startTime
+                val progress = (time % TAP_HINT_TEXT_ANIMATION_DURATION).toFloat() / TAP_HINT_TEXT_ANIMATION_DURATION.toFloat()
+                val loopedProgress = abs(0.5f - progress) * 2f
+                hintText.alpha = loopedProgress
+                delay(40L)
+            }
+        }
+        val callback = object : BiometricPrompt.AuthenticationCallback() {
+
+            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                super.onAuthenticationSucceeded(result)
+                openTodolist()
+            }
+
+            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                super.onAuthenticationError(errorCode, errString)
+                when (errorCode) {
+                    BiometricPrompt.ERROR_HW_NOT_PRESENT, BiometricPrompt.ERROR_HW_UNAVAILABLE -> {
+                        showToast(R.string.protection_create_fingerprint_not_supported)
+                    }
+                }
+            }
+        }
+        biometricPrompt = BiometricPrompt(this, executor, callback)
+        val title = resources.getString(R.string.lockscreen_fingerprint_dialog_title)
+        val description = resources.getString(R.string.lockscreen_fingerprint_dialog_description)
+        val cancel = resources.getString(R.string.lockscreen_fingerprint_dialog_cancel)
+        promptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle(title)
+            .setDescription(description)
+            .setNegativeButtonText(cancel)
+            .build()
+        requireFingerprint()
+    }
+
+    private fun requireFingerprint() {
+        biometricPrompt.authenticate(promptInfo)
+    }
+
     private fun confirmPassword(passwordInput: EditText) {
         val input = passwordInput.text.toString()
         val inputHash = PasswordValidator.getSHA256(input)
@@ -153,6 +220,9 @@ class LockScreenActivity : AppCompatActivity() {
             }
             SettingsKeys.PROTECTION_PASSWORD_KEY -> {
                 initializePasswordScreen()
+            }
+            SettingsKeys.PROTECTION_FINGERPRINT_KEY -> {
+                initializeFingerprintScreen()
             }
             else -> {
                 sharedPreferences.edit()
@@ -188,5 +258,11 @@ class LockScreenActivity : AppCompatActivity() {
                     .apply()
             }
         }
+    }
+
+    override fun onDestroy() {
+        println("shitdown")
+        executor.shutdown()
+        super.onDestroy()
     }
 }

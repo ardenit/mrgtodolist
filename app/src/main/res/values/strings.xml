@@ -52,6 +52,8 @@
     <string name="protection_create_graphical_title">Add graphical key</string>
     <string name="protection_create_graphical_empty">Graphical key must not be empty</string>
     <string name="protection_create_graphical_simple">Graphical key is too simple</string>
+    <string name="protection_create_fingerprint_not_supported">@string/fingerprint_error_hw_not_present</string>
+    <string name="protection_create_fingerprint_none">@string/fingerprint_error_no_fingerprints</string>
 
     <string name="protection_result_none">Lock screen protection disabled</string>
     <string name="protection_result_tap">Tap is now required to unlock</string>
@@ -62,10 +64,14 @@
     <string name="lockscreen_tap_to_unlock">Tap screen to unlock</string>
     <string name="lockscreen_enter_graphical">Enter graphical key to unlock</string>
     <string name="lockscreen_enter_password">Enter password to unlock</string>
-    <string name="lockscreen_use_fingerprint">Touch screen to unlock</string>
+    <string name="lockscreen_use_fingerprint">Use fingerprint to unlock</string>
+    <string name="lockscreen_use_fingerprint_subtitle">Tap screen to open fingerprint input dialog</string>
     <string name="lockscreen_password_hint">Password</string>
     <string name="lockscreen_password_btn">Enter</string>
     <string name="lockscreen_password_wrong">Wrong password</string>
+    <string name="lockscreen_fingerprint_dialog_title">Use fingerprint</string>
+    <string name="lockscreen_fingerprint_dialog_description">Touch the fingerprint reader on your device to continue</string>
+    <string name="lockscreen_fingerprint_dialog_cancel">Cancel</string>
 
     <string name="settings_sync_status_no_sync">Synchronization not configured</string>
     <string name="settings_sync_status_ok">Synchronization enabled with account </string>

@@ -1,6 +1,7 @@
 package com.mirage.todolist.view.settings
 
 import android.content.SharedPreferences
+import android.hardware.biometrics.BiometricPrompt
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -14,6 +15,7 @@ import com.mirage.todolist.view.settings.SettingsKeys.PROTECTION_PASSWORD_HASH_K
 import com.mirage.todolist.view.settings.SettingsKeys.PROTECTION_PASSWORD_KEY
 import com.mirage.todolist.view.settings.SettingsKeys.PROTECTION_TAP_KEY
 import com.mirage.todolist.view.settings.SettingsKeys.SET_PROTECTION_KEY
+import java.util.concurrent.Executors
 
 class ProtectionSettingsFragment : PreferenceFragmentCompat() {
 
@@ -54,7 +56,7 @@ class ProtectionSettingsFragment : PreferenceFragmentCompat() {
                 onOptionSelected?.invoke(PROTECTION_GRAPHICAL_KEY)
             }
             PROTECTION_FINGERPRINT_KEY -> {
-
+                onOptionSelected?.invoke(PROTECTION_FINGERPRINT_KEY)
             }
             else -> {
                 return super.onPreferenceTreeClick(preference)
