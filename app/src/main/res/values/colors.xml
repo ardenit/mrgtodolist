@@ -11,6 +11,10 @@
     <color name="black">#FF000000</color>
     <color name="white_transparent">#66FFFFFF</color>
 
+    <color name="app_icon_book_cover">#7F3300</color>
+    <color name="app_icon_book_page_dark">#D6C26B</color>
+    <color name="app_icon_book_page_light">#FFE97F</color>
+
     <color name="tasklist_background">@android:color/background_light</color>
     <color name="primary_text">@android:color/black</color>
     <color name="secondary_text">@android:color/darker_gray</color>

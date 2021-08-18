@@ -1,0 +1,45 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="86"
+    android:viewportHeight="86">
+
+    <path
+        android:fillColor="@color/app_icon_book_cover"
+        android:pathData="m 44.17956,4.20462 0.44755,-5.88791 -22.979712,38.93376 -5.957826,34.67354 4.048197,-2.87809 z"
+        android:strokeLineJoin="round" />
+    <path
+        android:fillColor="@color/app_icon_book_cover"
+        android:pathData="m 73.02662,42.99176 3.92886,0.72497 -21.56431,38.57637 -34.223332,-5.57995 1.967838,-3.40651 z"
+        android:strokeLineJoin="round" />
+    <path
+        android:fillColor="@color/app_icon_book_cover"
+        android:pathData="m 15.689572,71.92401 c -0.151412,2.94708 1.400021,4.18774 5.478266,4.78914 l 4.266406,-7.22643 -5.866024,-0.32387 z"
+        android:strokeLineJoin="round" />
+
+    <path
+        android:fillColor="@color/app_icon_book_page_dark"
+        android:pathData="m 53.37201,74.92322 -0.14171,5.15887 -30.109578,-5.0514 0.05578,-4.37492 z"
+        android:strokeLineJoin="round" />
+    <path
+        android:fillColor="@color/app_icon_book_page_dark"
+        android:pathData="m 53.37201,74.92322 -0.14171,5.15887 19.87855,-35.1024 -0.13229,-4.96094 z"
+        android:strokeLineJoin="round" />
+    <path
+        android:fillColor="@color/app_icon_book_page_dark"
+        android:pathData="m 23.176501,70.65577 -4.662839,-1.6353 5.004623,-30.00435 4.607057,1.16931 z"
+        android:strokeLineJoin="round" />
+    <path
+        android:fillColor="@color/app_icon_book_page_dark"
+        android:pathData="m 28.125342,40.18543 -4.607057,-1.16931 19.957235,-35.04685 4.8554,1.27735 z"
+        android:strokeLineJoin="round" />
+
+    <path
+        android:fillColor="@color/app_icon_book_page_light"
+        android:pathData="m 23.176504,70.65577 30.195506,4.26745 19.60455,-34.90447 -29.96406,-4.89479 z"
+        android:strokeLineJoin="round" />
+    <path
+        android:fillColor="@color/app_icon_book_page_light"
+        android:pathData="m 43.0125,35.12396 5.31842,-29.87734 -20.205578,34.93881 -4.948838,30.47034 z"
+        android:strokeLineJoin="round" />
+</vector>

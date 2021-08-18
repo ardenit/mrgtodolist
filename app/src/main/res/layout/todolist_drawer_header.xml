@@ -18,8 +18,8 @@
         android:layout_height="100dp"
         android:contentDescription="@string/nav_header_desc"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:src="@mipmap/mrgtodolist"
-        app:srcCompat="@mipmap/mrgtodolist" />
+        android:src="@drawable/mirage_todo_app_icon"
+        app:srcCompat="@drawable/mirage_todo_app_icon" />
 
     <TextView
         android:layout_width="match_parent"
