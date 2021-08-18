@@ -51,6 +51,7 @@
     <string name="protection_create_graphical_btn">Save key</string>
     <string name="protection_create_graphical_title">Add graphical key</string>
     <string name="protection_create_graphical_empty">Graphical key must not be empty</string>
+    <string name="protection_create_graphical_simple">Graphical key is too simple</string>
 
     <string name="protection_result_none">Lock screen protection disabled</string>
     <string name="protection_result_tap">Tap is now required to unlock</string>

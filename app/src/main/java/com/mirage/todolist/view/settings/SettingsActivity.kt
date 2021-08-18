@@ -4,10 +4,8 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.FragmentManager
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.PreferenceScreen
 import com.mirage.todolist.R
 
 enum class SettingsScreen {
@@ -20,7 +18,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
 
     private lateinit var settingsFragment: SettingsFragment
     private var protectionFragment: ProtectionSettingsFragment? = null
-    private lateinit var graphicalKeyFragment: GraphicalKeyFragment
+    private var graphicalKeyFragment: GraphicalKeyFragment? = null
     private var settingsScreen = SettingsScreen.ROOT
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,10 +82,15 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
 
     private fun openGraphicalKeyFragment() {
         settingsScreen = SettingsScreen.GRAPHICAL_KEY
-        graphicalKeyFragment = GraphicalKeyFragment()
-        graphicalKeyFragment.setTargetFragment(protectionFragment, 0)
+        graphicalKeyFragment = graphicalKeyFragment ?: GraphicalKeyFragment()
+        graphicalKeyFragment!!.setTargetFragment(protectionFragment, 0)
+        graphicalKeyFragment!!.onPatternConfirm = {
+            onBackPressed()
+            settingsFragment.updateSummaries()
+            Toast.makeText(this, R.string.protection_result_graphical, Toast.LENGTH_SHORT).show()
+        }
         supportFragmentManager.beginTransaction()
-            .replace(R.id.settings, graphicalKeyFragment)
+            .replace(R.id.settings, graphicalKeyFragment!!)
             .addToBackStack(null)
             .commit()
         supportActionBar?.setTitle(R.string.protection_create_graphical_title)
@@ -108,10 +111,14 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
                 settingsScreen = SettingsScreen.ROOT
             }
             SettingsScreen.GRAPHICAL_KEY -> {
+                graphicalKeyFragment!!.clear()
                 supportActionBar?.setTitle(R.string.protection_action_bar_title)
                 settingsScreen = SettingsScreen.PROTECTION
             }
         }
         super.onBackPressed()
+        if (settingsScreen == SettingsScreen.PROTECTION) {
+            onBackPressed()
+        }
     }
 }
