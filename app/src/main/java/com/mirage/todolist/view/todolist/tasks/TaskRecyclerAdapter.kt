@@ -1,4 +1,4 @@
-package com.mirage.todolist.view.recycler
+package com.mirage.todolist.view.todolist.tasks
 
 import android.content.Context
 import android.graphics.drawable.GradientDrawable
@@ -10,13 +10,11 @@ import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.coroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.ChipGroup
 import com.mirage.todolist.R
 import com.mirage.todolist.viewmodel.TasklistType
 import com.mirage.todolist.viewmodel.TasklistViewModel
-import kotlinx.coroutines.*
 
 const val STROKE_WIDTH = 8
 
@@ -24,7 +22,7 @@ class TasklistRecyclerAdapter(
     private val context: Context,
     private val viewModel: TasklistViewModel,
     private val lifecycleOwner: LifecycleOwner
-) : RecyclerView.Adapter<TasklistRecyclerAdapter.TasklistViewHolder>(), ItemTouchHelperAdapter {
+) : RecyclerView.Adapter<TasklistRecyclerAdapter.TasklistViewHolder>() {
 
     inner class TasklistViewHolder(itemView: View, tasklistType: TasklistType) : RecyclerView.ViewHolder(itemView) {
 
@@ -92,17 +90,17 @@ class TasklistRecyclerAdapter(
 
     override fun getItemCount(): Int = viewModel.getTaskCount()
 
-    override fun onItemMove(fromPosition: Int, toPosition: Int) {
+    fun onItemMove(fromPosition: Int, toPosition: Int) {
         viewModel.dragTask(fromPosition, toPosition)
         notifyItemMoved(fromPosition, toPosition)
     }
 
-    override fun onItemSwipeLeft(position: Int) {
+    fun onItemSwipeLeft(position: Int) {
         viewModel.swipeTaskLeft(position)
         notifyItemRemoved(position)
     }
 
-    override fun onItemSwipeRight(position: Int) {
+    fun onItemSwipeRight(position: Int) {
         viewModel.swipeTaskRight(position)
         notifyItemRemoved(position)
     }

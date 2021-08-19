@@ -1,4 +1,4 @@
-package com.mirage.todolist.view.recycler
+package com.mirage.todolist.view.todolist.tasks
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,21 +6,23 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.mirage.todolist.databinding.TodolistContentFragmentBinding
+import com.mirage.todolist.databinding.TaskRecyclerRootFragmentBinding
 import com.mirage.todolist.viewmodel.*
 
-class TasklistFragment : Fragment() {
+/**
+ * Container for a single tasklist (e.g. archived, completed, current tasks) inside [TasksFragment]
+ */
+class TaskRecyclerFragment : Fragment() {
 
     private lateinit var tasklistViewModel: TasklistViewModel
     private lateinit var recycler: RecyclerView
     private lateinit var recyclerAdapter: TasklistRecyclerAdapter
     private lateinit var itemTouchHelper: ItemTouchHelper
 
-    private var _binding: TodolistContentFragmentBinding? = null
+    private var _binding: TaskRecyclerRootFragmentBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,7 +37,7 @@ class TasklistFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = TodolistContentFragmentBinding.inflate(inflater, container, false)
+        _binding = TaskRecyclerRootFragmentBinding.inflate(inflater, container, false)
         val root = binding.root
         initializeRecycler()
         return root
@@ -70,8 +72,8 @@ class TasklistFragment : Fragment() {
          * number.
          */
         @JvmStatic
-        fun newInstance(sectionNumber: Int): TasklistFragment {
-            return TasklistFragment().apply {
+        fun newInstance(sectionNumber: Int): TaskRecyclerFragment {
+            return TaskRecyclerFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_SECTION_NUMBER, sectionNumber)
                 }

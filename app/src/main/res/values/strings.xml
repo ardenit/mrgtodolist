@@ -19,6 +19,14 @@
     <string name="footer_todo_btn">TODO</string>
     <string name="footer_done_btn">Done</string>
 
+    <string name="tags_new_tag_btn">New tag</string>
+    <string name="tags_title">Tags</string>
+    <string name="tags_rename_tag_option">Rename</string>
+    <string name="tags_recolor_tag_option">Change color</string>
+    <string name="tags_delete_tag_option">Delete tag</string>
+    <string name="tags_search_tag_option">Search for tasks</string>
+    <string name="tags_cancel_option">Cancel</string>
+
     <string name="drawer_btn_tasks">Tasks</string>
     <string name="drawer_btn_tags">Tags</string>
     <string name="drawer_btn_settings">Settings</string>

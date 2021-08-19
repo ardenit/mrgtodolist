@@ -13,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.biometric.BiometricPrompt
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
 import androidx.core.hardware.fingerprint.FingerprintManagerCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
@@ -21,8 +20,8 @@ import com.andrognito.patternlockview.PatternLockView
 import com.andrognito.patternlockview.listener.PatternLockViewListener
 import com.andrognito.patternlockview.utils.PatternLockUtils
 import com.mirage.todolist.R
-import com.mirage.todolist.model.TodolistModel
-import com.mirage.todolist.model.getTodolistModel
+import com.mirage.todolist.model.tasks.TodolistModel
+import com.mirage.todolist.model.tasks.getTodolistModel
 import com.mirage.todolist.view.settings.PasswordValidator
 import com.mirage.todolist.view.settings.SettingsKeys
 import com.mirage.todolist.view.settings.showToast
@@ -261,7 +260,6 @@ class LockScreenActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        println("shitdown")
         executor.shutdown()
         super.onDestroy()
     }

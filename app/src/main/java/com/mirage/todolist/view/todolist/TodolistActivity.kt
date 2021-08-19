@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.Toast
@@ -12,49 +13,36 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
 import com.google.android.gms.auth.GoogleAuthUtil
 import com.google.android.gms.common.AccountPicker
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
+import com.google.android.material.navigation.NavigationView
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAuthIOException
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
-import com.mikepenz.materialdrawer.model.DividerDrawerItem
-import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
-import com.mikepenz.materialdrawer.model.SecondaryDrawerItem
-import com.mikepenz.materialdrawer.model.interfaces.iconRes
-import com.mikepenz.materialdrawer.model.interfaces.nameRes
-import com.mikepenz.materialdrawer.util.addItems
-import com.mikepenz.materialdrawer.widget.MaterialDrawerSliderView
 import com.mirage.todolist.R
-import com.mirage.todolist.view.recycler.TasklistFragment
-import com.mirage.todolist.viewmodel.TasklistType
 import com.mirage.todolist.model.gdrive.GDriveConnectExceptionHandler
+import com.mirage.todolist.model.tasks.TodolistModel
 import com.mirage.todolist.model.tasks.getTodolistModel
 import com.mirage.todolist.view.settings.SettingsActivity
+import com.mirage.todolist.view.todolist.tags.TagsFragment
+import com.mirage.todolist.view.todolist.tasks.TasksFragment
 
 
-class TodolistActivity : AppCompatActivity() {
+class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var toolbar: Toolbar
     private lateinit var drawerLayout: DrawerLayout
-    private lateinit var drawerSlider: MaterialDrawerSliderView
-
-    private lateinit var tasksDrawerItem: PrimaryDrawerItem
-    private lateinit var tagsDrawerItem: PrimaryDrawerItem
-    private lateinit var settingsDrawerItem: SecondaryDrawerItem
+    private lateinit var navigationView: NavigationView
 
     private lateinit var sharedPreferences: SharedPreferences
 
+    private lateinit var contentContainer: FrameLayout
+    private lateinit var tasksFragment: TasksFragment
+    private lateinit var tagsFragment: TagsFragment
+
     //TODO Inject
-    private val todolistModel = getTodolistModel()
+    private val todolistModel: TodolistModel = getTodolistModel()
 
     /**
      * Activity result launcher for Google Drive synchronization account picker screen
@@ -105,9 +93,14 @@ class TodolistActivity : AppCompatActivity() {
         initializePreferences()
         initializeDrawer()
         initializeToolbar()
-        initializeViewPager()
-        val btn: FloatingActionButton = findViewById(R.id.todolist_new_task_btn)
-        btn.setOnClickListener(::onGDriveSyncBtnPressed)
+        contentContainer = findViewById(R.id.act_main_content)
+        tasksFragment = TasksFragment()
+        tagsFragment = TagsFragment()
+        supportFragmentManager.beginTransaction()
+            .add(R.id.act_main_content, tasksFragment)
+            .add(R.id.act_main_content, tagsFragment)
+            .hide(tagsFragment)
+            .commit()
         if (activityInstancesCount != 0) {
             finish()
         }
@@ -136,6 +129,7 @@ class TodolistActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("nav_drawer_opened", drawerLayout.isOpen)
+        outState.putInt("nav_drawer_option", navigationView.checkedItem?.itemId ?: 0)
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
@@ -144,11 +138,48 @@ class TodolistActivity : AppCompatActivity() {
         if (navDrawerOpened) {
             drawerLayout.open()
         }
+        val navDrawerCheckedItemId = savedInstanceState.getInt("nav_drawer_option", 0)
+        navigationView.setCheckedItem(navDrawerCheckedItemId)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_activity_main, menu)
+        menuInflater.inflate(R.menu.tasks_toolbar_menu, menu)
         return true
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.nav_item_tasks -> {
+                openTasksSubscreen()
+            }
+            R.id.nav_item_tags -> {
+                openTagsSubscreen()
+            }
+            R.id.nav_item_settings -> {
+                openSettings()
+            }
+        }
+        return true
+    }
+
+    private fun openTasksSubscreen() {
+        supportFragmentManager.beginTransaction()
+            .hide(tagsFragment)
+            .show(tasksFragment)
+            .commit()
+        toolbar.title = resources.getString(R.string.drawer_btn_tasks)
+        toolbar.menu.getItem(0).isVisible = true
+        drawerLayout.close()
+    }
+
+    private fun openTagsSubscreen() {
+        supportFragmentManager.beginTransaction()
+            .hide(tasksFragment)
+            .show(tagsFragment)
+            .commit()
+        toolbar.title = resources.getString(R.string.drawer_btn_tags)
+        toolbar.menu.getItem(0).isVisible = false
+        drawerLayout.close()
     }
 
     private fun onResultFromAccPicker(result: ActivityResult) {
@@ -192,32 +223,10 @@ class TodolistActivity : AppCompatActivity() {
 
     private fun initializeDrawer() {
         drawerLayout = findViewById(R.id.act_main_root_layout)
-        drawerSlider = findViewById(R.id.act_main_nav_slider)
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-        drawerSlider.headerView = object : FrameLayout(this) {
-            init {
-                inflate(context, R.layout.todolist_drawer_header, this)
-            }
-        }
-        tasksDrawerItem = PrimaryDrawerItem().apply {
-            nameRes = R.string.drawer_btn_tasks
-            iconRes = R.drawable.ic_drawer_tasks
-        }
-        tagsDrawerItem = PrimaryDrawerItem().apply {
-            nameRes = R.string.drawer_btn_tags
-            iconRes = R.drawable.ic_drawer_tags
-        }
-        settingsDrawerItem = SecondaryDrawerItem().apply {
-            nameRes = R.string.drawer_btn_settings
-            iconRes = R.drawable.ic_drawer_settings
-            isSelectable = false
-        }
-        settingsDrawerItem.onDrawerItemClickListener = { _, _, _ ->
-            openSettings()
-            true
-        }
-        drawerSlider.addItems(tasksDrawerItem, tagsDrawerItem, DividerDrawerItem(), settingsDrawerItem)
-        drawerSlider.selectedItemPosition = 0
+        navigationView = findViewById(R.id.act_main_navigation_view)
+        navigationView.setNavigationItemSelectedListener(this)
+        navigationView.setCheckedItem(R.id.nav_item_tasks)
     }
 
     private fun initializeToolbar() {
@@ -228,42 +237,6 @@ class TodolistActivity : AppCompatActivity() {
         toolbar.setNavigationOnClickListener {
             drawerLayout.open()
         }
-    }
-
-    private fun initializeViewPager() {
-        val viewPager: ViewPager2 = findViewById(R.id.view_pager)
-        viewPager.offscreenPageLimit = TasklistType.typesCount
-        viewPager.adapter = object : FragmentStateAdapter(supportFragmentManager, lifecycle) {
-
-            override fun getItemCount(): Int {
-                return TasklistType.typesCount
-            }
-
-            override fun createFragment(position: Int): Fragment {
-                return TasklistFragment.newInstance(position)
-            }
-
-        }
-        if (viewPager.currentItem != 1) {
-            viewPager.setCurrentItem(1, false)
-        }
-        viewPager.isUserInputEnabled = false
-        val tabs: TabLayout = findViewById(R.id.tabs)
-        tabs.setSelectedTabIndicatorColor(ContextCompat.getColor(this, R.color.light_orange))
-        tabs.setTabTextColors(ContextCompat.getColor(this, R.color.light_grey),
-            ContextCompat.getColor(this, R.color.light_orange))
-        TabLayoutMediator(tabs, viewPager, true, true) { tab, position ->
-            val type = TasklistType.getType(position)
-            tab.setText(type.title)
-            tab.setIcon(type.icon)
-            tab.icon?.let {
-                val colorStateList = ContextCompat.getColorStateList(this,
-                    R.color.todolist_footer_btn_color
-                )
-                val coloredIcon = DrawableCompat.wrap(it)
-                DrawableCompat.setTintList(coloredIcon, colorStateList)
-            }
-        }.attach()
     }
 
     companion object {

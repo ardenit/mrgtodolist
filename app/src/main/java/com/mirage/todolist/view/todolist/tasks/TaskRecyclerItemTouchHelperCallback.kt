@@ -1,4 +1,4 @@
-package com.mirage.todolist.view.recycler
+package com.mirage.todolist.view.todolist.tasks
 
 import android.graphics.Canvas
 import android.graphics.Color
@@ -14,7 +14,7 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 class TasklistItemTouchHelperCallback(
-    private val adapter: ItemTouchHelperAdapter,
+    private val adapter: TasklistRecyclerAdapter,
     private val tasklistID: Int
 ) : ItemTouchHelper.Callback() {
 

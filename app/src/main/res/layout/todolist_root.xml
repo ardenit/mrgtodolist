@@ -14,13 +14,19 @@
         android:orientation="vertical">
 
         <include layout="@layout/todolist_toolbar"/>
-        <include layout="@layout/todolist_body"/>
+
+        <FrameLayout
+            android:id="@+id/act_main_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </LinearLayout>
 
-    <com.mikepenz.materialdrawer.widget.MaterialDrawerSliderView
-        android:id="@+id/act_main_nav_slider"
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/act_main_navigation_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:fitsSystemWindows="true" />
+        android:fitsSystemWindows="true"
+        app:menu="@menu/todolist_nav_drawer_menu"
+        app:headerLayout="@layout/todolist_drawer_header"/>
 </androidx.drawerlayout.widget.DrawerLayout>
