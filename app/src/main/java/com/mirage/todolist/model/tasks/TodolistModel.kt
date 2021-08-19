@@ -1,11 +1,7 @@
-package com.mirage.todolist.model
+package com.mirage.todolist.model.tasks
 
 import android.content.Context
-import com.google.android.gms.tasks.Task
 import com.mirage.todolist.model.gdrive.GDriveConnectExceptionHandler
-import com.mirage.todolist.viewmodel.LiveTask
-import com.mirage.todolist.viewmodel.TasklistType
-import com.mirage.todolist.viewmodel.TaskID
 
 //TODO Inject
 private val todolistModelInstance: TodolistModel = TodolistModelImpl()
@@ -13,7 +9,11 @@ fun getTodolistModel(): TodolistModel = todolistModelInstance
 
 typealias OnNewTaskListener = (newTask: LiveTask) -> Unit
 typealias OnMoveTaskListener = (task: LiveTask, oldTasklistID: Int, newTasklistID: Int, oldTaskIndex: Int, newTaskIndex: Int) -> Unit
-typealias OnFullUpdateListener = (newTasks: Map<TaskID, LiveTask>) -> Unit
+typealias OnFullUpdateTaskListener = (newTasks: Map<TaskID, LiveTask>) -> Unit
+
+typealias OnNewTagListener = (newTag: LiveTag) -> Unit
+typealias OnRemoveTagListener = (tag: LiveTag, tagIndex: Int) -> Unit
+typealias OnFullUpdateTagListener = (newTags: Map<TagID, LiveTag>) -> Unit
 
 interface TodolistModel {
 
@@ -57,7 +57,7 @@ interface TodolistModel {
      * (actually just moves to hidden tasklist to simplify diff calculation).
      * This method automatically updates "last modified" time.
      */
-    fun deleteTask(taskID: TaskID)
+    fun removeTask(taskID: TaskID)
 
     /**
      * Moves the task with ID [taskID] to another tasklist.
@@ -81,6 +81,11 @@ interface TodolistModel {
     fun getAllTasks(): Map<TaskID, LiveTask>
 
     /**
+     * Returns a map of all tags
+     */
+    fun getAllTags(): Map<TagID, LiveTag>
+
+    /**
      * Adds a listener for new task event
      */
     fun addOnNewTaskListener(listener: OnNewTaskListener)
@@ -98,8 +103,19 @@ interface TodolistModel {
      * Adds a listener for tasklist update events coming from model independently from user actions
      * (i.e. updates performed on another device using the same Google Drive account).
      */
-    fun addOnFullUpdateListener(listener: OnFullUpdateListener)
+    fun addOnFullUpdateTaskListener(listener: OnFullUpdateTaskListener)
 
-    fun removeOnFullUpdateListener(listener: OnFullUpdateListener)
+    fun removeOnFullUpdateTaskListener(listener: OnFullUpdateTaskListener)
 
+    fun addOnNewTagListener(listener: OnNewTagListener)
+
+    fun removeOnNewTagListener(listener: OnNewTagListener)
+
+    fun addOnRemoveTagListener(listener: OnRemoveTagListener)
+
+    fun removeOnRemoveTagListener(listener: OnRemoveTagListener)
+
+    fun addOnFullUpdateTagListener(listener: OnFullUpdateTagListener)
+
+    fun removeOnFullUpdateTagListener(listener: OnFullUpdateTagListener)
 }

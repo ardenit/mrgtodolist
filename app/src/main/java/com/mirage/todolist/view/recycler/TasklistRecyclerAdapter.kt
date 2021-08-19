@@ -5,19 +5,20 @@ import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.coroutineScope
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.chip.ChipGroup
 import com.mirage.todolist.R
 import com.mirage.todolist.viewmodel.TasklistType
 import com.mirage.todolist.viewmodel.TasklistViewModel
 import kotlinx.coroutines.*
 
 const val STROKE_WIDTH = 8
-private const val RECYCLER_REMOVAL_DELAY = 1000L
 
 class TasklistRecyclerAdapter(
     private val context: Context,
@@ -29,6 +30,11 @@ class TasklistRecyclerAdapter(
 
         val taskTitleView: TextView = itemView.findViewById(R.id.task_title)
         val taskDescriptionView: TextView = itemView.findViewById(R.id.task_description)
+        val taskDatetimeView: TextView = itemView.findViewById(R.id.task_datetime)
+        val taskPlaceView: TextView = itemView.findViewById(R.id.task_place)
+        val taskTags: ChipGroup = itemView.findViewById(R.id.task_tags)
+        //TODO Start drag and swipe manually on click to layout to prevent dragging after btn press
+        val taskEditBtn: ImageButton = itemView.findViewById(R.id.task_edit_btn)
         val background: GradientDrawable = itemView.background.current as GradientDrawable
 
         @ColorInt val strokeColor = ContextCompat.getColor(context, tasklistType.strokeColor)
@@ -93,13 +99,11 @@ class TasklistRecyclerAdapter(
 
     override fun onItemSwipeLeft(position: Int) {
         viewModel.swipeTaskLeft(position)
-        println("SWIPE LEFT $position")
         notifyItemRemoved(position)
     }
 
     override fun onItemSwipeRight(position: Int) {
         viewModel.swipeTaskRight(position)
-        println("SWIPE RIGHT $position")
         notifyItemRemoved(position)
     }
 }

@@ -2,8 +2,10 @@ package com.mirage.todolist.viewmodel
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
-import com.mirage.todolist.model.OnFullUpdateListener
-import com.mirage.todolist.model.OnNewTaskListener
+import com.mirage.todolist.model.tasks.LiveTask
+import com.mirage.todolist.model.tasks.OnFullUpdateTaskListener
+import com.mirage.todolist.model.tasks.OnNewTaskListener
+import com.mirage.todolist.model.tasks.TaskID
 
 typealias OnRemoveTaskListener = (task: LiveTask, taskIndex: Int) -> Unit
 
@@ -13,10 +15,9 @@ typealias OnRemoveTaskListener = (task: LiveTask, taskIndex: Int) -> Unit
 abstract class TasklistViewModel : ViewModel() {
 
     /**
-     * [parentViewModel] - [TodolistViewModel] of todolist activity to which this tasklist is bound
      * [tasklistID] - id of tasklist processed by this view model
      */
-    abstract fun init(parentViewModel: TodolistViewModel, tasklistID: Int)
+    abstract fun init(tasklistID: Int)
 
     /**
      * Returns the ID of a tasklist associated with this viewmodel
@@ -52,7 +53,7 @@ abstract class TasklistViewModel : ViewModel() {
      * Registers a listener for full tasklist overwrite event
      * This event may happen after synchronization with Google Drive
      */
-    abstract fun addOnFullTasklistUpdateListener(owner: LifecycleOwner, listener: OnFullUpdateListener)
+    abstract fun addOnFullTasklistUpdateListener(owner: LifecycleOwner, listener: OnFullUpdateTaskListener)
 
     /**
      * Returns a [LiveTask] with a given [taskID], or null if there is no task with this ID

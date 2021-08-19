@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:layout_weight="1">
+            android:layout_weight="2">
 
         </com.google.android.material.chip.ChipGroup>
 
@@ -67,7 +67,7 @@
         android:textSize="16sp"
         app:drawableStartCompat="@drawable/baseline_event_24"
         app:layout_constraintBottom_toTopOf="@id/task_place"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/task_edit_btn"
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
@@ -82,7 +82,7 @@
         android:textSize="16sp"
         app:drawableStartCompat="@drawable/baseline_place_24"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/task_edit_btn"
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageButton
@@ -95,6 +95,7 @@
         android:contentDescription="@string/task_edit_btn"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/edit_round_btn" />
+        app:srcCompat="@drawable/edit_round_btn"
+        tools:ignore="ImageContrastCheck" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -25,10 +25,9 @@ class TasklistFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val parentViewModel = ViewModelProvider(this.requireActivity()).get(TodolistViewModelImpl::class.java)
         tasklistViewModel = ViewModelProvider(this).get(TasklistViewModelImpl::class.java).apply {
             val tasklistID = arguments?.getInt(ARG_SECTION_NUMBER) ?: 1
-            init(parentViewModel, tasklistID)
+            init(tasklistID)
         }
     }
 

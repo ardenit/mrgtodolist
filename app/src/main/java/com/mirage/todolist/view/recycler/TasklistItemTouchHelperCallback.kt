@@ -125,7 +125,7 @@ class TasklistItemTouchHelperCallback(
 }
 
 @ColorInt
-fun progressedColor(@ColorInt startColor: Int, @ColorInt endColor: Int, progress: Float): Int {
+private fun progressedColor(@ColorInt startColor: Int, @ColorInt endColor: Int, progress: Float): Int {
     val r = progressedValue(startColor.red, endColor.red, progress)
     val g = progressedValue(startColor.green, endColor.green, progress)
     val b = progressedValue(startColor.blue, endColor.blue, progress)

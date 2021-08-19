@@ -1,18 +1,13 @@
-package com.mirage.todolist.model
+package com.mirage.todolist.model.tasks
 
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import com.mirage.todolist.model.gdrive.GDriveConnectExceptionHandler
 import com.mirage.todolist.model.gdrive.GDriveRestApi
-import com.mirage.todolist.viewmodel.LiveTask
-import com.mirage.todolist.viewmodel.MutableLiveTask
-import com.mirage.todolist.viewmodel.TaskID
-import com.mirage.todolist.viewmodel.TasklistType
 import java.util.*
-import kotlin.collections.HashMap
-import kotlin.collections.HashSet
 import kotlin.collections.LinkedHashMap
+import kotlin.collections.LinkedHashSet
 
 private const val ACC_NAME_KEY = "account_name"
 private const val HIDDEN_TASKLIST_ID = -1
@@ -30,10 +25,15 @@ class TodolistModelImpl: TodolistModel {
     /** Local cache for tasks, key is task's unique taskID */
     private var localTasks: MutableMap<TaskID, MutableLiveTask> = LinkedHashMap()
     private val tasklistSizes: MutableMap<Int, Int> = LinkedHashMap()
-
     private val onNewTaskListeners: MutableSet<OnNewTaskListener> = LinkedHashSet()
     private val onMoveTaskListeners: MutableSet<OnMoveTaskListener> = LinkedHashSet()
-    private val onFullUpdateListeners: MutableSet<OnFullUpdateListener> = LinkedHashSet()
+    private val onFullUpdateTaskListeners: MutableSet<OnFullUpdateTaskListener> = LinkedHashSet()
+
+    /** Local cache for tags, key is tag's unique TagID */
+    private var localTags: MutableMap<TagID, MutableLiveTag> = LinkedHashMap()
+    private val onNewTagListeners: MutableSet<OnNewTagListener> = LinkedHashSet()
+    private val onRemoveTagListeners: MutableSet<OnRemoveTagListener> = LinkedHashSet()
+    private val onFullUpdateTagListeners: MutableSet<OnFullUpdateTagListener> = LinkedHashSet()
 
     private var initialized = false
 
@@ -44,12 +44,18 @@ class TodolistModelImpl: TodolistModel {
         initialized = true
         gDriveRestApi.init(this.appCtx, email)
 
+        repeat(4) { tagIndex ->
+            val id = UUID.randomUUID()
+            val tag = MutableLiveTag(id, tagIndex, tagIndex.toString().repeat(tagIndex + 1))
+            localTags[id] = tag
+        }
+
         //TODO load tasks from room and start sync with gdrive
         repeat(3) { tasklistID ->
             val tasksCount = 20
             repeat(tasksCount) { taskIndex ->
                 val id = UUID.randomUUID()
-                val task = MutableLiveTask(id, tasklistID, taskIndex, "init $tasklistID $taskIndex", "init $tasklistID $taskIndex")
+                val task = MutableLiveTask(id, tasklistID, taskIndex, "init $tasklistID $taskIndex", "init $tasklistID $taskIndex", localTags.values.toList())
                 localTasks[id] = task
             }
             tasklistSizes[tasklistID] = tasksCount
@@ -71,7 +77,7 @@ class TodolistModelImpl: TodolistModel {
     override fun createNewTask(tasklistID: Int): LiveTask {
         val taskIndex = tasklistSizes[tasklistID] ?: 0
         val taskID = UUID.randomUUID()
-        val task = MutableLiveTask(taskID, tasklistID, taskIndex, "", "")
+        val task = MutableLiveTask(taskID, tasklistID, taskIndex, "", "", listOf())
         tasklistSizes[tasklistID] = taskIndex + 1
         localTasks[taskID] = task
         //TODO room query
@@ -94,7 +100,7 @@ class TodolistModelImpl: TodolistModel {
         }
     }
 
-    override fun deleteTask(taskID: TaskID) {
+    override fun removeTask(taskID: TaskID) {
         moveTask(taskID, HIDDEN_TASKLIST_ID)
     }
 
@@ -144,31 +150,55 @@ class TodolistModelImpl: TodolistModel {
         task.taskIndex = newTaskIndex
     }
 
-    override fun getAllTasks(): Map<TaskID, LiveTask> {
-        return localTasks
-    }
+    override fun getAllTasks(): Map<TaskID, LiveTask> = localTasks
+
+    override fun getAllTags(): Map<TagID, LiveTag> = localTags
 
     override fun addOnNewTaskListener(listener: OnNewTaskListener) {
-        onNewTaskListeners.add(listener)
+        onNewTaskListeners += listener
     }
 
     override fun removeOnNewTaskListener(listener: OnNewTaskListener) {
-        onNewTaskListeners.remove(listener)
+        onNewTaskListeners -= listener
     }
 
     override fun addOnMoveTaskListener(listener: OnMoveTaskListener) {
-        onMoveTaskListeners.add(listener)
+        onMoveTaskListeners += listener
     }
 
     override fun removeOnMoveTaskListener(listener: OnMoveTaskListener) {
-        onMoveTaskListeners.remove(listener)
+        onMoveTaskListeners -= listener
     }
 
-    override fun addOnFullUpdateListener(listener: OnFullUpdateListener) {
-        onFullUpdateListeners.add(listener)
+    override fun addOnFullUpdateTaskListener(listener: OnFullUpdateTaskListener) {
+        onFullUpdateTaskListeners += listener
     }
 
-    override fun removeOnFullUpdateListener(listener: OnFullUpdateListener) {
-        onFullUpdateListeners.remove(listener)
+    override fun removeOnFullUpdateTaskListener(listener: OnFullUpdateTaskListener) {
+        onFullUpdateTaskListeners -= listener
+    }
+
+    override fun addOnNewTagListener(listener: OnNewTagListener) {
+        onNewTagListeners += listener
+    }
+
+    override fun removeOnNewTagListener(listener: OnNewTagListener) {
+        onNewTagListeners -= listener
+    }
+
+    override fun addOnRemoveTagListener(listener: OnRemoveTagListener) {
+        onRemoveTagListeners += listener
+    }
+
+    override fun removeOnRemoveTagListener(listener: OnRemoveTagListener) {
+        onRemoveTagListeners -= listener
+    }
+
+    override fun addOnFullUpdateTagListener(listener: OnFullUpdateTagListener) {
+        onFullUpdateTagListeners += listener
+    }
+
+    override fun removeOnFullUpdateTagListener(listener: OnFullUpdateTagListener) {
+        onFullUpdateTagListeners -= listener
     }
 }

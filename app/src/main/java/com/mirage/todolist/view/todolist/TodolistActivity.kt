@@ -37,7 +37,7 @@ import com.mirage.todolist.R
 import com.mirage.todolist.view.recycler.TasklistFragment
 import com.mirage.todolist.viewmodel.TasklistType
 import com.mirage.todolist.model.gdrive.GDriveConnectExceptionHandler
-import com.mirage.todolist.model.getTodolistModel
+import com.mirage.todolist.model.tasks.getTodolistModel
 import com.mirage.todolist.view.settings.SettingsActivity
 
 
