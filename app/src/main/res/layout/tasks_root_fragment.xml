@@ -9,6 +9,19 @@
     android:gravity="top"
     android:theme="@style/Theme.TodoApp.TodolistActivity">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/tasks_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?android:actionBarSize"
+        android:background="@color/light_blue"
+        app:menu="@menu/tasks_toolbar_menu"
+        app:titleTextColor="@color/white"
+        app:title="@string/drawer_btn_tasks"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
@@ -17,7 +30,7 @@
         app:layout_constraintBottom_toTopOf="@+id/tabs"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tasks_toolbar"
         tools:ignore="SpeakableTextPresentCheck">
 
     </androidx.viewpager2.widget.ViewPager2>

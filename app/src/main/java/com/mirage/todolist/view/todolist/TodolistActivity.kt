@@ -13,10 +13,13 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.get
+import androidx.core.view.isNotEmpty
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.preference.PreferenceManager
 import com.google.android.gms.auth.GoogleAuthUtil
 import com.google.android.gms.common.AccountPicker
+import com.google.android.material.internal.NavigationMenuView
 import com.google.android.material.navigation.NavigationView
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAuthIOException
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
@@ -28,12 +31,14 @@ import com.mirage.todolist.view.settings.SettingsActivity
 import com.mirage.todolist.view.todolist.tags.TagsFragment
 import com.mirage.todolist.view.todolist.tasks.TasksFragment
 
+private const val NAV_VIEW_OPENED_KEY = "nav_view_opened"
+private const val NAV_VIEW_SELECTED_KEY = "nav_view_selected_item"
 
 class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    private lateinit var toolbar: Toolbar
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
+    private var navViewSelectedItem: Int = 0
 
     private lateinit var sharedPreferences: SharedPreferences
 
@@ -92,21 +97,9 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         setContentView(R.layout.todolist_root)
         initializePreferences()
         initializeDrawer()
-        initializeToolbar()
-        contentContainer = findViewById(R.id.act_main_content)
-        tasksFragment = TasksFragment()
-        tagsFragment = TagsFragment()
-        supportFragmentManager.beginTransaction()
-            .add(R.id.act_main_content, tasksFragment)
-            .add(R.id.act_main_content, tagsFragment)
-            .hide(tagsFragment)
-            .commit()
-        if (activityInstancesCount != 0) {
-            finish()
-        }
-        else {
-            ++activityInstancesCount
-        }
+        initializeContentFragments()
+        if (activityInstancesCount != 0) finish()
+        else ++activityInstancesCount
     }
 
     override fun onBackPressed() {
@@ -120,26 +113,30 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         if (activityInstancesCount != 0) {
             --activityInstancesCount
         }
+        super.onDestroy()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putBoolean("nav_drawer_opened", drawerLayout.isOpen)
-        outState.putInt("nav_drawer_option", navigationView.checkedItem?.itemId ?: 0)
+        outState.putBoolean(NAV_VIEW_OPENED_KEY, drawerLayout.isOpen)
+        outState.putInt(NAV_VIEW_SELECTED_KEY, navigationView.checkedItem?.itemId ?: 0)
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        val navDrawerOpened = savedInstanceState.getBoolean("nav_drawer_opened", false)
+        val navDrawerOpened = savedInstanceState.getBoolean(NAV_VIEW_OPENED_KEY, false)
         if (navDrawerOpened) {
             drawerLayout.open()
         }
-        val navDrawerCheckedItemId = savedInstanceState.getInt("nav_drawer_option", 0)
-        navigationView.setCheckedItem(navDrawerCheckedItemId)
+        navViewSelectedItem = 0
+        val navDrawerCheckedItemId = savedInstanceState.getInt(NAV_VIEW_SELECTED_KEY, 0)
+        if (navDrawerCheckedItemId == R.id.nav_item_tags) {
+            openTagsSubscreen()
+            navViewSelectedItem = 1
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -167,8 +164,6 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             .hide(tagsFragment)
             .show(tasksFragment)
             .commit()
-        toolbar.title = resources.getString(R.string.drawer_btn_tasks)
-        toolbar.menu.getItem(0).isVisible = true
         drawerLayout.close()
     }
 
@@ -177,8 +172,6 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             .hide(tasksFragment)
             .show(tagsFragment)
             .commit()
-        toolbar.title = resources.getString(R.string.drawer_btn_tags)
-        toolbar.menu.getItem(0).isVisible = false
         drawerLayout.close()
     }
 
@@ -202,6 +195,7 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         }
     }
 
+    //TODO move to model
     private fun onGDriveSyncBtnPressed(syncBtn: View) {
         val options = AccountPicker.AccountChooserOptions.Builder()
             .setAllowableAccountsTypes(listOf(GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE))
@@ -229,14 +223,29 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         navigationView.setCheckedItem(R.id.nav_item_tasks)
     }
 
-    private fun initializeToolbar() {
-        toolbar = findViewById(R.id.toolbar_actionbar)
-        toolbar.setNavigationIcon(R.drawable.ic_toolbar_drawer_open)
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        toolbar.setNavigationOnClickListener {
+    private fun initializeContentFragments() {
+        contentContainer = findViewById(R.id.act_main_content)
+        tasksFragment = TasksFragment()
+        tasksFragment.onToolbarUpListener = {
             drawerLayout.open()
         }
+        tagsFragment = TagsFragment()
+        tagsFragment.onToolbarUpListener = {
+            drawerLayout.open()
+        }
+        if (supportFragmentManager.fragments.isNotEmpty()) {
+            supportFragmentManager.beginTransaction().apply {
+                supportFragmentManager.fragments.forEach {
+                    remove(it)
+                }
+            }.commit()
+        }
+        supportFragmentManager.beginTransaction()
+            .add(R.id.act_main_content, tasksFragment)
+            .add(R.id.act_main_content, tagsFragment)
+            .hide(tagsFragment)
+            .commit()
+        navigationView.setCheckedItem(navigationView.menu[0])
     }
 
     companion object {

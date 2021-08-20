@@ -12,4 +12,8 @@ interface LiveTag {
     val tagIndex: Int
     /** Name of the tag. Recycler items should observe this data and react to it */
     val name: LiveData<String>
+    /** ARGB Color of the tag. Recycler items should observe this data and react to it */
+    val color: LiveData<Int>
+    /** ARGB Color of the tag's text. Recycler items should observe this data and react to it */
+    val textColor: LiveData<Int>
 }

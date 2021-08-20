@@ -28,6 +28,7 @@ class TasksFragment : Fragment() {
 
     private lateinit var sharedPreferences: SharedPreferences
 
+    var onToolbarUpListener: () -> Unit = {}
     private var _binding: TasksRootFragmentBinding? = null
     private val binding get() = _binding!!
 
@@ -38,6 +39,7 @@ class TasksFragment : Fragment() {
     ): View {
         _binding = TasksRootFragmentBinding.inflate(inflater, container, false)
         initializeViewPager()
+        initializeToolbar()
         val btn: FloatingActionButton = binding.todolistNewTaskBtn
         btn.setOnClickListener {
             //TODO New task
@@ -48,6 +50,14 @@ class TasksFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun initializeToolbar() {
+        val toolbar = binding.tasksToolbar
+        toolbar.setNavigationIcon(R.drawable.ic_toolbar_drawer_open)
+        toolbar.setNavigationOnClickListener {
+            onToolbarUpListener()
+        }
     }
 
     private fun initializeViewPager() {

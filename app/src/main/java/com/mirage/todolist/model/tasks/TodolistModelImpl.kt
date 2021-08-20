@@ -2,6 +2,7 @@ package com.mirage.todolist.model.tasks
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Color
 import androidx.preference.PreferenceManager
 import com.mirage.todolist.model.gdrive.GDriveConnectExceptionHandler
 import com.mirage.todolist.model.gdrive.GDriveRestApi
@@ -46,7 +47,7 @@ class TodolistModelImpl: TodolistModel {
 
         repeat(4) { tagIndex ->
             val id = UUID.randomUUID()
-            val tag = MutableLiveTag(id, tagIndex, tagIndex.toString().repeat(tagIndex + 1))
+            val tag = MutableLiveTag(id, tagIndex, tagIndex.toString().repeat(tagIndex + 1), Color.CYAN, Color.GREEN)
             localTags[id] = tag
         }
 

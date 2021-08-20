@@ -53,7 +53,7 @@ abstract class TasklistViewModel : ViewModel() {
      * Registers a listener for full tasklist overwrite event
      * This event may happen after synchronization with Google Drive
      */
-    abstract fun addOnFullTasklistUpdateListener(owner: LifecycleOwner, listener: OnFullUpdateTaskListener)
+    abstract fun addOnFullUpdateTaskListener(owner: LifecycleOwner, listener: OnFullUpdateTaskListener)
 
     /**
      * Returns a [LiveTask] with a given [taskID], or null if there is no task with this ID

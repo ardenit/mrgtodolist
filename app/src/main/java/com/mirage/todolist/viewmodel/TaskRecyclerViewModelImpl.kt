@@ -7,7 +7,7 @@ import com.mirage.todolist.model.tasks.*
 /**
  * See [TasklistViewModel] for API documentation
  */
-class TasklistViewModelImpl : TasklistViewModel() {
+class TaskRecyclerViewModelImpl : TasklistViewModel() {
 
     private lateinit var onNewTaskListener: OnNewTaskListener
     private lateinit var onMoveTaskListener: OnMoveTaskListener
@@ -96,7 +96,7 @@ class TasklistViewModelImpl : TasklistViewModel() {
         }
     }
 
-    override fun addOnFullTasklistUpdateListener(owner: LifecycleOwner, listener: OnFullUpdateTaskListener) {
+    override fun addOnFullUpdateTaskListener(owner: LifecycleOwner, listener: OnFullUpdateTaskListener) {
         onFullUpdateObservable.observe(owner, listener)
     }
 

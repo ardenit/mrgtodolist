@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.mirage.todolist.model.tasks.LiveTask
 import com.mirage.todolist.model.tasks.TaskID
 
+//TODO Delete? Refactor?
 /**
  * View model of the todolist screen
  */

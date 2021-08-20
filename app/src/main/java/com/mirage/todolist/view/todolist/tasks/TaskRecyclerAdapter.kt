@@ -66,7 +66,7 @@ class TasklistRecyclerAdapter(
         viewModel.addOnNewTaskListener(lifecycleOwner) {
             notifyItemInserted(it.taskIndex)
         }
-        viewModel.addOnFullTasklistUpdateListener(lifecycleOwner) {
+        viewModel.addOnFullUpdateTaskListener(lifecycleOwner) {
             @Suppress("NotifyDataSetChanged")
             notifyDataSetChanged()
         }

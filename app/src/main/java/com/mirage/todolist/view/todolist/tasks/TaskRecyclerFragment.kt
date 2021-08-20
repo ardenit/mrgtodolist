@@ -27,7 +27,7 @@ class TaskRecyclerFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        tasklistViewModel = ViewModelProvider(this).get(TasklistViewModelImpl::class.java).apply {
+        tasklistViewModel = ViewModelProvider(this).get(TaskRecyclerViewModelImpl::class.java).apply {
             val tasklistID = arguments?.getInt(ARG_SECTION_NUMBER) ?: 1
             init(tasklistID)
         }
