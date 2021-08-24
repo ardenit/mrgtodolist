@@ -12,6 +12,7 @@ import androidx.preference.PreferenceManager
 import com.andrognito.patternlockview.PatternLockView
 import com.andrognito.patternlockview.utils.PatternLockUtils
 import com.mirage.todolist.R
+import com.mirage.todolist.viewmodel.PasswordValidator
 
 class GraphicalKeyFragment : Fragment() {
 
@@ -43,8 +44,8 @@ class GraphicalKeyFragment : Fragment() {
                     val patternString = PatternLockUtils.patternToString(patternLock, patternLock.pattern)
                     val patternHash = PasswordValidator.getSHA256(patternString)
                     preferences.edit()
-                        .putString(SettingsKeys.SET_PROTECTION_KEY, SettingsKeys.PROTECTION_GRAPHICAL_KEY)
-                        .putString(SettingsKeys.PROTECTION_GRAPHICAL_HASH_KEY, patternHash)
+                        .putString(resources.getString(R.string.key_set_protection), resources.getString(R.string.value_protection_graphical))
+                        .putString(resources.getString(R.string.key_graphical_key_hash), patternHash)
                         .apply()
                     onPatternConfirm?.invoke()
                 }

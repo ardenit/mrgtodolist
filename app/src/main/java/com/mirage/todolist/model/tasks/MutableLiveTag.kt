@@ -11,11 +11,9 @@ class MutableLiveTag(
     override val tagID: TagID,
     override var tagIndex: Int,
     name: String,
-    @ColorInt color: Int,
-    @ColorInt textColor: Int
+    styleIndex: Int
 ) : LiveTag {
 
     override val name: LiveData<String> = MutableLiveData(name)
-    override val color: LiveData<Int> = MutableLiveData(color)
-    override val textColor: LiveData<Int> = MutableLiveData(textColor)
+    override val styleIndex: LiveData<Int> = MutableLiveData(styleIndex)
 }

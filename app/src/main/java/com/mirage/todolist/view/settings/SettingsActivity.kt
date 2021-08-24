@@ -62,7 +62,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
             .replace(R.id.settings, fragment)
             .addToBackStack(null)
             .commit()
-        if (pref.key == SettingsKeys.SET_PROTECTION_KEY) {
+        if (pref.key == resources.getString(R.string.key_set_protection)) {
             supportActionBar?.setTitle(R.string.protection_action_bar_title)
         }
         return true
@@ -70,25 +70,25 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
 
     private fun onProtectionOptionSelected(key: String?) {
         when (key) {
-            SettingsKeys.PROTECTION_NONE_KEY -> {
+            resources.getString(R.string.key_protection_none) -> {
                 onBackPressed()
                 settingsFragment.updateSummaries()
                 showToast(R.string.protection_result_none)
             }
-            SettingsKeys.PROTECTION_TAP_KEY -> {
+            resources.getString(R.string.key_protection_tap) -> {
                 onBackPressed()
                 settingsFragment.updateSummaries()
                 showToast(R.string.protection_result_tap)
             }
-            SettingsKeys.PROTECTION_GRAPHICAL_KEY -> {
+            resources.getString(R.string.key_protection_graphical) -> {
                 openGraphicalKeyFragment()
             }
-            SettingsKeys.PROTECTION_PASSWORD_KEY -> {
+            resources.getString(R.string.key_protection_password) -> {
                 onBackPressed()
                 settingsFragment.updateSummaries()
                 showToast(R.string.protection_result_password)
             }
-            SettingsKeys.PROTECTION_FINGERPRINT_KEY -> {
+            resources.getString(R.string.key_protection_fingerprint) -> {
                 processFingerprintOption()
             }
         }
@@ -105,7 +105,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
             return
         }
         preferences.edit()
-            .putString(SettingsKeys.SET_PROTECTION_KEY, SettingsKeys.PROTECTION_FINGERPRINT_KEY)
+            .putString(resources.getString(R.string.key_set_protection), resources.getString(R.string.value_protection_fingerprint))
             .apply()
         onBackPressed()
         settingsFragment.updateSummaries()

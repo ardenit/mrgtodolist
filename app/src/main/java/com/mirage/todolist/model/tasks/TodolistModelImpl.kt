@@ -47,7 +47,7 @@ class TodolistModelImpl: TodolistModel {
 
         repeat(4) { tagIndex ->
             val id = UUID.randomUUID()
-            val tag = MutableLiveTag(id, tagIndex, tagIndex.toString().repeat(tagIndex + 1), Color.CYAN, Color.GREEN)
+            val tag = MutableLiveTag(id, tagIndex, tagIndex.toString().repeat(tagIndex + 1), 0)
             localTags[id] = tag
         }
 

@@ -15,28 +15,28 @@ interface TaskDao {
         return getTask(taskId)
     }
 
-    @Query("""INSERT INTO task VALUES (:taskTypeIndex, -1, '', '')""")
+    @Query("""INSERT INTO TaskEntity VALUES (0, :taskTypeIndex, -1, '', '')""")
     fun createTaskRow(taskTypeIndex: Int): Long
 
-    @Query("SELECT id FROM task WHERE rowId = :rowId")
+    @Query("SELECT id FROM TaskEntity WHERE rowId = :rowId")
     fun getTaskIdByRowId(rowId: Long): Long
 
-    @Query("SELECT count(*) FROM task WHERE taskTypeIndex = :taskTypeIndex")
+    @Query("SELECT count(*) FROM TaskEntity WHERE taskTypeIndex = :taskTypeIndex")
     fun getTasklistSize(taskTypeIndex: Int): Int
 
-    @Query("UPDATE task SET taskIndex = :taskIndex WHERE id = :taskId")
+    @Query("UPDATE TaskEntity SET taskIndex = :taskIndex WHERE id = :taskId")
     fun setTaskIndex(taskId: Long, taskIndex: Int)
 
-    @Query("SELECT * FROM task WHERE id = :taskId")
+    @Query("SELECT * FROM TaskEntity WHERE id = :taskId")
     fun getTask(taskId: Long): TaskEntity
 
-    @Query("SELECT * FROM task")
+    @Query("SELECT * FROM TaskEntity")
     fun getAllTasks(): List<TaskEntity>
 
-    @Query("SELECT * FROM task WHERE taskTypeIndex = :tasklistIndex")
+    @Query("SELECT * FROM TaskEntity WHERE taskTypeIndex = :tasklistIndex")
     fun getTasklist(tasklistIndex: Int): List<TaskEntity>
 
-    @Query("DELETE FROM task WHERE id = :taskId")
+    @Query("DELETE FROM TaskEntity WHERE id = :taskId")
     fun removeTask(taskId: Long)
 
 }

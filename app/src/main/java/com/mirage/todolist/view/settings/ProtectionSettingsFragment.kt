@@ -1,21 +1,13 @@
 package com.mirage.todolist.view.settings
 
 import android.content.SharedPreferences
-import android.hardware.biometrics.BiometricPrompt
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.preference.*
 import com.mirage.todolist.R
-import com.mirage.todolist.view.settings.SettingsKeys.PROTECTION_FINGERPRINT_KEY
-import com.mirage.todolist.view.settings.SettingsKeys.PROTECTION_GRAPHICAL_KEY
-import com.mirage.todolist.view.settings.SettingsKeys.PROTECTION_NONE_KEY
-import com.mirage.todolist.view.settings.SettingsKeys.PROTECTION_PASSWORD_HASH_KEY
-import com.mirage.todolist.view.settings.SettingsKeys.PROTECTION_PASSWORD_KEY
-import com.mirage.todolist.view.settings.SettingsKeys.PROTECTION_TAP_KEY
-import com.mirage.todolist.view.settings.SettingsKeys.SET_PROTECTION_KEY
-import java.util.concurrent.Executors
+import com.mirage.todolist.viewmodel.PasswordValidator
 
 class ProtectionSettingsFragment : PreferenceFragmentCompat() {
 
@@ -40,23 +32,23 @@ class ProtectionSettingsFragment : PreferenceFragmentCompat() {
 
     override fun onPreferenceTreeClick(preference: Preference?): Boolean {
         when (preference?.key) {
-            PROTECTION_NONE_KEY -> {
+            getString(R.string.key_protection_none) -> {
                 preferences.edit()
-                    .putString(SET_PROTECTION_KEY, PROTECTION_NONE_KEY)
+                    .putString(getString(R.string.key_set_protection), getString(R.string.value_protection_none))
                     .apply()
-                onOptionSelected?.invoke(PROTECTION_NONE_KEY)
+                onOptionSelected?.invoke(getString(R.string.key_protection_none))
             }
-            PROTECTION_TAP_KEY -> {
+            getString(R.string.key_protection_tap) -> {
                 preferences.edit()
-                    .putString(SET_PROTECTION_KEY, PROTECTION_TAP_KEY)
+                    .putString(getString(R.string.key_set_protection), getString(R.string.value_protection_tap))
                     .apply()
-                onOptionSelected?.invoke(PROTECTION_TAP_KEY)
+                onOptionSelected?.invoke(getString(R.string.key_protection_tap))
             }
-            PROTECTION_GRAPHICAL_KEY -> {
-                onOptionSelected?.invoke(PROTECTION_GRAPHICAL_KEY)
+            getString(R.string.key_protection_graphical) -> {
+                onOptionSelected?.invoke(getString(R.string.key_protection_graphical))
             }
-            PROTECTION_FINGERPRINT_KEY -> {
-                onOptionSelected?.invoke(PROTECTION_FINGERPRINT_KEY)
+            getString(R.string.key_protection_fingerprint) -> {
+                onOptionSelected?.invoke(getString(R.string.key_protection_fingerprint))
             }
             else -> {
                 return super.onPreferenceTreeClick(preference)
@@ -67,26 +59,26 @@ class ProtectionSettingsFragment : PreferenceFragmentCompat() {
 
     private fun initializePreferences() {
         preferences = preferenceManager.sharedPreferences
-        noProtectionPreference = findPreference(PROTECTION_NONE_KEY)!!
-        tapToUnlockPreference = findPreference(PROTECTION_TAP_KEY)!!
-        graphicalKeyPreference = findPreference(PROTECTION_GRAPHICAL_KEY)!!
-        passwordPreference = findPreference(PROTECTION_PASSWORD_KEY)!!
-        fingerprintPreference = findPreference(PROTECTION_FINGERPRINT_KEY)!!
+        noProtectionPreference = findPreference(getString(R.string.key_protection_none))!!
+        tapToUnlockPreference = findPreference(getString(R.string.key_protection_tap))!!
+        graphicalKeyPreference = findPreference(getString(R.string.key_protection_graphical))!!
+        passwordPreference = findPreference(getString(R.string.key_protection_password))!!
+        fingerprintPreference = findPreference(getString(R.string.key_protection_fingerprint))!!
         passwordPreference.setOnBindEditTextListener { editText ->
             editText.setText(R.string.protection_password_empty)
             preferences.edit()
-                .putString(PROTECTION_PASSWORD_KEY, "")
+                .putString(getString(R.string.key_protection_password), "")
                 .apply()
         }
         passwordPreference.setOnPreferenceChangeListener { _, newValue ->
             val newPassword = newValue.toString()
             if (PasswordValidator.isPasswordValid(newPassword)) {
                 preferences.edit()
-                    .putString(SET_PROTECTION_KEY, PROTECTION_PASSWORD_KEY)
-                    .putString(PROTECTION_PASSWORD_KEY, "")
-                    .putString(PROTECTION_PASSWORD_HASH_KEY, PasswordValidator.getSHA256(newPassword))
+                    .putString(getString(R.string.key_set_protection), getString(R.string.value_protection_password))
+                    .putString(getString(R.string.key_protection_password), "")
+                    .putString(getString(R.string.key_password_hash), PasswordValidator.getSHA256(newPassword))
                     .apply()
-                onOptionSelected?.invoke(PROTECTION_PASSWORD_KEY)
+                onOptionSelected?.invoke(getString(R.string.key_protection_password))
             }
             else {
                 Toast.makeText(context, R.string.protection_password_invalid, Toast.LENGTH_SHORT).show()

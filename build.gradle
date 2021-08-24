@@ -12,6 +12,13 @@ buildscript {
 }
 
 allprojects {
+    gradle.projectsEvaluated {
+        tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+            kotlinOptions {
+                //TODO allWarningsAsErrors = true
+            }
+        }
+    }
     repositories {
         google()
         mavenCentral()

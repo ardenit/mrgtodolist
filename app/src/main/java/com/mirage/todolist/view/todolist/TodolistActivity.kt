@@ -31,16 +31,12 @@ import com.mirage.todolist.view.settings.SettingsActivity
 import com.mirage.todolist.view.todolist.tags.TagsFragment
 import com.mirage.todolist.view.todolist.tasks.TasksFragment
 
-private const val NAV_VIEW_OPENED_KEY = "nav_view_opened"
-private const val NAV_VIEW_SELECTED_KEY = "nav_view_selected_item"
 
 class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private var navViewSelectedItem: Int = 0
-
-    private lateinit var sharedPreferences: SharedPreferences
 
     private lateinit var contentContainer: FrameLayout
     private lateinit var tasksFragment: TasksFragment
@@ -95,7 +91,6 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.todolist_root)
-        initializePreferences()
         initializeDrawer()
         initializeContentFragments()
         if (activityInstancesCount != 0) finish()
@@ -211,10 +206,6 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         startActivity(Intent(this, SettingsActivity::class.java))
     }
 
-    private fun initializePreferences() {
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-    }
-
     private fun initializeDrawer() {
         drawerLayout = findViewById(R.id.act_main_root_layout)
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
@@ -249,6 +240,9 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
     }
 
     companion object {
+
+        private const val NAV_VIEW_OPENED_KEY = "nav_view_opened"
+        private const val NAV_VIEW_SELECTED_KEY = "nav_view_selected_item"
 
         /** Workaround for night theme bug with recreating activities */
         private var activityInstancesCount = 0

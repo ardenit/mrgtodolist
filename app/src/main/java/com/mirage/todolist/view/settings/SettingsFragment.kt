@@ -7,19 +7,6 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.preference.*
 import com.mirage.todolist.R
-import com.mirage.todolist.view.settings.SettingsKeys.CHANGE_THEME_KEY
-import com.mirage.todolist.view.settings.SettingsKeys.NOTIFY_ON_DATETIME_KEY
-import com.mirage.todolist.view.settings.SettingsKeys.NOTIFY_ON_SYNC_KEY
-import com.mirage.todolist.view.settings.SettingsKeys.PROTECTION_FINGERPRINT_KEY
-import com.mirage.todolist.view.settings.SettingsKeys.PROTECTION_GRAPHICAL_KEY
-import com.mirage.todolist.view.settings.SettingsKeys.PROTECTION_NONE_KEY
-import com.mirage.todolist.view.settings.SettingsKeys.PROTECTION_PASSWORD_KEY
-import com.mirage.todolist.view.settings.SettingsKeys.PROTECTION_TAP_KEY
-import com.mirage.todolist.view.settings.SettingsKeys.SET_PROTECTION_KEY
-import com.mirage.todolist.view.settings.SettingsKeys.SYNC_SELECT_ACC_KEY
-import com.mirage.todolist.view.settings.SettingsKeys.THEME_DARK_VALUE
-import com.mirage.todolist.view.settings.SettingsKeys.THEME_LIGHT_VALUE
-import com.mirage.todolist.view.settings.SettingsKeys.THEME_SYSTEM_VALUE
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
@@ -43,12 +30,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     fun updateSummaries() {
-        val protectionSummaryRes = when (preferences.getString(SET_PROTECTION_KEY, PROTECTION_NONE_KEY)) {
-            PROTECTION_NONE_KEY -> R.string.settings_password_no_protection
-            PROTECTION_TAP_KEY -> R.string.settings_password_tap_to_unlock
-            PROTECTION_GRAPHICAL_KEY -> R.string.settings_password_graphical_key
-            PROTECTION_PASSWORD_KEY -> R.string.settings_password_password
-            PROTECTION_FINGERPRINT_KEY -> R.string.settings_password_fingerprint
+        val protectionSummaryRes = when (preferences.getString(getString(R.string.key_set_protection), getString(R.string.value_protection_none))) {
+            getString(R.string.value_protection_none) -> R.string.settings_password_no_protection
+            getString(R.string.value_protection_tap) -> R.string.settings_password_tap_to_unlock
+            getString(R.string.value_protection_graphical) -> R.string.settings_password_graphical_key
+            getString(R.string.value_protection_password) -> R.string.settings_password_password
+            getString(R.string.value_protection_fingerprint) -> R.string.settings_password_fingerprint
             else -> R.string.settings_password_no_protection
         }
         setProtectionPreference.setSummary(protectionSummaryRes)
@@ -56,20 +43,20 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private fun initializePreferences() {
         preferences = preferenceManager.sharedPreferences
-        changeThemePreference = findPreference(CHANGE_THEME_KEY)!!
-        setProtectionPreference = findPreference(SET_PROTECTION_KEY)!!
-        notifyOnSyncPreference = findPreference(NOTIFY_ON_SYNC_KEY)!!
-        notifyOnDatetimePreference = findPreference(NOTIFY_ON_DATETIME_KEY)!!
-        syncSelectAccPreference = findPreference(SYNC_SELECT_ACC_KEY)!!
+        changeThemePreference = findPreference(getString(R.string.key_change_theme))!!
+        setProtectionPreference = findPreference(getString(R.string.key_set_protection))!!
+        notifyOnSyncPreference = findPreference(getString(R.string.key_notify_on_sync))!!
+        notifyOnDatetimePreference = findPreference(getString(R.string.key_notify_on_datetime))!!
+        syncSelectAccPreference = findPreference(getString(R.string.key_sync_select_acc))!!
         changeThemePreference.setOnPreferenceChangeListener { _, newValue ->
             when (newValue) {
-                THEME_LIGHT_VALUE -> {
+                getString(R.string.value_theme_light) -> {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
                 }
-                THEME_DARK_VALUE -> {
+                getString(R.string.value_theme_dark) -> {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                 }
-                THEME_SYSTEM_VALUE -> {
+                getString(R.string.value_theme_system) -> {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
                 }
             }

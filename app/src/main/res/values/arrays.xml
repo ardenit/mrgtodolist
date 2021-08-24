@@ -1,4 +1,10 @@
 <resources>
+
+    <array name="tag_background_colors">
+        <item>@color/tag_background_green</item>
+        <item>@color/tag_background_blue</item>
+    </array>
+
     <string-array name="change_theme_entries">
         <item>Light</item>
         <item>Dark</item>
@@ -6,25 +12,25 @@
     </string-array>
 
     <string-array name="change_theme_entry_values">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
+        <item>@string/value_theme_light</item>
+        <item>@string/value_theme_dark</item>
+        <item>@string/value_theme_system</item>
     </string-array>
 
     <string-array name="set_protection_entries">
-        <item>No protection</item>
-        <item>Tap to unblock</item>
-        <item>Graphical key</item>
-        <item>Password</item>
-        <item>Fingerprint</item>
+        <item>@string/settings_password_no_protection</item>
+        <item>@string/settings_password_tap_to_unlock</item>
+        <item>@string/settings_password_graphical_key</item>
+        <item>@string/settings_password_password</item>
+        <item>@string/settings_password_fingerprint</item>
     </string-array>
 
     <string-array name="set_protection_entry_values">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
+        <item>@string/value_protection_none</item>
+        <item>@string/value_protection_tap</item>
+        <item>@string/value_protection_graphical</item>
+        <item>@string/value_protection_password</item>
+        <item>@string/value_protection_fingerprint</item>
     </string-array>
 
     <string-array name="notify_datetime_entries">
@@ -36,10 +42,10 @@
     </string-array>
 
     <string-array name="notify_datetime_entry_values">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
+        <item>@string/value_notify_never</item>
+        <item>@string/value_notify_5_min</item>
+        <item>@string/value_notify_10_min</item>
+        <item>@string/value_notify_30_min</item>
+        <item>@string/value_notify_1_hour</item>
     </string-array>
 </resources>

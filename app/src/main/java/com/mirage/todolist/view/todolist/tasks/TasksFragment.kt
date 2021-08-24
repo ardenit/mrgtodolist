@@ -23,11 +23,6 @@ import com.mirage.todolist.viewmodel.TasklistType
  */
 class TasksFragment : Fragment() {
 
-    //TODO Inject
-    private val todolistModel = getTodolistModel()
-
-    private lateinit var sharedPreferences: SharedPreferences
-
     var onToolbarUpListener: () -> Unit = {}
     private var _binding: TasksRootFragmentBinding? = null
     private val binding get() = _binding!!

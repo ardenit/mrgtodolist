@@ -1,0 +1,17 @@
+<resources>
+    <string name="value_theme_light" translatable="false">theme_light</string>
+    <string name="value_theme_dark" translatable="false">theme_dark</string>
+    <string name="value_theme_system" translatable="false">theme_system</string>
+
+    <string name="value_protection_none" translatable="false">protection_none</string>
+    <string name="value_protection_tap" translatable="false">protection_tap</string>
+    <string name="value_protection_graphical" translatable="false">protection_graphical</string>
+    <string name="value_protection_password" translatable="false">protection_password</string>
+    <string name="value_protection_fingerprint" translatable="false">protection_fingerprint</string>
+
+    <string name="value_notify_never" translatable="false">notify_never</string>
+    <string name="value_notify_5_min" translatable="false">notify_5_min</string>
+    <string name="value_notify_10_min" translatable="false">notify_10_min</string>
+    <string name="value_notify_30_min" translatable="false">notify_30_min</string>
+    <string name="value_notify_1_hour" translatable="false">notify_1_hour</string>
+</resources>

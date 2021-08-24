@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.biometric.BiometricPrompt
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.hardware.fingerprint.FingerprintManagerCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.andrognito.patternlockview.PatternLockView
@@ -22,10 +23,12 @@ import com.andrognito.patternlockview.utils.PatternLockUtils
 import com.mirage.todolist.R
 import com.mirage.todolist.model.tasks.TodolistModel
 import com.mirage.todolist.model.tasks.getTodolistModel
-import com.mirage.todolist.view.settings.PasswordValidator
-import com.mirage.todolist.view.settings.SettingsKeys
+import com.mirage.todolist.viewmodel.PasswordValidator
 import com.mirage.todolist.view.settings.showToast
 import com.mirage.todolist.view.todolist.TodolistActivity
+import com.mirage.todolist.viewmodel.LockScreenType
+import com.mirage.todolist.viewmodel.LockScreenViewModel
+import com.mirage.todolist.viewmodel.LockScreenViewModelImpl
 import kotlinx.coroutines.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -35,14 +38,12 @@ private const val TAP_HINT_TEXT_ANIMATION_DURATION = 4000L
 
 class LockScreenActivity : AppCompatActivity() {
 
-    private lateinit var sharedPreferences: SharedPreferences
     private val coroutineScope = lifecycleScope
     private lateinit var executor: ExecutorService
     private lateinit var biometricPrompt: BiometricPrompt
     private lateinit var promptInfo: BiometricPrompt.PromptInfo
 
-    //TODO inject
-    private val todolistModel: TodolistModel = getTodolistModel()
+    private lateinit var viewModel: LockScreenViewModel
 
     private val todolistResultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -53,11 +54,22 @@ class LockScreenActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         executor = Executors.newSingleThreadExecutor()
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        processProtectionPreference()
-        processThemePreference()
-        processNotificationPreference()
-        todolistModel.init(applicationContext)
+        initializeViewModel()
+    }
+
+    private fun initializeViewModel() {
+        viewModel = ViewModelProvider(this).get(LockScreenViewModelImpl::class.java)
+        viewModel.lockScreenType.observe(this) {
+            when (it) {
+                LockScreenType.NO_PROTECTION -> initializeSplashScreen()
+                LockScreenType.TAP_TO_UNLOCK -> initializeTapToUnlockScreen()
+                LockScreenType.GRAPHICAL_KEY -> initializeGraphicalKeyScreen()
+                LockScreenType.PASSWORD -> initializePasswordScreen()
+                LockScreenType.FINGERPRINT -> initializeFingerprintScreen()
+                else -> initializeSplashScreen()
+            }
+        }
+        viewModel.init()
     }
 
     private fun initializeSplashScreen() {
@@ -98,9 +110,7 @@ class LockScreenActivity : AppCompatActivity() {
 
             override fun onComplete(pattern: MutableList<PatternLockView.Dot>?) {
                 val patternString = PatternLockUtils.patternToString(patternLock, pattern)
-                val patternHash = PasswordValidator.getSHA256(patternString)
-                val validHash = sharedPreferences.getString(SettingsKeys.PROTECTION_GRAPHICAL_HASH_KEY, "")
-                if (patternHash == validHash) {
+                if (viewModel.tryPattern(patternString)) {
                     openTodolist()
                 }
                 else {
@@ -117,14 +127,23 @@ class LockScreenActivity : AppCompatActivity() {
         val passwordInput: EditText = findViewById(R.id.password_input)
         passwordInput.setOnKeyListener { view, keyCode, keyEvent ->
             if ((keyEvent.action == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                confirmPassword(passwordInput)
+                confirmPassword(passwordInput.text.toString())
                 true
             }
             else false
         }
         val passwordInputBtn: Button = findViewById(R.id.password_input_btn)
         passwordInputBtn.setOnClickListener {
-            confirmPassword(passwordInput)
+            confirmPassword(passwordInput.text.toString())
+        }
+    }
+
+    private fun confirmPassword(input: String) {
+        if (viewModel.tryPassword(input)) {
+            openTodolist()
+        }
+        else {
+            Toast.makeText(this, R.string.lockscreen_password_wrong, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -133,9 +152,6 @@ class LockScreenActivity : AppCompatActivity() {
         val fingerprintManager = FingerprintManagerCompat.from(this)
         if (!fingerprintManager.isHardwareDetected || !fingerprintManager.hasEnrolledFingerprints()) {
             initializeSplashScreen()
-            sharedPreferences.edit()
-                .putString(SettingsKeys.SET_PROTECTION_KEY, SettingsKeys.PROTECTION_NONE_KEY)
-                .apply()
             return
         }
         setContentView(R.layout.lockscreen_fingerprint)
@@ -186,77 +202,9 @@ class LockScreenActivity : AppCompatActivity() {
         biometricPrompt.authenticate(promptInfo)
     }
 
-    private fun confirmPassword(passwordInput: EditText) {
-        val input = passwordInput.text.toString()
-        val inputHash = PasswordValidator.getSHA256(input)
-        val validHash = sharedPreferences.getString(SettingsKeys.PROTECTION_PASSWORD_HASH_KEY, "")
-        if (inputHash == validHash) {
-            openTodolist()
-        }
-        else {
-            Toast.makeText(this, R.string.lockscreen_password_wrong, Toast.LENGTH_SHORT).show()
-        }
-    }
-
     private fun openTodolist() {
         val intent = Intent(this, TodolistActivity::class.java)
         todolistResultLauncher.launch(intent)
-    }
-
-    private fun processProtectionPreference() {
-        when (sharedPreferences.getString(SettingsKeys.SET_PROTECTION_KEY, SettingsKeys.PROTECTION_NONE_KEY)) {
-            SettingsKeys.PROTECTION_NONE_KEY -> {
-                sharedPreferences.edit()
-                    .putString(SettingsKeys.SET_PROTECTION_KEY, SettingsKeys.PROTECTION_NONE_KEY)
-                    .apply()
-                initializeSplashScreen()
-            }
-            SettingsKeys.PROTECTION_TAP_KEY -> {
-                initializeTapToUnlockScreen()
-            }
-            SettingsKeys.PROTECTION_GRAPHICAL_KEY -> {
-                initializeGraphicalKeyScreen()
-            }
-            SettingsKeys.PROTECTION_PASSWORD_KEY -> {
-                initializePasswordScreen()
-            }
-            SettingsKeys.PROTECTION_FINGERPRINT_KEY -> {
-                initializeFingerprintScreen()
-            }
-            else -> {
-                sharedPreferences.edit()
-                    .putString(SettingsKeys.SET_PROTECTION_KEY, SettingsKeys.PROTECTION_NONE_KEY)
-                    .apply()
-                initializeSplashScreen()
-            }
-        }
-    }
-
-    private fun processThemePreference() {
-        when (sharedPreferences.getString(SettingsKeys.CHANGE_THEME_KEY, SettingsKeys.THEME_LIGHT_VALUE)) {
-            SettingsKeys.THEME_LIGHT_VALUE -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                sharedPreferences.edit()
-                    .putString(SettingsKeys.CHANGE_THEME_KEY, SettingsKeys.THEME_LIGHT_VALUE)
-                    .apply()
-            }
-            SettingsKeys.THEME_DARK_VALUE -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            }
-            SettingsKeys.THEME_SYSTEM_VALUE -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-            }
-        }
-    }
-
-    private fun processNotificationPreference() {
-        when (sharedPreferences.getString(SettingsKeys.NOTIFY_ON_DATETIME_KEY, SettingsKeys.NOTIFY_DATETIME_NEVER)) {
-            SettingsKeys.NOTIFY_DATETIME_NEVER -> {
-                sharedPreferences.edit()
-                    .putString(SettingsKeys.NOTIFY_ON_DATETIME_KEY, SettingsKeys.NOTIFY_DATETIME_NEVER)
-                    .apply()
-            }
-        }
     }
 
     override fun onDestroy() {

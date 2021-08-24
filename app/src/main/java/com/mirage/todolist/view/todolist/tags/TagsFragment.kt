@@ -2,9 +2,11 @@ package com.mirage.todolist.view.todolist.tags
 
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.findViewTreeLifecycleOwner
@@ -23,8 +25,6 @@ import com.mirage.todolist.viewmodel.TagsViewModelImpl
  */
 class TagsFragment : Fragment() {
 
-    //TODO Inject
-    private val todolistModel: TodolistModel = getTodolistModel()
     private lateinit var tagsViewModel: TagsViewModel
 
     var onToolbarUpListener: () -> Unit = {}
@@ -45,30 +45,18 @@ class TagsFragment : Fragment() {
         tagsViewModel = ViewModelProvider(this).get(TagsViewModelImpl::class.java)
         tagsViewModel.init()
         initializeToolbar()
-        recreateChips(tagsViewModel.getAllTags())
-        tagsViewModel.addOnFullUpdateTagListener(this, ::recreateChips)
+        initializeTags()
     }
 
-    private fun recreateChips(tags: Map<TagID, LiveTag>) {
+    private fun initializeTags() {
         val chips = binding.tagFragmentChips
-        chips.removeAllViews()
-        val tagList = tags.values.sortedBy { it.tagIndex }
-        tagList.forEach { tag ->
-            val chip = Chip(requireContext())
-            tag.name.observe(viewLifecycleOwner) {
-                chip.text = it
-            }
-            tag.color.observe(viewLifecycleOwner) {
-                chip.setBackgroundColor(it)
-            }
-            tag.textColor.observe(viewLifecycleOwner) {
-                chip.setTextColor(it)
-            }
-            chip.setOnClickListener {
-                println("click ${tag.name}")
-                //TODO
-            }
-            chips.addView(chip)
+        chips.lifecycleOwner = viewLifecycleOwner
+        chips.onTagClickListener = { tag ->
+            println("click ${tag.name}")
+        }
+        chips.recreateTags(tagsViewModel.getAllTags())
+        tagsViewModel.addOnFullUpdateTagListener(viewLifecycleOwner) { tags ->
+            chips.recreateTags(tags)
         }
     }
 

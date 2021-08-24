@@ -1,0 +1,16 @@
+<resources>
+    <string name="key_change_theme" translatable="false">change_theme</string>
+    <string name="key_set_protection" translatable="false">set_protection</string>
+    <string name="key_notify_on_sync" translatable="false">notify_on_sync</string>
+    <string name="key_notify_on_datetime" translatable="false">notify_on_datetime</string>
+    <string name="key_sync_select_acc" translatable="false">sync_select_acc</string>
+
+    <string name="key_protection_none" translatable="false">protection_none</string>
+    <string name="key_protection_tap" translatable="false">protection_tap</string>
+    <string name="key_protection_graphical" translatable="false">protection_graphical</string>
+    <string name="key_protection_password" translatable="false">protection_password</string>
+    <string name="key_protection_fingerprint" translatable="false">protection_fingerprint</string>
+
+    <string name="key_password_hash" translatable="false">password_hash</string>
+    <string name="key_graphical_key_hash" translatable="false">graphical_key_hash</string>
+</resources>
