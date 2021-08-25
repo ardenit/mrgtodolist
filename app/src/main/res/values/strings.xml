@@ -27,6 +27,21 @@
     <string name="tags_search_tag_option">Search for tasks</string>
     <string name="tags_cancel_option">Cancel</string>
 
+    <string name="tags_rename_title">Rename tag</string>
+    <string name="tags_rename_hint">Enter new name</string>
+    <string name="tags_recolor_title">Change color</string>
+    <string name="tags_delete_title">Delete tag</string>
+    <string name="tags_delete_subtitle">Are you sure you want to delete this tag?</string>
+    <string name="tags_delete_yes">Yes</string>
+    <string name="tags_delete_cancel">Cancel</string>
+
+    <string name="tags_color_blue">Blue</string>
+    <string name="tags_color_green">Green</string>
+    <string name="tags_color_orange">Orange</string>
+    <string name="tags_color_red">Red</string>
+    <string name="tags_color_grey">Grey</string>
+    <string name="tags_color_purple">Purple</string>
+
     <string name="drawer_btn_tasks">Tasks</string>
     <string name="drawer_btn_tags">Tags</string>
     <string name="drawer_btn_settings">Settings</string>

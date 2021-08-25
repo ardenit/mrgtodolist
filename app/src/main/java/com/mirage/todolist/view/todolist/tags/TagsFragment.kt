@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -52,12 +53,64 @@ class TagsFragment : Fragment() {
         val chips = binding.tagFragmentChips
         chips.lifecycleOwner = viewLifecycleOwner
         chips.onTagClickListener = { tag ->
-            println("click ${tag.name}")
+            val editTagDialog = TagEditDialogFragment(tag)
+            editTagDialog.onOptionSelectedListener = {
+                when (it) {
+                    TagEditDialogOption.RENAME -> {
+                        openRenameDialog(tag)
+                    }
+                    TagEditDialogOption.RECOLOR -> {
+                        openRecolorDialog(tag)
+                    }
+                    TagEditDialogOption.SEARCH -> {
+                        goToSearchTasks(tag)
+                    }
+                    TagEditDialogOption.DELETE -> {
+                        openDeleteTagDialog(tag)
+                    }
+                    TagEditDialogOption.CANCEL -> {}
+                }
+            }
+            editTagDialog.show(childFragmentManager, "EditTagDialog")
         }
         chips.recreateTags(tagsViewModel.getAllTags())
         tagsViewModel.addOnFullUpdateTagListener(viewLifecycleOwner) { tags ->
             chips.recreateTags(tags)
         }
+    }
+
+    private fun openRenameDialog(tag: LiveTag) {
+        val renameDialog = TagRenameDialogFragment()
+        renameDialog.onRenamePressed = { text ->
+            if (text.isNotBlank()) {
+                tagsViewModel.modifyTag(tag.tagID, newName = text.trim())
+            }
+        }
+        renameDialog.show(childFragmentManager, "RenameTagDialog")
+    }
+
+    private fun openRecolorDialog(tag: LiveTag) {
+        val recolorDialog = TagRecolorDialogFragment()
+        recolorDialog.onColorSelected = { colorIndex ->
+            tagsViewModel.modifyTag(tag.tagID, newStyleIndex = colorIndex)
+        }
+        recolorDialog.show(childFragmentManager, "RecolorTagDialog")
+    }
+
+    private fun goToSearchTasks(tag: LiveTag) {
+        //TODO
+    }
+
+    private fun openDeleteTagDialog(tag: LiveTag) {
+        val alertDialog = AlertDialog.Builder(requireActivity())
+            .setTitle(R.string.tags_delete_title)
+            .setMessage(R.string.tags_delete_subtitle)
+            .setPositiveButton(R.string.tags_delete_yes) { _, _ ->
+                tagsViewModel.removeTag(tag.tagID)
+            }
+            .setNegativeButton(R.string.tags_delete_cancel) { _, _ -> }
+            .create()
+        alertDialog.show()
     }
 
     private fun initializeToolbar() {

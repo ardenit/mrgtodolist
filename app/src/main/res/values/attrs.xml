@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <declare-styleable name="TagsView">
+    <declare-styleable name="com.mirage.todolist.view.todolist.tags.TagsView">
         <attr name="enlarged" format="boolean"/>
     </declare-styleable>
 </resources>

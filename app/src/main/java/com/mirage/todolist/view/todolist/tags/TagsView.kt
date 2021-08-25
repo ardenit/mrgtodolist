@@ -3,6 +3,7 @@ package com.mirage.todolist.view.todolist.tags
 import android.content.Context
 import android.util.AttributeSet
 import androidx.annotation.ColorRes
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.material.chip.Chip
@@ -11,25 +12,33 @@ import com.mirage.todolist.R
 import com.mirage.todolist.model.tasks.LiveTag
 import com.mirage.todolist.model.tasks.TagID
 
-private const val CHIP_STROKE_WIDTH = 8f
-private val CHIP_STYLES = listOf(
-    ChipStyle(R.color.tag_background_green, R.color.white)
-)
+/**
+ * Possible tag styles which can be selected by a user.
+ */
+enum class TagStyle(
+    @StringRes val colorName: Int,
+    @ColorRes val backgroundColor: Int,
+    @ColorRes val textColor: Int
+) {
+
+    GREEN(R.string.tags_color_green, R.color.tag_background_green, R.color.white),
+    BLUE(R.string.tags_color_blue, R.color.tag_background_blue, R.color.white),
+    ORANGE(R.string.tags_color_orange, R.color.tag_background_orange, R.color.white),
+    GREY(R.string.tags_color_grey, R.color.tag_background_grey, R.color.white),
+    RED(R.string.tags_color_red, R.color.tag_background_red, R.color.white),
+    PURPLE(R.string.tags_color_purple, R.color.tag_background_purple, R.color.white)
+}
 
 /**
  * View that contains a list of colored tags
  */
-class TagsView(context: Context, attrs: AttributeSet? = null) : ChipGroup(context, attrs) {
+class TagsView(context: Context, attrs: AttributeSet?) : ChipGroup(context, attrs) {
 
     var onTagClickListener: (LiveTag) -> Unit = {}
     var lifecycleOwner: LifecycleOwner? = null
 
     /** Whether the view should be enlarged (true for tags in Tags tab, false for task's own tag list) */
-    private val enlarged: Boolean = attrs?.getAttributeBooleanValue(R.attr.enlarged, false) ?: false
-
-    init {
-
-    }
+    private val enlarged: Boolean = attrs?.getAttributeBooleanValue("http://mirage.com/mrg", "enlarged", false) ?: false
 
     fun recreateTags(tags: Map<TagID, LiveTag>) {
         val owner = lifecycleOwner ?: return
@@ -41,27 +50,28 @@ class TagsView(context: Context, attrs: AttributeSet? = null) : ChipGroup(contex
                 chip.text = it
             }
             tag.styleIndex.observe(owner) {
-                val style = CHIP_STYLES[it.coerceIn(CHIP_STYLES.indices)]
+                val style = TagStyle.values()[it.coerceIn(TagStyle.values().indices)]
                 val backgroundColor = ContextCompat.getColorStateList(context, style.backgroundColor)
                 val textColor = ContextCompat.getColor(context, style.textColor)
                 chip.chipBackgroundColor = backgroundColor
                 chip.setTextColor(textColor)
                 chip.setChipStrokeColorResource(style.textColor)
-                chip.chipStrokeWidth = CHIP_STROKE_WIDTH
-                if (enlarged) {
-
-                }
+                chip.chipStrokeWidth =
+                    if (enlarged) resources.getDimension(R.dimen.tag_chip_stroke_width_enlarged)
+                    else resources.getDimension(R.dimen.tag_chip_stroke_width_normal)
+                chip.textSize =
+                    if (enlarged) resources.getDimension(R.dimen.tag_chip_text_size_enlarged)
+                    else resources.getDimension(R.dimen.tag_chip_text_size_normal)
+                val padding =
+                    if (enlarged) resources.getDimension(R.dimen.tag_chip_padding_enlarged)
+                    else resources.getDimension(R.dimen.tag_chip_padding_normal)
+                chip.chipStartPadding = padding
+                chip.chipEndPadding = padding
             }
             chip.setOnClickListener {
-                println("click ${tag.name}")
                 onTagClickListener(tag)
             }
             addView(chip)
         }
     }
 }
-
-private data class ChipStyle(
-    @ColorRes val backgroundColor: Int,
-    @ColorRes val textColor: Int
-)

@@ -48,4 +48,12 @@
         <item>@string/value_notify_30_min</item>
         <item>@string/value_notify_1_hour</item>
     </string-array>
+
+    <string-array name="tag_edit_options">
+        <item>@string/tags_rename_tag_option</item>
+        <item>@string/tags_recolor_tag_option</item>
+        <item>@string/tags_search_tag_option</item>
+        <item>@string/tags_delete_tag_option</item>
+        <item>@string/tags_cancel_option</item>
+    </string-array>
 </resources>

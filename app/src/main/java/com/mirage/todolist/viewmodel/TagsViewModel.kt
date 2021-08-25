@@ -16,8 +16,7 @@ abstract class TagsViewModel : ViewModel() {
     abstract fun modifyTag(
         tagID: TagID,
         newName: String? = null,
-        @ColorInt newColor: Int? = null,
-        @ColorInt newTextColor: Int? = null
+        newStyleIndex: Int? = null
     )
 
     abstract fun getAllTags(): Map<TagID, LiveTag>

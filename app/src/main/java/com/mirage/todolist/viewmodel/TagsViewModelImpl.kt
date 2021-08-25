@@ -44,7 +44,7 @@ class TagsViewModelImpl : TagsViewModel() {
         //TODO("Not yet implemented")
     }
 
-    override fun modifyTag(tagID: TagID, newName: String?, newColor: Int?, newTextColor: Int?) {
+    override fun modifyTag(tagID: TagID, newName: String?, newStyleIndex: Int?) {
         //TODO("Not yet implemented")
     }
 
