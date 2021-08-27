@@ -222,6 +222,7 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         else {
             intent.putExtra(EditTaskActivity.EDITOR_TYPE_KEY, EditTaskActivity.EDITOR_TYPE_CREATE_TASK)
         }
+        intent.putExtra(EditTaskActivity.EDITOR_TASKLIST_ID_KEY, tasksFragment.getCurrentTasklistID())
         startActivity(intent)
     }
 

@@ -74,6 +74,10 @@ class TasksFragment : Fragment() {
         onSearchStopListener()
     }
 
+    fun getCurrentTasklistID(): Int {
+        return binding.viewPager.currentItem
+    }
+
     private fun initializeToolbar() {
         val toolbar = binding.tasksToolbar
         toolbar.setNavigationIcon(R.drawable.ic_toolbar_drawer_open)

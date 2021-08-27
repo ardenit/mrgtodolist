@@ -49,7 +49,8 @@ interface TodolistModel {
     fun modifyTask(
         taskID: TaskID,
         title: String?,
-        description: String?
+        description: String?,
+        tags: List<LiveTag>?
     )
 
     /**

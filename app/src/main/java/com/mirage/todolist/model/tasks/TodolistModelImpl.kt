@@ -86,7 +86,8 @@ class TodolistModelImpl: TodolistModel {
     override fun modifyTask(
         taskID: TaskID,
         title: String?,
-        description: String?
+        description: String?,
+        tags: List<LiveTag>?
     ) {
         val task = localTasks[taskID] ?: return
         //TODO room query
@@ -95,6 +96,9 @@ class TodolistModelImpl: TodolistModel {
         }
         if (description != null && description != task.description.value) {
             task.description.value = description
+        }
+        if (tags != null && tags != task.tags.value) {
+            task.tags.value = tags
         }
     }
 

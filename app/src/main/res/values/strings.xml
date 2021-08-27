@@ -21,6 +21,7 @@
 
     <string name="edit_task_toolbar_edit">Edit task</string>
     <string name="edit_task_toolbar_create">New task</string>
+    <string name="edit_task_toolbar_save_btn">Save task</string>
     <string name="edit_task_title_title">Title</string>
     <string name="edit_task_title_hint">Enter task title</string>
     <string name="edit_task_description_title">Description</string>
@@ -33,6 +34,7 @@
     <string name="edit_task_date_title">Date</string>
     <string name="edit_task_time_title">Time</string>
     <string name="edit_task_period_title">Period</string>
+    <string name="edit_task_saved_toast">Task successfully saved</string>
 
     <string name="tags_new_tag_btn">New tag</string>
     <string name="tags_title">Tags</string>

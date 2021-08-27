@@ -22,7 +22,7 @@ class TodolistViewModelImpl : TodolistViewModel() {
         title: String?,
         description: String?
     ) {
-        todolistModel.modifyTask(taskID, title, description)
+        todolistModel.modifyTask(taskID, title, description, null)
     }
 
     override fun removeTask(taskID: TaskID) {
