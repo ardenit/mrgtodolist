@@ -17,6 +17,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.mirage.todolist.R
 import com.mirage.todolist.databinding.TasksRootFragmentBinding
+import com.mirage.todolist.model.tasks.LiveTag
 import com.mirage.todolist.model.tasks.getTodolistModel
 import com.mirage.todolist.viewmodel.TasklistType
 
@@ -91,7 +92,15 @@ class TasksFragment : Fragment() {
             }
 
             override fun createFragment(position: Int): Fragment {
-                return TaskRecyclerFragment.newInstance(position)
+                val fragment = TaskRecyclerFragment.newInstance(position)
+                fragment.onSearchTagListener = { tag ->
+                    val toolbar = binding.tasksToolbar
+                    val searchItem = toolbar.menu[0]
+                    val searchView = searchItem.actionView as SearchView
+                    toolbar.menu.performIdentifierAction(R.id.toolbar_search_btn, 0)
+                    searchView.setQuery("[${tag.name.value}] ", false)
+                }
+                return fragment
             }
 
         }

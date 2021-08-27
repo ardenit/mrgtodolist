@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.mirage.todolist.R
+import com.mirage.todolist.model.tasks.LiveTag
 import com.mirage.todolist.view.todolist.tags.TagsView
 import com.mirage.todolist.viewmodel.TasklistType
 import com.mirage.todolist.viewmodel.TaskRecyclerViewModel
@@ -22,7 +23,8 @@ const val STROKE_WIDTH = 8
 class TasklistRecyclerAdapter(
     private val context: Context,
     private val viewModel: TaskRecyclerViewModel,
-    private val lifecycleOwner: LifecycleOwner
+    private val lifecycleOwner: LifecycleOwner,
+    private val onTagSearchListener: (LiveTag) -> Unit
 ) : RecyclerView.Adapter<TasklistRecyclerAdapter.TasklistViewHolder>() {
 
     inner class TasklistViewHolder(itemView: View, tasklistType: TasklistType) : RecyclerView.ViewHolder(itemView) {
@@ -91,6 +93,10 @@ class TasklistRecyclerAdapter(
             holder.taskDescriptionView.text = it
         }
         holder.taskTags.lifecycleOwner = lifecycleOwner
+        holder.taskTags.onTagClickListener = { tag ->
+            //TODO delete? viewModel.searchForTag(tag)
+            onTagSearchListener(tag)
+        }
         task.tags.observe(lifecycleOwner) {
             holder.taskTags.recreateTags(it)
         }

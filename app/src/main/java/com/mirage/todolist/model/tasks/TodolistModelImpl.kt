@@ -168,7 +168,7 @@ class TodolistModelImpl: TodolistModel {
         localTasks.values.forEach { task ->
             val title = task.title.value ?: ""
             val description = task.description.value ?: ""
-            val matchesTaskName = (searchTask in title) || (searchTask in description)
+            val matchesTaskName = searchTask.isBlank() || (searchTask in title) || (searchTask in description)
             val tags = task.tags.value ?: listOf()
             val matchesTagName = searchTag.isEmpty() || tags.any { tag ->
                 tag.name.value == searchTag

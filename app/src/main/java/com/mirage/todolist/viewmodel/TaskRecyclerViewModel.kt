@@ -2,10 +2,7 @@ package com.mirage.todolist.viewmodel
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
-import com.mirage.todolist.model.tasks.LiveTask
-import com.mirage.todolist.model.tasks.OnFullUpdateTaskListener
-import com.mirage.todolist.model.tasks.OnNewTaskListener
-import com.mirage.todolist.model.tasks.TaskID
+import com.mirage.todolist.model.tasks.*
 
 typealias OnRemoveTaskListener = (task: LiveTask, taskIndex: Int) -> Unit
 
@@ -38,6 +35,9 @@ abstract class TaskRecyclerViewModel : ViewModel() {
      * Moves task to another position in the same tasklist
      */
     abstract fun dragTask(fromIndex: Int, toIndex: Int)
+
+    /** Starts searching for tasks with given tag */
+    abstract fun searchForTag(tag: LiveTag)
 
     /**
      * Registers a listener for task creation event in this tasklist

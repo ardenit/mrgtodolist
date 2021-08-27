@@ -95,6 +95,10 @@ class TaskRecyclerViewModelImpl : TaskRecyclerViewModel() {
         }
     }
 
+    override fun searchForTag(tag: LiveTag) {
+        todolistModel.searchTasks("[${tag.name.value}]")
+    }
+
     override fun addOnNewTaskListener(owner: LifecycleOwner, listener: OnNewTaskListener) {
         onNewTaskObservable.observe(owner, listener)
     }
