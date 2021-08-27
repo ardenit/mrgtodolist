@@ -3,6 +3,7 @@ package com.mirage.todolist.view.todolist.tasks
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
@@ -52,6 +53,25 @@ class TasksFragment : Fragment() {
         _binding = null
     }
 
+    fun openSearchForTag(tag: LiveTag) {
+        val toolbar = binding.tasksToolbar
+        val searchItem = toolbar.menu[0]
+        val searchView = searchItem.actionView as SearchView
+        toolbar.menu.performIdentifierAction(R.id.toolbar_search_btn, 0)
+        searchView.setQuery("[${tag.name.value}] ", false)
+    }
+
+    fun isSearchOpened(): Boolean {
+        val searchView = binding.tasksToolbar.menu[0].actionView as SearchView
+        return !searchView.isIconified
+    }
+
+    fun closeSearch() {
+        val menuItem = binding.tasksToolbar.menu[0]
+        menuItem.collapseActionView()
+        onSearchStopListener()
+    }
+
     private fun initializeToolbar() {
         val toolbar = binding.tasksToolbar
         toolbar.setNavigationIcon(R.drawable.ic_toolbar_drawer_open)
@@ -94,11 +114,7 @@ class TasksFragment : Fragment() {
             override fun createFragment(position: Int): Fragment {
                 val fragment = TaskRecyclerFragment.newInstance(position)
                 fragment.onSearchTagListener = { tag ->
-                    val toolbar = binding.tasksToolbar
-                    val searchItem = toolbar.menu[0]
-                    val searchView = searchItem.actionView as SearchView
-                    toolbar.menu.performIdentifierAction(R.id.toolbar_search_btn, 0)
-                    searchView.setQuery("[${tag.name.value}] ", false)
+                    openSearchForTag(tag)
                 }
                 return fragment
             }

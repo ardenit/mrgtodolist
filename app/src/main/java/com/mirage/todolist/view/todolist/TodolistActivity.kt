@@ -98,12 +98,17 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
     }
 
     override fun onBackPressed() {
-        if (drawerLayout.isOpen) {
-            drawerLayout.close()
-        }
-        else {
-            setResult(0)
-            finish()
+        when {
+            drawerLayout.isOpen -> {
+                drawerLayout.close()
+            }
+            tasksFragment.isSearchOpened() -> {
+                tasksFragment.closeSearch()
+            }
+            else -> {
+                setResult(0)
+                finish()
+            }
         }
     }
 
@@ -229,6 +234,10 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         tagsFragment = TagsFragment()
         tagsFragment.onToolbarUpListener = {
             drawerLayout.open()
+        }
+        tagsFragment.onTagSearchListener = { tag ->
+            openTasksSubscreen()
+            tasksFragment.openSearchForTag(tag)
         }
         if (supportFragmentManager.fragments.isNotEmpty()) {
             supportFragmentManager.beginTransaction().apply {
