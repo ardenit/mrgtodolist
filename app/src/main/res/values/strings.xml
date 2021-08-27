@@ -19,6 +19,21 @@
     <string name="footer_todo_btn">TODO</string>
     <string name="footer_done_btn">Done</string>
 
+    <string name="edit_task_toolbar_edit">Edit task</string>
+    <string name="edit_task_toolbar_create">New task</string>
+    <string name="edit_task_title_title">Title</string>
+    <string name="edit_task_title_hint">Enter task title</string>
+    <string name="edit_task_description_title">Description</string>
+    <string name="edit_task_description_hint">Enter task description</string>
+    <string name="edit_task_tags_title">Tags</string>
+    <string name="edit_task_tags_btn">Add new tag</string>
+    <string name="edit_task_location_title">Location</string>
+    <string name="edit_task_location_set_btn">Set location</string>
+    <string name="edit_task_location_remove_btn">Remove location</string>
+    <string name="edit_task_date_title">Date</string>
+    <string name="edit_task_time_title">Time</string>
+    <string name="edit_task_period_title">Period</string>
+
     <string name="tags_new_tag_btn">New tag</string>
     <string name="tags_title">Tags</string>
     <string name="tags_rename_tag_option">Rename</string>

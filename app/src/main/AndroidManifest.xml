@@ -34,6 +34,14 @@
             android:exported="false">
         </activity>
         <activity
+            android:name=".view.edittask.EditTaskActivity"
+            android:icon="@drawable/mirage_todo_app_icon_filled"
+            android:roundIcon="@drawable/mirage_todo_app_icon_filled"
+            android:label="@string/edit_task_toolbar_edit"
+            android:theme="@style/Theme.TodoApp.EditTaskActivity"
+            android:exported="false">
+        </activity>
+        <activity
             android:name=".view.settings.SettingsActivity"
             android:icon="@drawable/mirage_todo_app_icon_filled"
             android:roundIcon="@drawable/mirage_todo_app_icon_filled"

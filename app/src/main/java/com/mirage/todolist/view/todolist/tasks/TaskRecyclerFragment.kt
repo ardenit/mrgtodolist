@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mirage.todolist.databinding.TaskRecyclerRootFragmentBinding
 import com.mirage.todolist.model.tasks.LiveTag
+import com.mirage.todolist.model.tasks.LiveTask
 import com.mirage.todolist.viewmodel.*
 
 /**
@@ -27,6 +28,7 @@ class TaskRecyclerFragment : Fragment() {
     private val binding get() = _binding!!
 
     var onSearchTagListener: (LiveTag) -> Unit = {}
+    var onTaskEditListener: (LiveTask) -> Unit = {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,7 +56,7 @@ class TaskRecyclerFragment : Fragment() {
     private fun initializeRecycler() {
         recycler = binding.todolistRecyclerView
         recycler.layoutManager = LinearLayoutManager(context)
-        recyclerAdapter = TasklistRecyclerAdapter(requireContext(), taskRecyclerViewModel, viewLifecycleOwner, onSearchTagListener)
+        recyclerAdapter = TasklistRecyclerAdapter(requireContext(), taskRecyclerViewModel, viewLifecycleOwner, onSearchTagListener, onTaskEditListener)
         recycler.adapter = recyclerAdapter
         val itemTouchHelperCallback = TasklistItemTouchHelperCallback(recyclerAdapter, taskRecyclerViewModel.getTasklistID())
         itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)

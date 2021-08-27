@@ -19,6 +19,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.mirage.todolist.R
 import com.mirage.todolist.databinding.TasksRootFragmentBinding
 import com.mirage.todolist.model.tasks.LiveTag
+import com.mirage.todolist.model.tasks.LiveTask
 import com.mirage.todolist.model.tasks.getTodolistModel
 import com.mirage.todolist.viewmodel.TasklistType
 
@@ -30,6 +31,7 @@ class TasksFragment : Fragment() {
     var onToolbarUpListener: () -> Unit = {}
     var onSearchQueryListener: (String) -> Unit = {}
     var onSearchStopListener: () -> Unit = {}
+    var onEditTaskListener: (LiveTask?) -> Unit = {}
     private var _binding: TasksRootFragmentBinding? = null
     private val binding get() = _binding!!
 
@@ -43,7 +45,7 @@ class TasksFragment : Fragment() {
         initializeToolbar()
         val btn: FloatingActionButton = binding.todolistNewTaskBtn
         btn.setOnClickListener {
-            //TODO New task
+            onEditTaskListener(null)
         }
         return binding.root
     }
@@ -115,6 +117,9 @@ class TasksFragment : Fragment() {
                 val fragment = TaskRecyclerFragment.newInstance(position)
                 fragment.onSearchTagListener = { tag ->
                     openSearchForTag(tag)
+                }
+                fragment.onTaskEditListener = { task ->
+                    onEditTaskListener(task)
                 }
                 return fragment
             }

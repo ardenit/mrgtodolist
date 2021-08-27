@@ -37,6 +37,7 @@
             android:layout_weight="1"
             android:layoutDirection="rtl"
             app:chipSpacingVertical="2dp"
+            mrg:closeIconEnabled="false"
             mrg:enlarged="false">
 
         </com.mirage.todolist.view.todolist.tags.TagsView>

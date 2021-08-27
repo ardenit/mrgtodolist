@@ -25,8 +25,10 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAuthIO
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.mirage.todolist.R
 import com.mirage.todolist.model.gdrive.GDriveConnectExceptionHandler
+import com.mirage.todolist.model.tasks.LiveTask
 import com.mirage.todolist.model.tasks.TodolistModel
 import com.mirage.todolist.model.tasks.getTodolistModel
+import com.mirage.todolist.view.edittask.EditTaskActivity
 import com.mirage.todolist.view.settings.SettingsActivity
 import com.mirage.todolist.view.todolist.tags.TagsFragment
 import com.mirage.todolist.view.todolist.tasks.TasksFragment
@@ -211,6 +213,18 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         startActivity(Intent(this, SettingsActivity::class.java))
     }
 
+    private fun openTaskEditor(task: LiveTask?) {
+        val intent = Intent(this, EditTaskActivity::class.java)
+        if (task != null) {
+            intent.putExtra(EditTaskActivity.EDITOR_TYPE_KEY, EditTaskActivity.EDITOR_TYPE_EDIT_TASK)
+            intent.putExtra(EditTaskActivity.EDITOR_TASK_ID_KEY, task.taskID.toString())
+        }
+        else {
+            intent.putExtra(EditTaskActivity.EDITOR_TYPE_KEY, EditTaskActivity.EDITOR_TYPE_CREATE_TASK)
+        }
+        startActivity(intent)
+    }
+
     private fun initializeDrawer() {
         drawerLayout = findViewById(R.id.act_main_root_layout)
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
@@ -231,11 +245,15 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         tasksFragment.onSearchStopListener = {
             todolistModel.cancelTaskSearch()
         }
+        tasksFragment.onEditTaskListener = {
+            openTaskEditor(it)
+        }
         tagsFragment = TagsFragment()
         tagsFragment.onToolbarUpListener = {
             drawerLayout.open()
         }
         tagsFragment.onTagSearchListener = { tag ->
+            navigationView.setCheckedItem(R.id.nav_item_tasks)
             openTasksSubscreen()
             tasksFragment.openSearchForTag(tag)
         }
