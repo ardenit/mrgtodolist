@@ -34,7 +34,13 @@
     <string name="edit_task_date_title">Date</string>
     <string name="edit_task_time_title">Time</string>
     <string name="edit_task_period_title">Period</string>
+
     <string name="edit_task_saved_toast">Task successfully saved</string>
+    <string name="edit_task_back_confirm_title">Unsaved changes</string>
+    <string name="edit_task_back_confirm_description">There are unsaved changes to the task. Do you want to save them?</string>
+    <string name="edit_task_back_save_btn">Save task</string>
+    <string name="edit_task_back_cancel_btn">Cancel</string>
+    <string name="edit_task_back_discard_btn">Discard changes</string>
 
     <string name="tags_new_tag_btn">New tag</string>
     <string name="tags_title">Tags</string>
