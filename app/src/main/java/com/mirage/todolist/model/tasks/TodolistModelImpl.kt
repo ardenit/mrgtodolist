@@ -10,9 +10,6 @@ import java.util.*
 import kotlin.collections.LinkedHashMap
 import kotlin.collections.LinkedHashSet
 
-private const val ACC_NAME_KEY = "account_name"
-private const val HIDDEN_TASKLIST_ID = -1
-
 /**
  * See [TodolistModel] for API documentation
  */
@@ -56,7 +53,7 @@ class TodolistModelImpl: TodolistModel {
             val tasksCount = 20
             repeat(tasksCount) { taskIndex ->
                 val id = UUID.randomUUID()
-                val task = MutableLiveTask(id, tasklistID, taskIndex, "init $tasklistID $taskIndex", "init $tasklistID $taskIndex", localTags.values.toList())
+                val task = MutableLiveTask(id, tasklistID, taskIndex, true, "init $tasklistID $taskIndex", "init $tasklistID $taskIndex", localTags.values.toList())
                 localTasks[id] = task
             }
             tasklistSizes[tasklistID] = tasksCount
@@ -78,7 +75,7 @@ class TodolistModelImpl: TodolistModel {
     override fun createNewTask(tasklistID: Int): LiveTask {
         val taskIndex = tasklistSizes[tasklistID] ?: 0
         val taskID = UUID.randomUUID()
-        val task = MutableLiveTask(taskID, tasklistID, taskIndex, "", "", listOf())
+        val task = MutableLiveTask(taskID, tasklistID, taskIndex, true, "", "", listOf())
         tasklistSizes[tasklistID] = taskIndex + 1
         localTasks[taskID] = task
         //TODO room query
@@ -151,7 +148,99 @@ class TodolistModelImpl: TodolistModel {
         task.taskIndex = newTaskIndex
     }
 
+    override fun searchTasks(searchQuery: String) {
+        if (searchQuery.isBlank()) {
+            cancelTaskSearch()
+            return
+        }
+        var modificationFlag = false
+        var searchTag = ""
+        var searchTask = searchQuery
+        if (searchQuery.startsWith('[')) {
+            val tagEndIndex = searchQuery.indexOf(']')
+            if (tagEndIndex != -1) {
+                searchTag = searchQuery.substring(1 until tagEndIndex)
+                searchTask = searchQuery.substring(tagEndIndex + 1)
+            }
+        }
+        searchTag = searchTag.trim()
+        searchTask = searchTask.trim()
+        localTasks.values.forEach { task ->
+            val title = task.title.value ?: ""
+            val description = task.description.value ?: ""
+            val matchesTaskName = (searchTask in title) || (searchTask in description)
+            val tags = task.tags.value ?: listOf()
+            val matchesTagName = searchTag.isEmpty() || tags.any { tag ->
+                tag.name.value == searchTag
+            }
+            val newVisibility = matchesTagName && matchesTaskName
+            if (task.isVisible != newVisibility) {
+                task.isVisible = newVisibility
+                modificationFlag = true
+            }
+        }
+        if (modificationFlag) {
+            onFullUpdateTaskListeners.forEach {
+                it.invoke(localTasks)
+            }
+        }
+    }
+
+    override fun cancelTaskSearch() {
+        var modificationFlag = false
+        localTasks.values.forEach {
+            if (!it.isVisible) {
+                it.isVisible = true
+                modificationFlag = true
+            }
+        }
+        if (modificationFlag) {
+            onFullUpdateTaskListeners.forEach {
+                it.invoke(localTasks)
+            }
+        }
+    }
+
     override fun getAllTasks(): Map<TaskID, LiveTask> = localTasks
+
+    override fun createNewTag(): LiveTag {
+        val tagIndex = localTags.size
+        val tagID = UUID.randomUUID()
+        val tag = MutableLiveTag(tagID, tagIndex, "", 0)
+        localTags[tagID] = tag
+        //TODO room query
+        onNewTagListeners.forEach { it.invoke(tag) }
+        return tag
+    }
+
+    override fun modifyTag(tagID: TagID, name: String?, styleIndex: Int?) {
+        val tag = localTags[tagID] ?: return
+        //TODO room query
+        if (name != null && name != tag.name.value) {
+            tag.name.value = name
+        }
+        if (styleIndex != null && styleIndex != tag.styleIndex.value) {
+            tag.styleIndex.value = styleIndex
+        }
+    }
+
+    override fun removeTag(tagID: TagID) {
+        val tag = localTags[tagID] ?: return
+        onRemoveTagListeners.forEach { it.invoke(tag, tag.tagIndex) }
+        localTags.remove(tagID)
+        localTags.values.forEach {
+            if (it.tagIndex > tag.tagIndex) {
+                --it.tagIndex
+            }
+        }
+        localTasks.values.forEach {
+            val oldTags = it.tags.value ?: return@forEach
+            if (tag in oldTags) {
+                it.tags.value = oldTags.filterNot { oldTag -> oldTag == tag }
+            }
+        }
+        //TODO SQL query to mark as deleted
+    }
 
     override fun getAllTags(): Map<TagID, LiveTag> = localTags
 
@@ -201,5 +290,11 @@ class TodolistModelImpl: TodolistModel {
 
     override fun removeOnFullUpdateTagListener(listener: OnFullUpdateTagListener) {
         onFullUpdateTagListeners -= listener
+    }
+
+    companion object {
+
+        private const val ACC_NAME_KEY = "account_name"
+        private const val HIDDEN_TASKLIST_ID = -1
     }
 }

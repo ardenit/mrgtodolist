@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="?android:actionBarSize"
         android:background="@color/light_blue"
+        app:menu="@menu/tags_toolbar_menu"
         app:titleTextColor="@color/white"
         app:title="@string/drawer_btn_tags"
         app:layout_constraintEnd_toEndOf="parent"
@@ -48,26 +49,12 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
                 app:selectionRequired="false"
                 mrg:enlarged="true" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/tag_fragment_new_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="32dp"
-        android:backgroundTint="@color/light_blue"
-        android:clickable="true"
-        android:contentDescription="@string/tags_new_tag_btn"
-        android:focusable="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:maxImageSize="48dp"
-        app:srcCompat="@drawable/btn_todolist_new_task"
-        app:tint="@color/white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

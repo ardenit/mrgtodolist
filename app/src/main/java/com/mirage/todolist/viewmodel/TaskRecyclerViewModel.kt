@@ -12,7 +12,7 @@ typealias OnRemoveTaskListener = (task: LiveTask, taskIndex: Int) -> Unit
 /**
  * View model of a single tasklist page
  */
-abstract class TasklistViewModel : ViewModel() {
+abstract class TaskRecyclerViewModel : ViewModel() {
 
     /**
      * [tasklistID] - id of tasklist processed by this view model
@@ -51,7 +51,7 @@ abstract class TasklistViewModel : ViewModel() {
 
     /**
      * Registers a listener for full tasklist overwrite event
-     * This event may happen after synchronization with Google Drive
+     * This event may happen after synchronization with Google Drive, or on task search query
      */
     abstract fun addOnFullUpdateTaskListener(owner: LifecycleOwner, listener: OnFullUpdateTaskListener)
 
@@ -61,13 +61,13 @@ abstract class TasklistViewModel : ViewModel() {
     abstract fun getTask(taskID: TaskID): LiveTask?
 
     /**
-     * Returns a [LiveTask] with a given [taskIndex] in this tasklist, or null if index is invalid
+     * Returns a [LiveTask] with a given visible [position] in this tasklist, or null if index is invalid
      */
-    abstract fun getTaskByIndex(taskIndex: Int): LiveTask?
+    abstract fun getTaskByVisibleIndex(position: Int): LiveTask?
 
     /**
-     * Returns the number of tasks currently in this tasklist
+     * Returns the number of tasks currently visible in this tasklist
      */
-    abstract fun getTaskCount(): Int
+    abstract fun getVisibleTaskCount(): Int
 
 }

@@ -25,8 +25,11 @@
     <string name="tags_recolor_tag_option">Change color</string>
     <string name="tags_delete_tag_option">Delete tag</string>
     <string name="tags_search_tag_option">Search for tasks</string>
+    <string name="tags_create_tag_option">Create tag</string>
     <string name="tags_cancel_option">Cancel</string>
 
+    <string name="tags_create_title">Creating new tag</string>
+    <string name="tags_create_hint">Enter tag name</string>
     <string name="tags_rename_title">Rename tag</string>
     <string name="tags_rename_hint">Enter new name</string>
     <string name="tags_recolor_title">Change color</string>

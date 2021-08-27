@@ -76,9 +76,44 @@ interface TodolistModel {
     )
 
     /**
+     * Processes the search query for tasks, altering their visibility.
+     */
+    fun searchTasks(
+        searchQuery: String
+    )
+
+    /**
+     * Cancels searching for tasks, switching their visibility back to normal.
+     */
+    fun cancelTaskSearch()
+
+    /**
      * Returns a map of all tasks (including hidden/removed ones).
      */
     fun getAllTasks(): Map<TaskID, LiveTask>
+
+    /**
+     * Creates a new tag and returns it.
+     */
+    fun createNewTag(): LiveTag
+
+    /**
+     * Modifies the tag with ID [tagID].
+     * If a parameter's value is null, its value remains unchanged.
+     * This method automatically updates "last modified" time.
+     */
+    fun modifyTag(
+        tagID: TagID,
+        name: String?,
+        styleIndex: Int?
+    )
+
+    /**
+     * Deletes the tag with ID [tagID]
+     * (actually just moves to hidden taglist to simplify diff calculation).
+     * This method automatically updates "last modified" time.
+     */
+    fun removeTag(tagID: TagID)
 
     /**
      * Returns a map of all tags

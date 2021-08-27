@@ -27,10 +27,11 @@ import com.mirage.todolist.viewmodel.TagsViewModelImpl
 class TagsFragment : Fragment() {
 
     private lateinit var tagsViewModel: TagsViewModel
-
-    var onToolbarUpListener: () -> Unit = {}
     private var _binding: TagsRootFragmentBinding? = null
     private val binding get() = _binding!!
+
+    var onToolbarUpListener: () -> Unit = {}
+    var onTagSearchListener: (LiveTag) -> Unit = {}
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -77,6 +78,23 @@ class TagsFragment : Fragment() {
         tagsViewModel.addOnFullUpdateTagListener(viewLifecycleOwner) { tags ->
             chips.recreateTags(tags)
         }
+        tagsViewModel.addOnNewTagListener(viewLifecycleOwner) { tag ->
+            chips.addNewTag(tag)
+        }
+        tagsViewModel.addOnRemoveTagListener(viewLifecycleOwner) { tag, _ ->
+            chips.removeTag(tag)
+        }
+    }
+
+    private fun openNewTagDialog() {
+        val createDialog = TagCreateDialogFragment()
+        createDialog.onCreatePressed = { text ->
+            if (text.isNotBlank()) {
+                val tag = tagsViewModel.createNewTag()
+                tagsViewModel.modifyTag(tag.tagID, newName = text.trim())
+            }
+        }
+        createDialog.show(childFragmentManager, "CreateTagDialog")
     }
 
     private fun openRenameDialog(tag: LiveTag) {
@@ -98,7 +116,7 @@ class TagsFragment : Fragment() {
     }
 
     private fun goToSearchTasks(tag: LiveTag) {
-        //TODO
+        onTagSearchListener(tag)
     }
 
     private fun openDeleteTagDialog(tag: LiveTag) {
@@ -118,6 +136,10 @@ class TagsFragment : Fragment() {
         toolbar.setNavigationIcon(R.drawable.ic_toolbar_drawer_open)
         toolbar.setNavigationOnClickListener {
             onToolbarUpListener()
+        }
+        toolbar.setOnMenuItemClickListener {
+            openNewTagDialog()
+            true
         }
     }
 

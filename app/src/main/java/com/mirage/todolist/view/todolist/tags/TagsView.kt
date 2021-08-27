@@ -40,38 +40,52 @@ class TagsView(context: Context, attrs: AttributeSet?) : ChipGroup(context, attr
     /** Whether the view should be enlarged (true for tags in Tags tab, false for task's own tag list) */
     private val enlarged: Boolean = attrs?.getAttributeBooleanValue("http://mirage.com/mrg", "enlarged", false) ?: false
 
-    fun recreateTags(tags: Map<TagID, LiveTag>) {
+    fun addNewTag(tag: LiveTag) {
         val owner = lifecycleOwner ?: return
-        removeAllViews()
-        val tagList = tags.values.sortedBy { it.tagIndex }
-        tagList.forEach { tag ->
-            val chip = Chip(context)
-            tag.name.observe(owner) {
-                chip.text = it
-            }
-            tag.styleIndex.observe(owner) {
-                val style = TagStyle.values()[it.coerceIn(TagStyle.values().indices)]
-                val backgroundColor = ContextCompat.getColorStateList(context, style.backgroundColor)
-                val textColor = ContextCompat.getColor(context, style.textColor)
-                chip.chipBackgroundColor = backgroundColor
-                chip.setTextColor(textColor)
-                chip.setChipStrokeColorResource(style.textColor)
-                chip.chipStrokeWidth =
-                    if (enlarged) resources.getDimension(R.dimen.tag_chip_stroke_width_enlarged)
-                    else resources.getDimension(R.dimen.tag_chip_stroke_width_normal)
-                chip.textSize =
-                    if (enlarged) resources.getDimension(R.dimen.tag_chip_text_size_enlarged)
-                    else resources.getDimension(R.dimen.tag_chip_text_size_normal)
-                val padding =
-                    if (enlarged) resources.getDimension(R.dimen.tag_chip_padding_enlarged)
-                    else resources.getDimension(R.dimen.tag_chip_padding_normal)
-                chip.chipStartPadding = padding
-                chip.chipEndPadding = padding
-            }
-            chip.setOnClickListener {
-                onTagClickListener(tag)
-            }
-            addView(chip)
+        val chip = Chip(context)
+        tag.name.observe(owner) {
+            chip.text = it
         }
+        tag.styleIndex.observe(owner) {
+            val style = TagStyle.values()[it.coerceIn(TagStyle.values().indices)]
+            val backgroundColor = ContextCompat.getColorStateList(context, style.backgroundColor)
+            val textColor = ContextCompat.getColor(context, style.textColor)
+            chip.chipBackgroundColor = backgroundColor
+            chip.setTextColor(textColor)
+            chip.setEnsureMinTouchTargetSize(false)
+            chip.setChipStrokeColorResource(style.textColor)
+            chip.chipStrokeWidth =
+                if (enlarged) resources.getDimension(R.dimen.tag_chip_stroke_width_enlarged)
+                else resources.getDimension(R.dimen.tag_chip_stroke_width_normal)
+            chip.textSize =
+                if (enlarged) resources.getDimension(R.dimen.tag_chip_text_size_enlarged)
+                else resources.getDimension(R.dimen.tag_chip_text_size_normal)
+            val padding =
+                if (enlarged) resources.getDimension(R.dimen.tag_chip_padding_enlarged)
+                else resources.getDimension(R.dimen.tag_chip_padding_normal)
+            chip.chipStartPadding = padding
+            chip.chipEndPadding = padding
+        }
+        chip.setOnClickListener {
+            onTagClickListener(tag)
+        }
+        addView(chip)
+    }
+
+    fun removeTag(tag: LiveTag) {
+        removeViewAt(tag.tagIndex)
+    }
+
+    fun recreateTags(tags: List<LiveTag>) {
+        lifecycleOwner ?: return
+        val tagList = tags.sortedBy { it.tagIndex }
+        removeAllViews()
+        tagList.forEach { tag ->
+            addNewTag(tag)
+        }
+    }
+
+    fun recreateTags(tags: Map<TagID, LiveTag>) {
+        recreateTags(tags.values.toList())
     }
 }

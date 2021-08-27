@@ -17,7 +17,7 @@ import com.mirage.todolist.viewmodel.*
  */
 class TaskRecyclerFragment : Fragment() {
 
-    private lateinit var tasklistViewModel: TasklistViewModel
+    private lateinit var taskRecyclerViewModel: TaskRecyclerViewModel
     private lateinit var recycler: RecyclerView
     private lateinit var recyclerAdapter: TasklistRecyclerAdapter
     private lateinit var itemTouchHelper: ItemTouchHelper
@@ -27,7 +27,7 @@ class TaskRecyclerFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        tasklistViewModel = ViewModelProvider(this).get(TaskRecyclerViewModelImpl::class.java).apply {
+        taskRecyclerViewModel = ViewModelProvider(this).get(TaskRecyclerViewModelImpl::class.java).apply {
             val tasklistID = arguments?.getInt(ARG_SECTION_NUMBER) ?: 1
             init(tasklistID)
         }
@@ -51,9 +51,9 @@ class TaskRecyclerFragment : Fragment() {
     private fun initializeRecycler() {
         recycler = binding.todolistRecyclerView
         recycler.layoutManager = LinearLayoutManager(context)
-        recyclerAdapter = TasklistRecyclerAdapter(requireContext(), tasklistViewModel, viewLifecycleOwner)
+        recyclerAdapter = TasklistRecyclerAdapter(requireContext(), taskRecyclerViewModel, viewLifecycleOwner)
         recycler.adapter = recyclerAdapter
-        val itemTouchHelperCallback = TasklistItemTouchHelperCallback(recyclerAdapter, tasklistViewModel.getTasklistID())
+        val itemTouchHelperCallback = TasklistItemTouchHelperCallback(recyclerAdapter, taskRecyclerViewModel.getTasklistID())
         itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
         itemTouchHelper.attachToRecyclerView(recycler)
         val divider = TasklistItemDecoration()

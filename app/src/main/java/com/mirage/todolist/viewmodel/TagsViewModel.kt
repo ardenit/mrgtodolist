@@ -9,7 +9,7 @@ abstract class TagsViewModel : ViewModel() {
 
     abstract fun init()
 
-    abstract fun createNewTag()
+    abstract fun createNewTag(): LiveTag
 
     abstract fun removeTag(tagID: TagID)
 

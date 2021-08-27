@@ -14,6 +14,6 @@ class MutableLiveTag(
     styleIndex: Int
 ) : LiveTag {
 
-    override val name: LiveData<String> = MutableLiveData(name)
-    override val styleIndex: LiveData<Int> = MutableLiveData(styleIndex)
+    override val name: MutableLiveData<String> = MutableLiveData(name)
+    override val styleIndex: MutableLiveData<Int> = MutableLiveData(styleIndex)
 }

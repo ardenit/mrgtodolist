@@ -10,11 +10,16 @@ interface LiveTask {
     val taskID: TaskID
     /**
      * ID of the tasklist this task is currently in.
-     * May be changed by the model, observed by [com.mirage.todolist.model.TodolistModel.addOnMoveTaskListener]
+     * May be changed by the model, observed by [com.mirage.todolist.model.tasks.TodolistModel.addOnMoveTaskListener]
      * */
     val tasklistID: Int
-    /** Current index of this task in its tasklist. May be changed by the model, can't be observed */
+    /** Current actual index of this task in its tasklist. May be changed by the model, can't be observed */
     val taskIndex: Int
+    /**
+     * Client-specific information about whether the task should be visible in the tasklist
+     * (it may be temporarily hidden due to filtering by search query).
+     */
+    val isVisible: Boolean
     /** Title of the task. Recycler items should observe this data and react to it */
     val title: LiveData<String>
     /** Description of the task. Recycler items should observe this data and react to it */

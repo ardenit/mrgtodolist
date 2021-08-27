@@ -10,6 +10,7 @@ class MutableLiveTask(
     override val taskID: TaskID,
     override var tasklistID: Int,
     override var taskIndex: Int,
+    override var isVisible: Boolean,
     title: String,
     description: String,
     tags: List<LiveTag>
@@ -17,5 +18,5 @@ class MutableLiveTask(
 
     override val title: MutableLiveData<String> = MutableLiveData(title)
     override val description: MutableLiveData<String> = MutableLiveData(description)
-    override val tags: LiveData<List<LiveTag>> = MutableLiveData(tags)
+    override val tags: MutableLiveData<List<LiveTag>> = MutableLiveData(tags)
 }

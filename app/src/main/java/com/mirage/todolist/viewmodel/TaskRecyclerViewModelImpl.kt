@@ -5,9 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import com.mirage.todolist.model.tasks.*
 
 /**
- * See [TasklistViewModel] for API documentation
+ * See [TaskRecyclerViewModel] for API documentation
  */
-class TaskRecyclerViewModelImpl : TasklistViewModel() {
+class TaskRecyclerViewModelImpl : TaskRecyclerViewModel() {
 
     private lateinit var onNewTaskListener: OnNewTaskListener
     private lateinit var onMoveTaskListener: OnMoveTaskListener
@@ -18,6 +18,7 @@ class TaskRecyclerViewModelImpl : TasklistViewModel() {
     private val onFullUpdateObservable = MutableLiveData<Map<TaskID, LiveTask>>()
 
     private var tasklistID: Int = -1
+    /** Slice of actual tasks in this tasklist (including temporarily hidden ones) */
     private var tasksSlice: MutableMap<TaskID, LiveTask> = LinkedHashMap()
     private var initialized = false
 
@@ -56,7 +57,7 @@ class TaskRecyclerViewModelImpl : TasklistViewModel() {
             tasksSlice = newTasks.filter { (_, task) ->
                 task.tasklistID == this.tasklistID
             }.toMutableMap()
-            onFullUpdateObservable.value = tasksSlice
+            onFullUpdateObservable.value = tasksSlice.filterValues { it.isVisible }
         }
         todolistModel.addOnNewTaskListener(onNewTaskListener)
         todolistModel.addOnMoveTaskListener(onMoveTaskListener)
@@ -69,21 +70,29 @@ class TaskRecyclerViewModelImpl : TasklistViewModel() {
 
     override fun swipeTaskLeft(taskIndex: Int) {
         if (tasklistID < 1) return
-        val task = getTaskByIndex(taskIndex) ?: return
+        val task = getTaskByVisibleIndex(taskIndex) ?: return
         todolistModel.moveTask(task.taskID, tasklistID - 1)
     }
 
     override fun swipeTaskRight(taskIndex: Int) {
         if (tasklistID > TasklistType.values().size - 2) return
-        val task = getTaskByIndex(taskIndex) ?: return
+        val task = getTaskByVisibleIndex(taskIndex) ?: return
         todolistModel.moveTask(task.taskID, tasklistID + 1)
     }
 
     override fun dragTask(fromIndex: Int, toIndex: Int) {
-        if (fromIndex !in 0 until getTaskCount()) return
-        if (toIndex !in 0 until getTaskCount()) return
-        val task = getTaskByIndex(fromIndex) ?: return
-        todolistModel.moveTaskInList(task.taskID, toIndex)
+        if (fromIndex !in 0 until getVisibleTaskCount()) return
+        if (toIndex !in 0 until getVisibleTaskCount()) return
+        val task = getTaskByVisibleIndex(fromIndex) ?: return
+        val visibleTasks = tasksSlice.values.filter { it.isVisible }
+        if (toIndex < visibleTasks.size) {
+            val newIndex = visibleTasks[toIndex].taskIndex
+            todolistModel.moveTaskInList(task.taskID, newIndex)
+        }
+        else {
+            val newIndex = visibleTasks[visibleTasks.size - 1].taskIndex + 1
+            todolistModel.moveTaskInList(task.taskID, newIndex)
+        }
     }
 
     override fun addOnNewTaskListener(owner: LifecycleOwner, listener: OnNewTaskListener) {
@@ -104,12 +113,13 @@ class TaskRecyclerViewModelImpl : TasklistViewModel() {
         return tasksSlice[taskID]
     }
 
-    override fun getTaskByIndex(taskIndex: Int): LiveTask? {
-        return tasksSlice.values.find { it.taskIndex == taskIndex }
+    override fun getTaskByVisibleIndex(position: Int): LiveTask? {
+        val visibleTasks = tasksSlice.values.filter { it.isVisible }.sortedBy { it.taskIndex }
+        return if (position in visibleTasks.indices) visibleTasks[position] else null
     }
 
-    override fun getTaskCount(): Int {
-        return tasksSlice.size
+    override fun getVisibleTaskCount(): Int {
+        return tasksSlice.values.filter { it.isVisible }.count()
     }
 
     override fun onCleared() {

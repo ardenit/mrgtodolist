@@ -5,8 +5,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -24,6 +26,8 @@ import com.mirage.todolist.viewmodel.TasklistType
 class TasksFragment : Fragment() {
 
     var onToolbarUpListener: () -> Unit = {}
+    var onSearchQueryListener: (String) -> Unit = {}
+    var onSearchStopListener: () -> Unit = {}
     private var _binding: TasksRootFragmentBinding? = null
     private val binding get() = _binding!!
 
@@ -53,6 +57,28 @@ class TasksFragment : Fragment() {
         toolbar.setNavigationOnClickListener {
             onToolbarUpListener()
         }
+        val searchItem = toolbar.menu[0]
+        val searchView = searchItem.actionView as SearchView
+        searchView.setOnCloseListener {
+            onSearchStopListener()
+            false
+        }
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (query != null) {
+                    onSearchQueryListener(query)
+                }
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText != null) {
+                    onSearchQueryListener(newText)
+                }
+                return false
+            }
+        })
     }
 
     private fun initializeViewPager() {

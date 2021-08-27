@@ -36,16 +36,16 @@ class TagsViewModelImpl : TagsViewModel() {
         todolistModel.addOnFullUpdateTagListener(onFullUpdateTagListener)
     }
 
-    override fun createNewTag() {
-        //TODO
+    override fun createNewTag(): LiveTag {
+        return todolistModel.createNewTag()
     }
 
     override fun removeTag(tagID: TagID) {
-        //TODO("Not yet implemented")
+        todolistModel.removeTag(tagID)
     }
 
     override fun modifyTag(tagID: TagID, newName: String?, newStyleIndex: Int?) {
-        //TODO("Not yet implemented")
+        todolistModel.modifyTag(tagID, newName, newStyleIndex)
     }
 
     override fun getAllTags(): Map<TagID, LiveTag> {

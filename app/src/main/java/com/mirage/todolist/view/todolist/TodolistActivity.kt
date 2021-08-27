@@ -220,6 +220,12 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         tasksFragment.onToolbarUpListener = {
             drawerLayout.open()
         }
+        tasksFragment.onSearchQueryListener = {
+            todolistModel.searchTasks(it)
+        }
+        tasksFragment.onSearchStopListener = {
+            todolistModel.cancelTaskSearch()
+        }
         tagsFragment = TagsFragment()
         tagsFragment.onToolbarUpListener = {
             drawerLayout.open()
