@@ -74,8 +74,29 @@ class EditTaskActivity : AppCompatActivity() {
         }
         tagsView.recreateTags(newTagsList)
         newTagBtn.setOnClickListener {
-            //TODO New tag dialog
+            if (todolistModel.getAllTags().values.containsAll(newTagsList)) {
+                showToast(R.string.edit_task_full_tags_toast)
+            }
+            else {
+                openNewTagDialog()
+            }
         }
+    }
+
+    private fun openNewTagDialog() {
+        val addTagDialog = EditTaskAddTagDialogFragment()
+        addTagDialog.tags = todolistModel.getAllTags().values.filterNot {
+            it in newTagsList
+        }
+        addTagDialog.onTagSelected = {
+            if (it !in newTagsList) {
+                newTagsList += it
+                newTagsList.sortBy { tag -> tag.tagIndex }
+                tagsView.recreateTags(newTagsList)
+            }
+            addTagDialog.dismiss()
+        }
+        addTagDialog.show(supportFragmentManager, "AddTagDialog")
     }
 
     private fun saveTask() {

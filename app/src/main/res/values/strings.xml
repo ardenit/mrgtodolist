@@ -28,6 +28,7 @@
     <string name="edit_task_description_hint">Enter task description</string>
     <string name="edit_task_tags_title">Tags</string>
     <string name="edit_task_tags_btn">Add new tag</string>
+    <string name="edit_task_full_tags_toast">All tags are already used</string>
     <string name="edit_task_location_title">Location</string>
     <string name="edit_task_location_set_btn">Set location</string>
     <string name="edit_task_location_remove_btn">Remove location</string>
