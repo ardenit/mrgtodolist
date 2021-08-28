@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/edit_task_location_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/edit_task_location_title"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/edit_task_location_text"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_marginTop="16dp"
+        android:maxLength="30"
+        android:singleLine="true"
+        android:textSize="20sp"
+        android:visibility="gone"
+        app:drawableStartCompat="@drawable/baseline_place_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edit_task_location_title" />
+
+    <Button
+        android:id="@+id/edit_task_location_add"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/edit_task_location_set_btn"
+        android:textAllCaps="false"
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edit_task_location_title" />
+
+    <ImageButton
+        android:id="@+id/edit_task_location_remove"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="#00FFFFFF"
+        android:contentDescription="@string/edit_task_location_remove_btn"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/edit_task_location_text"
+        app:layout_constraintStart_toEndOf="@+id/edit_task_location_text"
+        app:layout_constraintTop_toTopOf="@+id/edit_task_location_text"
+        app:srcCompat="@drawable/baseline_cancel_24" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

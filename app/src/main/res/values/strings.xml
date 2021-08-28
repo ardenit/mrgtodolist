@@ -33,7 +33,9 @@
     <string name="edit_task_location_set_btn">Set location</string>
     <string name="edit_task_location_remove_btn">Remove location</string>
     <string name="edit_task_date_title">Date</string>
+    <string name="edit_task_date_not_set">Date not set</string>
     <string name="edit_task_time_title">Time</string>
+    <string name="edit_task_time_not_set">Time not set</string>
     <string name="edit_task_period_title">Period</string>
 
     <string name="edit_task_saved_toast">Task successfully saved</string>

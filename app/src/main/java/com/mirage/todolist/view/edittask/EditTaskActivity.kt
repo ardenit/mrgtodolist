@@ -74,7 +74,7 @@ class EditTaskActivity : AppCompatActivity() {
         }
         tagsView.recreateTags(newTagsList)
         newTagBtn.setOnClickListener {
-            if (todolistModel.getAllTags().values.containsAll(newTagsList)) {
+            if (newTagsList.containsAll(todolistModel.getAllTags().values)) {
                 showToast(R.string.edit_task_full_tags_toast)
             }
             else {

@@ -39,6 +39,7 @@ class TagsView(context: Context, attrs: AttributeSet?) : ChipGroup(context, attr
 
     /** Whether the view should be enlarged (true for tags in Tags tab, false for task's own tag list) */
     private val enlarged: Boolean = attrs?.getAttributeBooleanValue("http://mirage.com/mrg", "enlarged", false) ?: false
+    private val closeable: Boolean = attrs?.getAttributeBooleanValue("http://mirage.com/mrg", "closeIconEnabled", false) ?: false
 
     fun addNewTag(tag: LiveTag) {
         val owner = lifecycleOwner ?: return
@@ -66,8 +67,16 @@ class TagsView(context: Context, attrs: AttributeSet?) : ChipGroup(context, attr
             chip.chipStartPadding = padding
             chip.chipEndPadding = padding
         }
-        chip.setOnClickListener {
-            onTagClickListener(tag)
+        if (closeable) {
+            chip.isCloseIconVisible = true
+            chip.setOnCloseIconClickListener {
+                onTagClickListener(tag)
+            }
+        }
+        else {
+            chip.setOnClickListener {
+                onTagClickListener(tag)
+            }
         }
         addView(chip)
     }

@@ -53,5 +53,6 @@
         android:textSize="20sp" />
 
     <include layout="@layout/edit_task_tags" />
+    <include layout="@layout/edit_task_location" />
     <include layout="@layout/edit_task_datetime" />
 </LinearLayout>
