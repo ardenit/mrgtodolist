@@ -50,7 +50,10 @@ interface TodolistModel {
         taskID: TaskID,
         title: String?,
         description: String?,
-        tags: List<LiveTag>?
+        tags: List<LiveTag>?,
+        date: TaskDate?,
+        time: TaskTime?,
+        period: TaskPeriod?
     )
 
     /**

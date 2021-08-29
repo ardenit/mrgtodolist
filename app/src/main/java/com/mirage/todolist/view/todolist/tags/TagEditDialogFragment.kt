@@ -15,15 +15,14 @@ enum class TagEditDialogOption {
     CANCEL
 }
 
-class TagEditDialogFragment(
-    private val tag: LiveTag
-    ) : DialogFragment() {
+class TagEditDialogFragment : DialogFragment() {
 
     var onOptionSelectedListener: ((TagEditDialogOption) -> Unit)? = null
+    var tag: LiveTag? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog = activity?.let {
         val builder = AlertDialog.Builder(it)
-            .setTitle(tag.name.value)
+            .setTitle(tag?.name?.value ?: "")
             .setItems(R.array.tag_edit_options) { _, index ->
                 val options = TagEditDialogOption.values()
                 onOptionSelectedListener?.invoke(options[index.coerceIn(options.indices)])

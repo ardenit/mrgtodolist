@@ -29,4 +29,8 @@ interface LiveTask {
      * The list itself is immutable and will not be changed, so this data can be easily observed.
      * */
     val tags: LiveData<List<LiveTag>>
+    /** Date, time and period of the task. Null if not set. */
+    val date: LiveData<TaskDate>
+    val time: LiveData<TaskTime>
+    val period: LiveData<TaskPeriod>
 }

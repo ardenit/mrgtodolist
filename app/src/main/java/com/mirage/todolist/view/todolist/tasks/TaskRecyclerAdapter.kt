@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mirage.todolist.R
 import com.mirage.todolist.model.tasks.LiveTag
 import com.mirage.todolist.model.tasks.LiveTask
+import com.mirage.todolist.model.tasks.TaskPeriod
 import com.mirage.todolist.view.todolist.tags.TagsView
 import com.mirage.todolist.viewmodel.TasklistType
 import com.mirage.todolist.viewmodel.TaskRecyclerViewModel
@@ -102,6 +103,36 @@ class TasklistRecyclerAdapter(
         holder.taskEditBtn.setOnClickListener {
             onTaskEditListener(task)
         }
+        task.date.observe(lifecycleOwner) {
+            updateDatetimeText(task, holder)
+        }
+        task.time.observe(lifecycleOwner) {
+            updateDatetimeText(task, holder)
+        }
+        task.period.observe(lifecycleOwner) {
+            updateDatetimeText(task, holder)
+        }
+    }
+
+    private fun updateDatetimeText(task: LiveTask, holder: TasklistViewHolder) {
+        var datetimeText = ""
+        val date = task.date.value ?: return
+        val time = task.time.value ?: return
+        val period = task.period.value ?: return
+        if (date.year >= 0 && date.monthOfYear >= 0 && date.dayOfMonth >= 0) {
+            datetimeText += "${twoDigits(date.dayOfMonth + 1)}.${twoDigits(date.monthOfYear + 1)}.${date.year} "
+        }
+        if (time.hour >= 0 && time.minute >= 0) {
+            datetimeText += "${twoDigits(time.hour)}:${twoDigits(time.minute)} "
+        }
+        if (datetimeText.isEmpty()) {
+            holder.taskDatetimeView.visibility = View.GONE
+        }
+        else {
+            datetimeText += "(${context.resources.getString(period.nameRes)})"
+            holder.taskDatetimeView.text = datetimeText
+            holder.taskDatetimeView.visibility = View.VISIBLE
+        }
     }
 
     override fun getItemCount(): Int = viewModel.getVisibleTaskCount()
@@ -120,4 +151,7 @@ class TasklistRecyclerAdapter(
         viewModel.swipeTaskRight(position)
         notifyItemRemoved(position)
     }
+
+    private fun twoDigits(number: Int): String =
+        if (number < 10) "0$number" else number.toString()
 }

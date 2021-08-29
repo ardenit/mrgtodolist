@@ -54,7 +54,8 @@ class TagsFragment : Fragment() {
         val chips = binding.tagFragmentChips
         chips.lifecycleOwner = viewLifecycleOwner
         chips.onTagClickListener = { tag ->
-            val editTagDialog = TagEditDialogFragment(tag)
+            val editTagDialog = TagEditDialogFragment()
+            editTagDialog.tag = tag
             editTagDialog.onOptionSelectedListener = {
                 when (it) {
                     TagEditDialogOption.RENAME -> {

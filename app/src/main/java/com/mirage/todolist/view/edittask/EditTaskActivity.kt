@@ -1,21 +1,22 @@
 package com.mirage.todolist.view.edittask
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import com.mirage.todolist.R
-import com.mirage.todolist.model.tasks.LiveTag
-import com.mirage.todolist.model.tasks.LiveTask
-import com.mirage.todolist.model.tasks.TodolistModel
-import com.mirage.todolist.model.tasks.getTodolistModel
+import com.mirage.todolist.model.tasks.*
 import com.mirage.todolist.view.settings.showToast
 import com.mirage.todolist.view.todolist.tags.TagsView
 import java.util.*
@@ -28,6 +29,9 @@ class EditTaskActivity : AppCompatActivity() {
     private var initialTask: LiveTask? = null
     private var tasklistID: Int = 1
     private var newTagsList: MutableList<LiveTag> = arrayListOf()
+    private var newTaskDate: TaskDate = TaskDate(-1, -1, -1)
+    private var newTaskTime: TaskTime = TaskTime(-1, -1)
+    private var newTaskPeriod: TaskPeriod = TaskPeriod.NOT_REPEATABLE
     /** Flag to prevent multiple clicks on "Save" button */
     private var savePressed: Boolean = false
 
@@ -35,6 +39,9 @@ class EditTaskActivity : AppCompatActivity() {
     private lateinit var descriptionInput: EditText
     private lateinit var newTagBtn: Button
     private lateinit var tagsView: TagsView
+    private lateinit var dateBtn: Button
+    private lateinit var timeBtn: Button
+    private lateinit var periodBtn: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,6 +78,9 @@ class EditTaskActivity : AppCompatActivity() {
             titleInput.setText(task.title.value)
             descriptionInput.setText(task.description.value)
             newTagsList = task.tags.value?.toMutableList() ?: arrayListOf()
+            newTaskDate = task.date.value ?: TaskDate(-1, -1, -1)
+            newTaskTime = task.time.value ?: TaskTime(-1, -1)
+            newTaskPeriod = task.period.value ?: TaskPeriod.NOT_REPEATABLE
         }
         tagsView.recreateTags(newTagsList)
         newTagBtn.setOnClickListener {
@@ -81,6 +91,19 @@ class EditTaskActivity : AppCompatActivity() {
                 openNewTagDialog()
             }
         }
+        dateBtn = findViewById(R.id.edit_task_date_btn)
+        timeBtn = findViewById(R.id.edit_task_time_btn)
+        periodBtn = findViewById(R.id.edit_task_period_btn)
+        dateBtn.setOnClickListener {
+            openDateChooserDialog()
+        }
+        timeBtn.setOnClickListener {
+            openTimeChooserDialog()
+        }
+        periodBtn.setOnClickListener {
+            openPeriodChooserDialog()
+        }
+        updateTooltips()
     }
 
     private fun openNewTagDialog() {
@@ -99,6 +122,81 @@ class EditTaskActivity : AppCompatActivity() {
         addTagDialog.show(supportFragmentManager, "AddTagDialog")
     }
 
+    private fun updateTooltips() {
+        val dateText = newTaskDate.let {
+            if (it.year < 0 || it.monthOfYear < 0 || it.dayOfMonth < 0) {
+                resources.getString(R.string.edit_task_date_not_set)
+            }
+            else {
+                "${twoDigits(it.dayOfMonth + 1)}.${twoDigits(it.monthOfYear + 1)}.${it.year}"
+            }
+        }
+        dateBtn.text = dateText
+        val timeText = newTaskTime.let {
+            if (it.hour < 0 || it.minute < 0) {
+                resources.getString(R.string.edit_task_time_not_set)
+            }
+            else {
+                "${twoDigits(it.hour)}:${twoDigits(it.minute)}"
+            }
+        }
+        timeBtn.text = timeText
+        val periodText = resources.getString(newTaskPeriod.nameRes)
+        periodBtn.text = periodText
+    }
+
+    private fun twoDigits(number: Int): String =
+        if (number < 10) "0$number" else number.toString()
+
+    private fun openDateChooserDialog() {
+        val dateListener = DatePickerDialog.OnDateSetListener { datePicker, year, month, day ->
+            val newDate = TaskDate(year, month, day)
+            newTaskDate = newDate
+            updateTooltips()
+        }
+        val currentTime = Calendar.getInstance()
+        val hasDate = newTaskDate.year >= 0 && newTaskDate.monthOfYear >= 0 && newTaskDate.dayOfMonth >= 0
+        val dialog = DatePickerDialog(
+            this,
+            R.style.Theme_TodoApp_EditTaskAlertDialog,
+            dateListener,
+            if (hasDate) newTaskDate.year else currentTime.get(Calendar.YEAR),
+            if (hasDate) newTaskDate.monthOfYear else currentTime.get(Calendar.MONTH),
+            if (hasDate) newTaskDate.dayOfMonth else currentTime.get(Calendar.DAY_OF_MONTH),
+        )
+        dialog.show()
+    }
+
+    private fun openTimeChooserDialog() {
+        val timeListener = TimePickerDialog.OnTimeSetListener { datePicker, hour, minute ->
+            val newTime = TaskTime(hour, minute)
+            newTaskTime = newTime
+            updateTooltips()
+        }
+        val currentTime = Calendar.getInstance()
+        val hasTime = newTaskTime.hour >= 0 && newTaskTime.minute >= 0
+        val dialog = TimePickerDialog(
+            this,
+            R.style.Theme_TodoApp_EditTaskAlertDialog,
+            timeListener,
+            if (hasTime) newTaskTime.hour else currentTime.get(Calendar.HOUR_OF_DAY),
+            if (hasTime) newTaskTime.minute else currentTime.get(Calendar.MINUTE),
+            true
+        )
+        dialog.show()
+    }
+
+    private fun openPeriodChooserDialog() {
+        val periodListener: (Int) -> Unit = {
+            val newPeriod = TaskPeriod.values()[it]
+            newTaskPeriod = newPeriod
+            updateTooltips()
+        }
+        val dialog = EditTaskPeriodDialogFragment()
+        dialog.onPeriodSelected = periodListener
+        dialog.show(supportFragmentManager, "PeriodDialog")
+    }
+
     private fun saveTask() {
         if (savePressed) return
         savePressed = true
@@ -109,7 +207,10 @@ class EditTaskActivity : AppCompatActivity() {
             taskID = task.taskID,
             title = newTitle,
             description = newDescription,
-            tags = newTagsList
+            tags = newTagsList,
+            date = newTaskDate,
+            time = newTaskTime,
+            period = newTaskPeriod
         )
         showToast(R.string.edit_task_saved_toast)
         super.onBackPressed()
@@ -144,7 +245,10 @@ class EditTaskActivity : AppCompatActivity() {
         if (
             newTitle != task.title.value ||
             newDescription != task.description.value ||
-            newTagsList != task.tags.value
+            newTagsList != task.tags.value ||
+            newTaskDate != task.date.value ||
+            newTaskTime != task.time.value ||
+            newTaskPeriod != task.period.value
         ) {
             openBackConfirmDialog()
         }

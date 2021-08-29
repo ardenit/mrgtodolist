@@ -56,4 +56,12 @@
         <item>@string/tags_delete_tag_option</item>
         <item>@string/tags_cancel_option</item>
     </string-array>
+
+    <string-array name="task_periods">
+        <item>@string/task_period_not_repeatable</item>
+        <item>@string/task_period_daily</item>
+        <item>@string/task_period_weekly</item>
+        <item>@string/task_period_monthly</item>
+        <item>@string/task_period_yearly</item>
+    </string-array>
 </resources>

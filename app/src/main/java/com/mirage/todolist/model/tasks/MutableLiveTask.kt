@@ -13,10 +13,16 @@ class MutableLiveTask(
     override var isVisible: Boolean,
     title: String,
     description: String,
-    tags: List<LiveTag>
+    tags: List<LiveTag> = listOf(),
+    date: TaskDate = TaskDate(-1, -1, -1),
+    time: TaskTime = TaskTime(-1, -1),
+    period: TaskPeriod = TaskPeriod.NOT_REPEATABLE
 ) : LiveTask {
 
     override val title: MutableLiveData<String> = MutableLiveData(title)
     override val description: MutableLiveData<String> = MutableLiveData(description)
     override val tags: MutableLiveData<List<LiveTag>> = MutableLiveData(tags)
+    override val date: MutableLiveData<TaskDate> = MutableLiveData(date)
+    override val time: MutableLiveData<TaskTime> = MutableLiveData(time)
+    override val period: MutableLiveData<TaskPeriod> = MutableLiveData(period)
 }

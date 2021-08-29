@@ -45,6 +45,12 @@
     <string name="edit_task_back_cancel_btn">Cancel</string>
     <string name="edit_task_back_discard_btn">Discard changes</string>
 
+    <string name="task_period_not_repeatable">Not repeatable</string>
+    <string name="task_period_daily">Daily</string>
+    <string name="task_period_weekly">Weekly</string>
+    <string name="task_period_monthly">Monthly</string>
+    <string name="task_period_yearly">Yearly</string>
+
     <string name="tags_new_tag_btn">New tag</string>
     <string name="tags_title">Tags</string>
     <string name="tags_rename_tag_option">Rename</string>

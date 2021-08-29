@@ -87,7 +87,10 @@ class TodolistModelImpl: TodolistModel {
         taskID: TaskID,
         title: String?,
         description: String?,
-        tags: List<LiveTag>?
+        tags: List<LiveTag>?,
+        date: TaskDate?,
+        time: TaskTime?,
+        period: TaskPeriod?
     ) {
         val task = localTasks[taskID] ?: return
         //TODO room query
@@ -99,6 +102,15 @@ class TodolistModelImpl: TodolistModel {
         }
         if (tags != null && tags != task.tags.value) {
             task.tags.value = tags
+        }
+        if (date != null && date != task.date.value) {
+            task.date.value = date
+        }
+        if (time != null && time != task.time.value) {
+            task.time.value = time
+        }
+        if (period != null && period != task.period.value) {
+            task.period.value = period
         }
     }
 
