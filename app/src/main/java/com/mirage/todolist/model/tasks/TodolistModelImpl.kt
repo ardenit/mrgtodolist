@@ -4,8 +4,13 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
 import androidx.preference.PreferenceManager
+import androidx.room.Room
+import com.mirage.todolist.R
 import com.mirage.todolist.model.gdrive.GDriveConnectExceptionHandler
 import com.mirage.todolist.model.gdrive.GDriveRestApi
+import com.mirage.todolist.model.room.AppDatabase
+import com.mirage.todolist.model.room.TaskDao
+import com.mirage.todolist.model.room.TaskEntity
 import java.util.*
 import kotlin.collections.LinkedHashMap
 import kotlin.collections.LinkedHashSet
@@ -18,6 +23,8 @@ class TodolistModelImpl: TodolistModel {
     private val gDriveRestApi = GDriveRestApi()
     private lateinit var appCtx: Context
     private lateinit var prefs: SharedPreferences
+    private lateinit var database: AppDatabase
+    private lateinit var taskDao: TaskDao
     private var email: String? = null
 
     /** Local cache for tasks, key is task's unique taskID */
@@ -36,27 +43,40 @@ class TodolistModelImpl: TodolistModel {
     private var initialized = false
 
     override fun init(appCtx: Context) {
-        this.appCtx = appCtx.applicationContext
-        prefs = PreferenceManager.getDefaultSharedPreferences(this.appCtx)
         if (initialized) return
         initialized = true
+        this.appCtx = appCtx.applicationContext
+        prefs = PreferenceManager.getDefaultSharedPreferences(this.appCtx)
+        database = Room.databaseBuilder(appCtx, AppDatabase::class.java, "mirage_todolist_db").build()
+        taskDao = database.getTaskDao()
         gDriveRestApi.init(this.appCtx, email)
 
+        //TODO load tags
         repeat(4) { tagIndex ->
             val id = UUID.randomUUID()
             val tag = MutableLiveTag(id, tagIndex, tagIndex.toString().repeat(tagIndex + 1), 0)
             localTags[id] = tag
         }
 
-        //TODO load tasks from room and start sync with gdrive
-        repeat(3) { tasklistID ->
-            val tasksCount = 20
-            repeat(tasksCount) { taskIndex ->
-                val id = UUID.randomUUID()
-                val task = MutableLiveTask(id, tasklistID, taskIndex, true, "init $tasklistID $taskIndex", "init $tasklistID $taskIndex", localTags.values.toList())
-                localTasks[id] = task
-            }
-            tasklistSizes[tasklistID] = tasksCount
+        val taskEntities = taskDao.getAllTasks()
+        taskEntities.forEach { taskEntity ->
+            val tags: List<LiveTag> = listOf() //TODO load tags for task
+            val taskId = UUID(taskEntity.taskIdFirst, taskEntity.taskIdLast)
+            val tasklistId = taskEntity.tasklistId
+            val task = MutableLiveTask(
+                taskID = taskId,
+                tasklistID = tasklistId,
+                taskIndex = taskEntity.taskIndex,
+                isVisible = true,
+                title = taskEntity.title,
+                description = taskEntity.description,
+                tags = tags,
+                date = TaskDate(taskEntity.dateYear, taskEntity.dateMonth, taskEntity.dateDay),
+                time = TaskTime(taskEntity.timeHour, taskEntity.timeMinute),
+                period = TaskPeriod.values()[taskEntity.periodId.coerceIn(TaskPeriod.values().indices)]
+            )
+            localTasks[taskId] = task
+            tasklistSizes[tasklistId] = (tasklistSizes[tasklistId] ?: 0) + 1
         }
     }
 
@@ -74,11 +94,27 @@ class TodolistModelImpl: TodolistModel {
 
     override fun createNewTask(tasklistID: Int): LiveTask {
         val taskIndex = tasklistSizes[tasklistID] ?: 0
-        val taskID = UUID.randomUUID()
-        val task = MutableLiveTask(taskID, tasklistID, taskIndex, true, "", "", listOf())
+        val taskId = UUID.randomUUID()
+        val title = appCtx.resources.getString(R.string.task_default_title)
+        val description = appCtx.resources.getString(R.string.task_default_description)
+        val task = MutableLiveTask(taskId, tasklistID, taskIndex, true, title, description)
         tasklistSizes[tasklistID] = taskIndex + 1
-        localTasks[taskID] = task
-        //TODO room query
+        localTasks[taskId] = task
+        val taskEntity = TaskEntity(
+            taskIdFirst = taskId.mostSignificantBits,
+            taskIdLast = taskId.leastSignificantBits,
+            tasklistId = tasklistID,
+            taskIndex = taskIndex,
+            title = title,
+            description = description,
+            dateYear = -1,
+            dateMonth = -1,
+            dateDay = -1,
+            timeHour = -1,
+            timeMinute = -1,
+            periodId = 0
+        )
+        taskDao.insertTask(taskEntity)
         onNewTaskListeners.forEach { it.invoke(task) }
         return task
     }
@@ -93,24 +129,30 @@ class TodolistModelImpl: TodolistModel {
         period: TaskPeriod?
     ) {
         val task = localTasks[taskID] ?: return
-        //TODO room query
         if (title != null && title != task.title.value) {
             task.title.value = title
+            taskDao.setTaskTitle(task.taskID.mostSignificantBits, task.taskID.leastSignificantBits, title)
         }
         if (description != null && description != task.description.value) {
             task.description.value = description
+            task.title.value = title
+            taskDao.setTaskDescription(task.taskID.mostSignificantBits, task.taskID.leastSignificantBits, description)
         }
         if (tags != null && tags != task.tags.value) {
             task.tags.value = tags
+            //TODO tags update room query
         }
         if (date != null && date != task.date.value) {
             task.date.value = date
+            taskDao.setTaskDate(task.taskID.mostSignificantBits, task.taskID.leastSignificantBits, date.year, date.monthOfYear, date.dayOfMonth)
         }
         if (time != null && time != task.time.value) {
             task.time.value = time
+            taskDao.setTaskTime(task.taskID.mostSignificantBits, task.taskID.leastSignificantBits, time.hour, time.minute)
         }
         if (period != null && period != task.period.value) {
             task.period.value = period
+            taskDao.setTaskPeriod(task.taskID.mostSignificantBits, task.taskID.leastSignificantBits, TaskPeriod.values().indexOf(period))
         }
     }
 
@@ -124,7 +166,6 @@ class TodolistModelImpl: TodolistModel {
         if (oldTasklistID == newTasklistID) return
         val oldTaskIndex = task.taskIndex
         val newTaskIndex = tasklistSizes[newTasklistID] ?: 0
-        //TODO Room query for task move and index shift
         tasklistSizes[oldTasklistID] = (tasklistSizes[oldTasklistID] ?: 1) - 1
         tasklistSizes[newTasklistID] = (tasklistSizes[newTasklistID] ?: 0) + 1
         localTasks.values.asSequence()
@@ -137,6 +178,14 @@ class TodolistModelImpl: TodolistModel {
             .forEach { it.taskIndex = (it.taskIndex ?: -1) + 1 }
         task.tasklistID = newTasklistID
         task.taskIndex = newTaskIndex
+        taskDao.moveTask(
+            task.taskID.mostSignificantBits,
+            task.taskID.leastSignificantBits,
+            oldTasklistID,
+            newTasklistID,
+            oldTaskIndex,
+            newTaskIndex
+        )
         onMoveTaskListeners.forEach { listener ->
             listener(task, oldTasklistID, newTasklistID, oldTaskIndex, newTaskIndex)
         }
@@ -148,20 +197,25 @@ class TodolistModelImpl: TodolistModel {
         val oldTaskIndex = task.taskIndex
         if (oldTaskIndex == newTaskIndex) return
         if (oldTaskIndex < newTaskIndex) {
-            //TODO Room query for index shift
             localTasks.values.asSequence()
                 .filter { it.tasklistID == tasklistID }
                 .filter { it.taskIndex in (oldTaskIndex + 1)..newTaskIndex }
                 .forEach { it.taskIndex = it.taskIndex - 1 }
         }
         else {
-            //TODO Room query for index shift
             localTasks.values.asSequence()
                 .filter { it.tasklistID == tasklistID }
                 .filter { it.taskIndex in newTaskIndex until oldTaskIndex }
                 .forEach { it.taskIndex = it.taskIndex + 1 }
         }
         task.taskIndex = newTaskIndex
+        taskDao.moveTaskInList(
+            task.taskID.mostSignificantBits,
+            task.taskID.leastSignificantBits,
+            tasklistID,
+            oldTaskIndex,
+            newTaskIndex
+        )
     }
 
     override fun searchTasks(searchQuery: String) {

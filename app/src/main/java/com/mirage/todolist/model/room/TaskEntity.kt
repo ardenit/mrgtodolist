@@ -4,25 +4,40 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity(tableName = "tasks", primaryKeys = ["task_id_first", "task_id_last"])
 data class TaskEntity(
-    /** Unique ID of the task. Persists through moving task to another list or changing its position */
-    @PrimaryKey(autoGenerate = true)
-    val id: Long,
+    /** Most significant bits of task's unique ID */
+    @ColumnInfo(name = "task_id_first")
+    val taskIdFirst: Long,
+    /** Least significant bits of task's unique ID */
+    @ColumnInfo(name = "task_id_last")
+    val taskIdLast: Long,
     /**
-     * Index of the task's type
-     * @see [com.mirage.todolist.content.TasklistType]
+     * Index of the task's tasklist
      * */
-    @ColumnInfo(defaultValue = "1")
-    val taskTypeIndex: Int,
+    @ColumnInfo(name = "tasklist_id")
+    val tasklistId: Int,
     /**
      * Task's index in its current tasklist
      * Each tasklist MUST contain all the indices from 0 to (size - 1)
      * That's an invariant that persists after every transaction
      */
+    @ColumnInfo(name = "task_index")
     val taskIndex: Int,
-    @ColumnInfo(defaultValue = "Title")
+    @ColumnInfo(name = "title")
     val title: String,
-    @ColumnInfo(defaultValue = "No description")
-    val description: String
+    @ColumnInfo(name = "description")
+    val description: String,
+    @ColumnInfo(name = "date_year")
+    val dateYear: Int,
+    @ColumnInfo(name = "date_month")
+    val dateMonth: Int,
+    @ColumnInfo(name = "date_day")
+    val dateDay: Int,
+    @ColumnInfo(name = "time_hour")
+    val timeHour: Int,
+    @ColumnInfo(name = "time_minute")
+    val timeMinute: Int,
+    @ColumnInfo(name = "period_id")
+    val periodId: Int
 )
