@@ -25,19 +25,21 @@ data class TaskEntity(
     @ColumnInfo(name = "task_index")
     val taskIndex: Int,
     @ColumnInfo(name = "title")
-    val title: String,
+    val title: String = "",
     @ColumnInfo(name = "description")
-    val description: String,
+    val description: String = "",
     @ColumnInfo(name = "date_year")
-    val dateYear: Int,
+    val dateYear: Int = -1,
     @ColumnInfo(name = "date_month")
-    val dateMonth: Int,
+    val dateMonth: Int = -1,
     @ColumnInfo(name = "date_day")
-    val dateDay: Int,
+    val dateDay: Int = -1,
     @ColumnInfo(name = "time_hour")
-    val timeHour: Int,
+    val timeHour: Int = -1,
     @ColumnInfo(name = "time_minute")
-    val timeMinute: Int,
+    val timeMinute: Int = -1,
     @ColumnInfo(name = "period_id")
-    val periodId: Int
+    val periodId: Int = 0,
+    @ColumnInfo(name = "last_modified")
+    val lastModifiedTimeMillis: Long = System.currentTimeMillis()
 )

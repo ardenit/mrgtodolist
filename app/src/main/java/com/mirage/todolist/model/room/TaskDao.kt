@@ -8,44 +8,56 @@ import com.mirage.todolist.viewmodel.TasklistType
 @Dao
 interface TaskDao {
 
-    /*
-    @Transaction
-    fun addNewTask(taskTypeIndex: Int): TaskEntity {
-        val taskRowId = createTaskRow(taskTypeIndex)
-        val taskId = getTaskIdByRowId(taskRowId)
-        val tasklistSize = getTasklistSize(taskTypeIndex)
-        setTaskIndex(taskId, tasklistSize - 1)
-        return getTask(taskId)
-    }*/
+    @Query("""
+        UPDATE tasks
+        SET task_index = task_index + :add
+        WHERE tasklist_id = :tasklistId AND task_index >= :startIndex AND task_index < :endIndex
+    """)
+    fun shiftTaskIndicesInSlice(tasklistId: Int, startIndex: Int, endIndex: Int, add: Int)
 
-    @Transaction
-    fun moveTask(
-        taskIdFirst: Long,
-        taskIdLast: Long,
-        oldTasklistId: Int,
-        newTasklistId: Int,
-        oldTaskIndex: Int,
-        newTaskIndex: Int
-    ) {
-        changeTaskIndexInSlice(oldTasklistId, oldTaskIndex, Int.MAX_VALUE, -1)
-        changeTaskIndexInSlice(newTasklistId, newTaskIndex, Int.MAX_VALUE, 1)
-        setTaskTasklistId(taskIdFirst, taskIdLast, newTasklistId)
-        setTaskIndex(taskIdFirst, taskIdLast, newTaskIndex)
-    }
+    @Query("""
+        UPDATE tasks
+        SET last_modified = :timeModified
+        WHERE tasklist_id = :tasklistId AND task_index >= :startIndex AND task_index < :endIndex
+    """)
+    fun setTimeModifiedInSlice(tasklistId: Int, startIndex: Int, endIndex: Int, timeModified: Long)
 
-    @Transaction
-    fun moveTaskInList(taskIdFirst: Long, taskIdLast: Long, tasklistId: Int, oldTaskIndex: Int, newTaskIndex: Int) {
-        if (oldTaskIndex < newTaskIndex) {
-            changeTaskIndexInSlice(tasklistId, oldTaskIndex + 1, newTaskIndex, -1)
-        }
-        else {
-            changeTaskIndexInSlice(tasklistId, newTaskIndex, oldTaskIndex - 1, 1)
-        }
-        setTaskIndex(taskIdFirst, taskIdLast, newTaskIndex)
-    }
+    @Query("SELECT count(*) FROM tasks WHERE tasklist_id = :tasklistId")
+    fun getTasklistSize(tasklistId: Int): Int
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Query("""
+        UPDATE tasks
+        SET task_index = :newTaskIndex
+        WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast
+        """)
+    fun setTaskIndex(taskIdFirst: Long, taskIdLast: Long, newTaskIndex: Int)
+
+    @Query("""
+        UPDATE tasks
+        SET tasklist_id = :newTasklistId
+        WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast
+        """)
+    fun setTasklistId(taskIdFirst: Long, taskIdLast: Long, newTasklistId: Int)
+
+    @Query("""
+        SELECT task_index
+        FROM tasks
+        WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast
+    """)
+    fun getTaskIndex(taskIdFirst: Long, taskIdLast: Long): Int
+
+    @Query("""
+        SELECT tasklist_id
+        FROM tasks
+        WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast
+    """)
+    fun getTasklistId(taskIdFirst: Long, taskIdLast: Long): Int
+
+    @Insert
     fun insertTask(task: TaskEntity)
+
+    @Query(value = "SELECT * FROM tasks")
+    fun getAllTasks(): List<TaskEntity>
 
     @Query("""
         UPDATE tasks
@@ -63,57 +75,29 @@ interface TaskDao {
 
     @Query("""
         UPDATE tasks
-        SET date_year = :dateYear, date_month = :dateMonth, date_day = :dateDay
+        SET date_year = :year AND date_month = :monthOfYear AND date_day = :dayOfMonth
         WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast
         """)
-    fun setTaskDate(taskIdFirst: Long, taskIdLast: Long, dateYear: Int, dateMonth: Int, dateDay: Int)
+    fun setTaskDate(taskIdFirst: Long, taskIdLast: Long, year: Int, monthOfYear: Int, dayOfMonth: Int)
 
     @Query("""
         UPDATE tasks
-        SET time_hour = :timeHour, time_minute = :timeMinute
+        SET time_hour = :hour AND time_minute = :minute
         WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast
         """)
-    fun setTaskTime(taskIdFirst: Long, taskIdLast: Long, timeHour: Int, timeMinute: Int)
+    fun setTaskTime(taskIdFirst: Long, taskIdLast: Long, hour: Int, minute: Int)
 
     @Query("""
         UPDATE tasks
         SET period_id = :periodId
         WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast
         """)
-    fun setTaskPeriod(taskIdFirst: Long, taskIdLast: Long, periodId: Int)
+    fun setTaskPeriodId(taskIdFirst: Long, taskIdLast: Long, periodId: Int)
 
     @Query("""
         UPDATE tasks
-        SET task_index = task_index + :add
-        WHERE tasklist_id = :tasklistId AND task_index >= :startTaskIndex AND task_index <= :endTaskIndex
+        SET last_modified = :modifiedTimeMillis
+        WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast
         """)
-    fun changeTaskIndexInSlice(tasklistId: Int, startTaskIndex: Int, endTaskIndex: Int, add: Int)
-/*
-    @Query("""INSERT INTO tasks VALUES (0, :taskTypeIndex, -1, '', '')""")
-    fun createTaskRow(taskTypeIndex: Int): Long
-*/
-    @Query("SELECT task_id_first, task_id_last FROM tasks WHERE rowId = :rowId")
-    fun getTaskIdByRowId(rowId: Long): LongArray
-
-    @Query("SELECT count(*) FROM tasks WHERE tasklist_id = :tasklistId")
-    fun getTasklistSize(tasklistId: Int): Int
-
-    @Query("UPDATE tasks SET task_index = :newTaskIndex WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast")
-    fun setTaskIndex(taskIdFirst: Long, taskIdLast: Long, newTaskIndex: Int)
-
-    @Query("UPDATE tasks SET tasklist_id = :newTasklistId WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast")
-    fun setTaskTasklistId(taskIdFirst: Long, taskIdLast: Long, newTasklistId: Int)
-
-    @Query("SELECT * FROM tasks WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast")
-    fun getTask(taskIdFirst: Long, taskIdLast: Long): TaskEntity
-
-    @Query("SELECT * FROM tasks")
-    fun getAllTasks(): List<TaskEntity>
-
-    @Query("SELECT * FROM tasks WHERE tasklist_id = :tasklistId")
-    fun getTasklist(tasklistId: Int): List<TaskEntity>
-
-    @Query("DELETE FROM tasks WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast")
-    fun removeTask(taskIdFirst: Long, taskIdLast: Long)
-
+    fun setTaskModifiedTime(taskIdFirst: Long, taskIdLast: Long, modifiedTimeMillis: Long)
 }

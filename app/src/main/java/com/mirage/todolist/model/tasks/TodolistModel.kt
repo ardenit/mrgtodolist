@@ -117,7 +117,7 @@ interface TodolistModel {
      * (actually just moves to hidden taglist to simplify diff calculation).
      * This method automatically updates "last modified" time.
      */
-    fun removeTag(tagID: TagID)
+    fun removeTag(tagId: TagID)
 
     /**
      * Returns a map of all tags

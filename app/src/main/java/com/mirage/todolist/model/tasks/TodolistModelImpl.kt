@@ -2,16 +2,15 @@ package com.mirage.todolist.model.tasks
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.graphics.Color
 import androidx.preference.PreferenceManager
-import androidx.room.Room
 import com.mirage.todolist.R
 import com.mirage.todolist.model.gdrive.GDriveConnectExceptionHandler
 import com.mirage.todolist.model.gdrive.GDriveRestApi
-import com.mirage.todolist.model.room.AppDatabase
-import com.mirage.todolist.model.room.TaskDao
-import com.mirage.todolist.model.room.TaskEntity
+import com.mirage.todolist.model.room.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.collections.LinkedHashMap
 import kotlin.collections.LinkedHashSet
 
@@ -23,8 +22,8 @@ class TodolistModelImpl: TodolistModel {
     private val gDriveRestApi = GDriveRestApi()
     private lateinit var appCtx: Context
     private lateinit var prefs: SharedPreferences
-    private lateinit var database: AppDatabase
-    private lateinit var taskDao: TaskDao
+    //TODO Inject?
+    private lateinit var databaseModel: DatabaseModel
     private var email: String? = null
 
     /** Local cache for tasks, key is task's unique taskID */
@@ -47,20 +46,34 @@ class TodolistModelImpl: TodolistModel {
         initialized = true
         this.appCtx = appCtx.applicationContext
         prefs = PreferenceManager.getDefaultSharedPreferences(this.appCtx)
-        database = Room.databaseBuilder(appCtx, AppDatabase::class.java, "mirage_todolist_db").build()
-        taskDao = database.getTaskDao()
-        gDriveRestApi.init(this.appCtx, email)
-
-        //TODO load tags
-        repeat(4) { tagIndex ->
-            val id = UUID.randomUUID()
-            val tag = MutableLiveTag(id, tagIndex, tagIndex.toString().repeat(tagIndex + 1), 0)
-            localTags[id] = tag
+        databaseModel = DatabaseModelImpl()
+        databaseModel.init(appCtx) {
+            reloadData(it)
         }
+        gDriveRestApi.init(this.appCtx, email)
+    }
 
-        val taskEntities = taskDao.getAllTasks()
-        taskEntities.forEach { taskEntity ->
-            val tags: List<LiveTag> = listOf() //TODO load tags for task
+    private suspend fun reloadData(dbSnapshot: DatabaseSnapshot) {
+        val newLocalTasks = LinkedHashMap<TaskID, MutableLiveTask>()
+        val newLocalTags = LinkedHashMap<TagID, MutableLiveTag>()
+        dbSnapshot.tags.forEach { tagEntity ->
+            val tagId = UUID(tagEntity.tagIdFirst, tagEntity.tagIdLast)
+            val tag = MutableLiveTag(
+                tagID = tagId,
+                tagIndex = tagEntity.tagIndex,
+                name = tagEntity.name,
+                styleIndex = tagEntity.styleIndex
+            )
+            newLocalTags[tagId] = tag
+        }
+        dbSnapshot.tasks.forEach { taskEntity ->
+            val tags: List<LiveTag> = dbSnapshot.relations
+                .asSequence()
+                .filterNot { it.deleted }
+                .filter { it.taskIdFirst == taskEntity.taskIdFirst && it.taskIdLast == taskEntity.taskIdLast }
+                .map { UUID(it.tagIdFirst, it.tagIdLast) }
+                .mapNotNull { newLocalTags[it] }
+                .toList()
             val taskId = UUID(taskEntity.taskIdFirst, taskEntity.taskIdLast)
             val tasklistId = taskEntity.tasklistId
             val task = MutableLiveTask(
@@ -75,8 +88,18 @@ class TodolistModelImpl: TodolistModel {
                 time = TaskTime(taskEntity.timeHour, taskEntity.timeMinute),
                 period = TaskPeriod.values()[taskEntity.periodId.coerceIn(TaskPeriod.values().indices)]
             )
-            localTasks[taskId] = task
+            newLocalTasks[taskId] = task
             tasklistSizes[tasklistId] = (tasklistSizes[tasklistId] ?: 0) + 1
+        }
+        val newLocalTasksSync = ConcurrentHashMap(newLocalTasks)
+        val newLocalTagsSync = ConcurrentHashMap(newLocalTags)
+        withContext(Dispatchers.Main) {
+            localTasks.clear()
+            localTasks.putAll(newLocalTasksSync)
+            localTags.clear()
+            localTags.putAll(newLocalTagsSync)
+            onFullUpdateTagListeners.forEach { it.invoke(localTags) }
+            onFullUpdateTaskListeners.forEach { it.invoke(localTasks) }
         }
     }
 
@@ -94,27 +117,12 @@ class TodolistModelImpl: TodolistModel {
 
     override fun createNewTask(tasklistID: Int): LiveTask {
         val taskIndex = tasklistSizes[tasklistID] ?: 0
-        val taskId = UUID.randomUUID()
+        val taskId = databaseModel.createNewTask(tasklistID)
         val title = appCtx.resources.getString(R.string.task_default_title)
         val description = appCtx.resources.getString(R.string.task_default_description)
         val task = MutableLiveTask(taskId, tasklistID, taskIndex, true, title, description)
         tasklistSizes[tasklistID] = taskIndex + 1
         localTasks[taskId] = task
-        val taskEntity = TaskEntity(
-            taskIdFirst = taskId.mostSignificantBits,
-            taskIdLast = taskId.leastSignificantBits,
-            tasklistId = tasklistID,
-            taskIndex = taskIndex,
-            title = title,
-            description = description,
-            dateYear = -1,
-            dateMonth = -1,
-            dateDay = -1,
-            timeHour = -1,
-            timeMinute = -1,
-            periodId = 0
-        )
-        taskDao.insertTask(taskEntity)
         onNewTaskListeners.forEach { it.invoke(task) }
         return task
     }
@@ -131,28 +139,28 @@ class TodolistModelImpl: TodolistModel {
         val task = localTasks[taskID] ?: return
         if (title != null && title != task.title.value) {
             task.title.value = title
-            taskDao.setTaskTitle(task.taskID.mostSignificantBits, task.taskID.leastSignificantBits, title)
+            databaseModel.setTaskTitle(task.taskID, title)
         }
         if (description != null && description != task.description.value) {
             task.description.value = description
             task.title.value = title
-            taskDao.setTaskDescription(task.taskID.mostSignificantBits, task.taskID.leastSignificantBits, description)
+            databaseModel.setTaskDescription(task.taskID, description)
         }
         if (tags != null && tags != task.tags.value) {
             task.tags.value = tags
-            //TODO tags update room query
+            databaseModel.setTaskTags(task.taskID, tags.map { it.tagID })
         }
         if (date != null && date != task.date.value) {
             task.date.value = date
-            taskDao.setTaskDate(task.taskID.mostSignificantBits, task.taskID.leastSignificantBits, date.year, date.monthOfYear, date.dayOfMonth)
+            databaseModel.setTaskDate(task.taskID, date.year, date.monthOfYear, date.dayOfMonth)
         }
         if (time != null && time != task.time.value) {
             task.time.value = time
-            taskDao.setTaskTime(task.taskID.mostSignificantBits, task.taskID.leastSignificantBits, time.hour, time.minute)
+            databaseModel.setTaskTime(task.taskID, time.hour, time.minute)
         }
         if (period != null && period != task.period.value) {
             task.period.value = period
-            taskDao.setTaskPeriod(task.taskID.mostSignificantBits, task.taskID.leastSignificantBits, TaskPeriod.values().indexOf(period))
+            databaseModel.setTaskPeriod(task.taskID, TaskPeriod.values().indexOf(period))
         }
     }
 
@@ -171,21 +179,14 @@ class TodolistModelImpl: TodolistModel {
         localTasks.values.asSequence()
             .filter { it.tasklistID == oldTasklistID }
             .filter { it.taskIndex > oldTaskIndex }
-            .forEach { it.taskIndex = (it.taskIndex ?: 1) - 1 }
+            .forEach { it.taskIndex = it.taskIndex - 1 }
         localTasks.values.asSequence()
             .filter { it.tasklistID == newTasklistID }
             .filter { it.taskIndex >= newTaskIndex }
-            .forEach { it.taskIndex = (it.taskIndex ?: -1) + 1 }
+            .forEach { it.taskIndex = it.taskIndex + 1 }
         task.tasklistID = newTasklistID
         task.taskIndex = newTaskIndex
-        taskDao.moveTask(
-            task.taskID.mostSignificantBits,
-            task.taskID.leastSignificantBits,
-            oldTasklistID,
-            newTasklistID,
-            oldTaskIndex,
-            newTaskIndex
-        )
+        databaseModel.moveTask(task.taskID, newTasklistID)
         onMoveTaskListeners.forEach { listener ->
             listener(task, oldTasklistID, newTasklistID, oldTaskIndex, newTaskIndex)
         }
@@ -209,13 +210,7 @@ class TodolistModelImpl: TodolistModel {
                 .forEach { it.taskIndex = it.taskIndex + 1 }
         }
         task.taskIndex = newTaskIndex
-        taskDao.moveTaskInList(
-            task.taskID.mostSignificantBits,
-            task.taskID.leastSignificantBits,
-            tasklistID,
-            oldTaskIndex,
-            newTaskIndex
-        )
+        databaseModel.moveTaskInList(task.taskID, newTaskIndex)
     }
 
     override fun searchTasks(searchQuery: String) {
@@ -275,29 +270,29 @@ class TodolistModelImpl: TodolistModel {
 
     override fun createNewTag(): LiveTag {
         val tagIndex = localTags.size
-        val tagID = UUID.randomUUID()
+        val tagID = databaseModel.createNewTag()
         val tag = MutableLiveTag(tagID, tagIndex, "", 0)
         localTags[tagID] = tag
-        //TODO room query
         onNewTagListeners.forEach { it.invoke(tag) }
         return tag
     }
 
     override fun modifyTag(tagID: TagID, name: String?, styleIndex: Int?) {
         val tag = localTags[tagID] ?: return
-        //TODO room query
         if (name != null && name != tag.name.value) {
             tag.name.value = name
+            databaseModel.setTagName(tag.tagID, name)
         }
         if (styleIndex != null && styleIndex != tag.styleIndex.value) {
             tag.styleIndex.value = styleIndex
+            databaseModel.setTagStyleIndex(tag.tagID, styleIndex)
         }
     }
 
-    override fun removeTag(tagID: TagID) {
-        val tag = localTags[tagID] ?: return
+    override fun removeTag(tagId: TagID) {
+        val tag = localTags[tagId] ?: return
         onRemoveTagListeners.forEach { it.invoke(tag, tag.tagIndex) }
-        localTags.remove(tagID)
+        localTags.remove(tagId)
         localTags.values.forEach {
             if (it.tagIndex > tag.tagIndex) {
                 --it.tagIndex
@@ -309,7 +304,7 @@ class TodolistModelImpl: TodolistModel {
                 it.tags.value = oldTags.filterNot { oldTag -> oldTag == tag }
             }
         }
-        //TODO SQL query to mark as deleted
+        databaseModel.removeTag(tagId)
     }
 
     override fun getAllTags(): Map<TagID, LiveTag> = localTags
