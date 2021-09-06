@@ -15,6 +15,7 @@ import com.mirage.todolist.view.todolist.tags.TagsView
 class EditTaskAddTagDialogFragment : DialogFragment() {
 
     private lateinit var tagsView: TagsView
+    private lateinit var dialog: AlertDialog
 
     var tags: List<LiveTag>? = null
     var onTagSelected: ((LiveTag) -> Unit)? = null
@@ -27,13 +28,17 @@ class EditTaskAddTagDialogFragment : DialogFragment() {
             onTagSelected?.invoke(it)
         }
         tags?.let { tagsView.recreateTags(it) }
-        val dialog = AlertDialog.Builder(requireActivity())
+        dialog = AlertDialog.Builder(requireActivity())
             .setTitle(resources.getString(R.string.edit_task_tags_title))
             .setView(view)
             .setNegativeButton(R.string.tags_cancel_option) { _, _ -> }
             .create()
+        return dialog
+    }
+
+    override fun onStart() {
+        super.onStart()
         dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
             .setTextColor(ContextCompat.getColor(requireContext(), R.color.light_orange))
-        return dialog
     }
 }
