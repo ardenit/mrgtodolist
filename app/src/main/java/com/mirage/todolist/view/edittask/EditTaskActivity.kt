@@ -1,6 +1,7 @@
 package com.mirage.todolist.view.edittask
 
 import android.app.DatePickerDialog
+import android.app.Dialog
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Build
@@ -165,6 +166,7 @@ class EditTaskActivity : AppCompatActivity() {
             if (hasDate) newTaskDate.dayOfMonth else currentTime.get(Calendar.DAY_OF_MONTH),
         )
         dialog.show()
+        recolorDialogButtons(dialog)
     }
 
     private fun openTimeChooserDialog() {
@@ -184,6 +186,7 @@ class EditTaskActivity : AppCompatActivity() {
             true
         )
         dialog.show()
+        recolorDialogButtons(dialog)
     }
 
     private fun openPeriodChooserDialog() {
@@ -228,13 +231,35 @@ class EditTaskActivity : AppCompatActivity() {
             }
             .setNeutralButton(R.string.edit_task_back_cancel_btn) { _, _ -> }
             .create()
+        alertDialog.show()
+        recolorDialogButtons(alertDialog)
+    }
+
+    private fun recolorDialogButtons(alertDialog: AlertDialog) {
         val positiveColor = ContextCompat.getColor(this, R.color.light_blue)
         val negativeColor = ContextCompat.getColor(this, R.color.light_orange)
         val neutralColor = ContextCompat.getColor(this, R.color.light_grey)
-        alertDialog.show()
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(positiveColor)
         alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(negativeColor)
         alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(neutralColor)
+    }
+
+    private fun recolorDialogButtons(dialog: DatePickerDialog) {
+        val positiveColor = ContextCompat.getColor(this, R.color.light_blue)
+        val negativeColor = ContextCompat.getColor(this, R.color.light_orange)
+        val neutralColor = ContextCompat.getColor(this, R.color.light_grey)
+        dialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setTextColor(positiveColor)
+        dialog.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(negativeColor)
+        dialog.getButton(DatePickerDialog.BUTTON_NEUTRAL).setTextColor(neutralColor)
+    }
+
+    private fun recolorDialogButtons(dialog: TimePickerDialog) {
+        val positiveColor = ContextCompat.getColor(this, R.color.light_blue)
+        val negativeColor = ContextCompat.getColor(this, R.color.light_orange)
+        val neutralColor = ContextCompat.getColor(this, R.color.light_grey)
+        dialog.getButton(TimePickerDialog.BUTTON_POSITIVE).setTextColor(positiveColor)
+        dialog.getButton(TimePickerDialog.BUTTON_NEGATIVE).setTextColor(negativeColor)
+        dialog.getButton(TimePickerDialog.BUTTON_NEUTRAL).setTextColor(neutralColor)
     }
 
     override fun onBackPressed() {

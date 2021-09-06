@@ -39,7 +39,8 @@
 
     <PreferenceCategory
         android:title="@string/settings_title_synchronization"
-        android:icon="@drawable/baseline_add_to_drive_24">
+        android:icon="@drawable/baseline_add_to_drive_24"
+        app:isPreferenceVisible="false">
         <Preference
             android:key="sync_select_acc"
             android:summary="@string/settings_sync_status_no_sync"

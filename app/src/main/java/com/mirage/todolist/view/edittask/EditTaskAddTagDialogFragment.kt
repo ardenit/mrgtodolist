@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.mirage.todolist.R
 import com.mirage.todolist.model.tasks.LiveTag
@@ -26,10 +27,13 @@ class EditTaskAddTagDialogFragment : DialogFragment() {
             onTagSelected?.invoke(it)
         }
         tags?.let { tagsView.recreateTags(it) }
-        val builder = AlertDialog.Builder(requireActivity())
+        val dialog = AlertDialog.Builder(requireActivity())
             .setTitle(resources.getString(R.string.edit_task_tags_title))
             .setView(view)
             .setNegativeButton(R.string.tags_cancel_option) { _, _ -> }
-        return builder.create()
+            .create()
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+            .setTextColor(ContextCompat.getColor(requireContext(), R.color.light_orange))
+        return dialog
     }
 }
