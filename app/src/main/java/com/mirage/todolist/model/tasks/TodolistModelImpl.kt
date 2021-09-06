@@ -76,6 +76,8 @@ class TodolistModelImpl: TodolistModel {
                 .toList()
             val taskId = UUID(taskEntity.taskIdFirst, taskEntity.taskIdLast)
             val tasklistId = taskEntity.tasklistId
+            val date = TaskDate(taskEntity.dateYear, taskEntity.dateMonth, taskEntity.dateDay)
+            val time = TaskTime(taskEntity.timeHour, taskEntity.timeMinute)
             val task = MutableLiveTask(
                 taskID = taskId,
                 tasklistID = tasklistId,
@@ -84,8 +86,8 @@ class TodolistModelImpl: TodolistModel {
                 title = taskEntity.title,
                 description = taskEntity.description,
                 tags = tags,
-                date = TaskDate(taskEntity.dateYear, taskEntity.dateMonth, taskEntity.dateDay),
-                time = TaskTime(taskEntity.timeHour, taskEntity.timeMinute),
+                date = date,
+                time = time,
                 period = TaskPeriod.values()[taskEntity.periodId.coerceIn(TaskPeriod.values().indices)]
             )
             newLocalTasks[taskId] = task

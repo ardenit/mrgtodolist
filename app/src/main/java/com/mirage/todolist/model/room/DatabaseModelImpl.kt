@@ -26,13 +26,17 @@ class DatabaseModelImpl : DatabaseModel {
     private var onSyncUpdateListener: suspend (DatabaseSnapshot) -> Unit = {}
 
     private val dispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
-    private val coroutineScope = CoroutineScope(Job() + dispatcher)
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        (throwable as? Exception)?.printStackTrace()
+    }
+    private val coroutineScope = CoroutineScope(SupervisorJob() + dispatcher + exceptionHandler)
 
     override fun init(appCtx: Context, onSyncUpdateListener: suspend (DatabaseSnapshot) -> Unit) {
         this.onSyncUpdateListener = onSyncUpdateListener
         this.appCtx = appCtx
         coroutineScope.launch {
-            database = Room.databaseBuilder(appCtx, AppDatabase::class.java, "mirage_todolist_db").build()
+            database = Room.databaseBuilder(appCtx, AppDatabase::class.java, "mirage_todolist_db")
+                .build()
             taskDao = database.getTaskDao()
             tagDao = database.getTagDao()
             taskTagDao = database.getTaskTagDao()

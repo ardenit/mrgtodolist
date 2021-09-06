@@ -75,14 +75,14 @@ interface TaskDao {
 
     @Query("""
         UPDATE tasks
-        SET date_year = :year AND date_month = :monthOfYear AND date_day = :dayOfMonth
+        SET date_year = :year, date_month = :monthOfYear, date_day = :dayOfMonth
         WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast
         """)
     fun setTaskDate(taskIdFirst: Long, taskIdLast: Long, year: Int, monthOfYear: Int, dayOfMonth: Int)
 
     @Query("""
         UPDATE tasks
-        SET time_hour = :hour AND time_minute = :minute
+        SET time_hour = :hour, time_minute = :minute
         WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast
         """)
     fun setTaskTime(taskIdFirst: Long, taskIdLast: Long, hour: Int, minute: Int)
