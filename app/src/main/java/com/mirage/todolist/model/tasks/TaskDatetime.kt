@@ -8,13 +8,21 @@ data class TaskDate(
     val year: Int,
     val monthOfYear: Int,
     val dayOfMonth: Int
-)
+) {
+
+    fun isValid(): Boolean =
+        year >= 0 && monthOfYear >= 0 && dayOfMonth >= 0
+}
 
 /** Immutable information about task's time. If [hour] < 0, the time is considered not set */
 data class TaskTime(
     val hour: Int,
     val minute: Int
-)
+) {
+
+    fun isValid(): Boolean =
+        hour >= 0 && minute >= 0
+}
 
 enum class TaskPeriod(@StringRes val nameRes: Int) {
     NOT_REPEATABLE(R.string.task_period_not_repeatable),

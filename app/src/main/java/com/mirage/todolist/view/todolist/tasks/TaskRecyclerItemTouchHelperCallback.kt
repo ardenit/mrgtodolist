@@ -36,12 +36,12 @@ class TasklistItemTouchHelperCallback(
         viewHolder: RecyclerView.ViewHolder,
         target: RecyclerView.ViewHolder
     ): Boolean {
-        adapter.onItemMove(viewHolder.absoluteAdapterPosition, target.absoluteAdapterPosition)
+        adapter.onItemMove(viewHolder.adapterPosition, target.adapterPosition)
         return true
     }
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-        val position = viewHolder.absoluteAdapterPosition
+        val position = viewHolder.adapterPosition
         if (direction == ItemTouchHelper.START) {
             adapter.onItemSwipeLeft(position)
         }

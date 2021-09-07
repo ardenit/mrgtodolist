@@ -197,17 +197,6 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         }
     }
 
-    //TODO move to model
-    private fun onGDriveSyncBtnPressed(syncBtn: View) {
-        val options = AccountPicker.AccountChooserOptions.Builder()
-            .setAllowableAccountsTypes(listOf(GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE))
-            .setAlwaysShowAccountPicker(true)
-            .setTitleOverrideText(resources.getString(R.string.gdrive_acc_picker_title))
-            .build()
-        val intent = AccountPicker.newChooseAccountIntent(options)
-        accPickerResultLauncher.launch(intent)
-    }
-
     private fun openSettings() {
         drawerLayout.close()
         startActivity(Intent(this, SettingsActivity::class.java))

@@ -7,6 +7,7 @@ import com.mirage.todolist.R
 import com.mirage.todolist.model.gdrive.GDriveConnectExceptionHandler
 import com.mirage.todolist.model.gdrive.GDriveRestApi
 import com.mirage.todolist.model.room.*
+import com.mirage.todolist.model.workers.scheduleAllDatetimeNotifications
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -102,6 +103,7 @@ class TodolistModelImpl: TodolistModel {
             localTags.putAll(newLocalTagsSync)
             onFullUpdateTagListeners.forEach { it.invoke(localTags) }
             onFullUpdateTaskListeners.forEach { it.invoke(localTasks) }
+            updateNotifications()
         }
     }
 
@@ -126,6 +128,7 @@ class TodolistModelImpl: TodolistModel {
         tasklistSizes[tasklistID] = taskIndex + 1
         localTasks[taskId] = task
         onNewTaskListeners.forEach { it.invoke(task) }
+        updateNotifications()
         return task
     }
 
@@ -164,10 +167,12 @@ class TodolistModelImpl: TodolistModel {
             task.period.value = period
             databaseModel.setTaskPeriod(task.taskID, TaskPeriod.values().indexOf(period))
         }
+        updateNotifications()
     }
 
     override fun removeTask(taskID: TaskID) {
         moveTask(taskID, HIDDEN_TASKLIST_ID)
+        updateNotifications()
     }
 
     override fun moveTask(taskID: TaskID, newTasklistID: Int) {
@@ -269,6 +274,10 @@ class TodolistModelImpl: TodolistModel {
     }
 
     override fun getAllTasks(): Map<TaskID, LiveTask> = localTasks
+
+    private fun updateNotifications() {
+        scheduleAllDatetimeNotifications(appCtx, localTasks.values.filter { it.tasklistID >= 0 })
+    }
 
     override fun createNewTag(): LiveTag {
         val tagIndex = localTags.size
