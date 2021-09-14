@@ -17,7 +17,9 @@ import java.util.concurrent.TimeUnit
 fun scheduleAllDatetimeNotifications(appCtx: Context, tasks: Collection<LiveTask>) {
     val workManager = WorkManager.getInstance(appCtx)
     workManager.cancelAllWorkByTag(NotificationWorker.DATETIME_NOTIFICATION_WORKER_TAG)
+    println("scheduleAllDatetimeNotifications $tasks")
     for (task in tasks) {
+        println("task $task")
         val taskDate = task.date.value ?: continue
         val taskTime = task.time.value ?: continue
         if (!taskDate.isValid() || !taskTime.isValid()) continue
@@ -25,11 +27,12 @@ fun scheduleAllDatetimeNotifications(appCtx: Context, tasks: Collection<LiveTask
         val taskTitle = task.title.value ?: continue
         val calendar = Calendar.getInstance()
         calendar.set(taskDate.year, taskDate.monthOfYear, taskDate.dayOfMonth, taskTime.hour, taskTime.minute)
+        println("taskInitial ${calendar.toStr()} taskPeriod $taskPeriod")
         val taskInitialTimeMillis = calendar.timeInMillis
         val workName = NotificationWorker.NOTIFICATION_WORK_NAME + "@" + task.taskID.toString()
         val workId = task.taskID.mostSignificantBits + task.taskID.leastSignificantBits
         val taskTimeText = twoDigits(taskTime.hour) + ":" + twoDigits(taskTime.minute)
-        scheduleNextNotification(appCtx, workId, workName, taskTitle, taskTimeText, taskInitialTimeMillis, taskPeriod)
+        scheduleNextNotification(appCtx, workId, workName, taskTitle, taskTimeText, taskInitialTimeMillis, taskPeriod, false)
     }
 }
 
@@ -40,7 +43,8 @@ fun scheduleNextNotification(
     taskTitle: String,
     taskTimeText: String,
     taskInitialTimeMillis: Long,
-    taskPeriod: TaskPeriod
+    taskPeriod: TaskPeriod,
+    isRepeat: Boolean
 ) {
     val data = Data.Builder()
         .putLong(NotificationWorker.NOTIFICATION_ID, workId)
@@ -50,18 +54,25 @@ fun scheduleNextNotification(
         .putLong(NotificationWorker.NOTIFICATION_TASK_INITIAL_TIME_MILLIS, taskInitialTimeMillis)
         .putInt(NotificationWorker.NOTIFICATION_TASK_PERIOD_ID, taskPeriod.ordinal)
         .build()
-    val nextTime = getNextNotificationTime(taskInitialTimeMillis, taskPeriod)
+    val nextTime = getNextNotificationTime(taskInitialTimeMillis, taskPeriod, isRepeat)
     val timeBeforeNotify = getTimeBeforeNotify(appCtx.resources, PreferenceManager.getDefaultSharedPreferences(appCtx))
-    val delay = nextTime - timeBeforeNotify - System.currentTimeMillis()
-    if (delay < 0) return
-    scheduleNotification(appCtx, delay, data, workName)
+    val targetTime = nextTime - timeBeforeNotify
+    val currentTime = System.currentTimeMillis()
+    if (currentTime > nextTime) return
+    if (currentTime >= targetTime) {
+        scheduleNotification(appCtx, 0L, data, workName)
+    }
+    else {
+        val delay = targetTime - currentTime
+        scheduleNotification(appCtx, delay, data, workName)
+    }
 }
 
-private fun getNextNotificationTime(taskInitialTimeMillis: Long, taskPeriod: TaskPeriod): Long {
+private fun getNextNotificationTime(taskInitialTimeMillis: Long, taskPeriod: TaskPeriod, isRepeat: Boolean): Long {
     val calendar = Calendar.getInstance()
     calendar.timeInMillis = taskInitialTimeMillis
     val dimension: Int = when (taskPeriod) {
-        TaskPeriod.NOT_REPEATABLE -> return taskInitialTimeMillis
+        TaskPeriod.NOT_REPEATABLE -> return if (isRepeat) -1L else taskInitialTimeMillis
         TaskPeriod.DAILY -> Calendar.DAY_OF_YEAR
         TaskPeriod.WEEKLY -> Calendar.WEEK_OF_YEAR
         TaskPeriod.MONTHLY -> Calendar.MONTH
@@ -71,10 +82,13 @@ private fun getNextNotificationTime(taskInitialTimeMillis: Long, taskPeriod: Tas
     while (calendar.timeInMillis < currentTime) {
         calendar.add(dimension, 1)
     }
+    if (isRepeat) calendar.add(dimension, 1)
+    println("getNextNotificationTime initial $taskInitialTimeMillis period $taskPeriod curTime $currentTime result ${calendar.toStr()} ${calendar.timeInMillis}")
     return calendar.timeInMillis
 }
 
 private fun scheduleNotification(appCtx: Context, delay: Long, data: Data, workName: String) {
+    println("scheduleNotification delay $delay ms (${delay / 1000L / 60L} minutes)")
     val notificationWork = OneTimeWorkRequest.Builder(NotificationWorker::class.java)
         .setInitialDelay(delay, TimeUnit.MILLISECONDS)
         .setInputData(data)
@@ -103,3 +117,7 @@ private fun getTimeBeforeNotify(resources: Resources, preferences: SharedPrefere
 
 private fun twoDigits(number: Int): String =
     if (number < 10) "0$number" else number.toString()
+
+private fun Calendar.toStr(): String {
+    return "${get(Calendar.DAY_OF_MONTH)}.${get(Calendar.MONTH) + 1}.${get(Calendar.YEAR)} ${get(Calendar.HOUR_OF_DAY)}:${get(Calendar.MINUTE)}"
+}

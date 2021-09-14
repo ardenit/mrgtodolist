@@ -1,15 +1,17 @@
 package com.mirage.todolist.model.workers
 
+import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.PendingIntent.getActivity
 import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
-import android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
-import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.content.Intent.*
+import android.os.Build
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationCompat.DEFAULT_ALL
-import androidx.core.app.NotificationCompat.PRIORITY_MAX
+import androidx.core.app.NotificationCompat.*
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.work.Worker
@@ -32,7 +34,7 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters) : Wor
         val taskPeriod = TaskPeriod.values()[taskPeriodId.coerceIn(TaskPeriod.values().indices)]
         val taskInitTimeMillis = inputData.getLong(NOTIFICATION_TASK_INITIAL_TIME_MILLIS, 0L)
         sendNotification(id.toInt(), taskTitle, taskTimeText)
-        scheduleNextNotification(applicationContext, id, workName, taskTitle, taskTimeText, taskInitTimeMillis, taskPeriod)
+        scheduleNextNotification(applicationContext, id, workName, taskTitle, taskTimeText, taskInitTimeMillis, taskPeriod, true)
         return Result.success()
     }
 
@@ -41,24 +43,42 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters) : Wor
         taskName: String,
         taskTimeText: String
     ) {
-        val intent = Intent(applicationContext, LockScreenActivity::class.java)
-        intent.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK
-        intent.putExtra(NOTIFICATION_ID, id)
-        intent.putExtra(NOTIFICATION_TASK_NAME, taskName)
-
-        val notificationManager =
-            applicationContext.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        println("SENDING NOTIFICATION FOR TASK $taskName AT TIME $taskTimeText ID $id")
+        val channelId = "fadgfdasfasdfasd"
+        //2021-09-14 02:40:41.608 554-2981/system_process E/NotificationService: No Channel found for pkg=com.mirage.todolist, channelId=mirage_todo_channel_01, id=-979562117, tag=null, opPkg=com.mirage.todolist, callingUid=10121, userId=0, incomingUserId=0, notificationUid=10121, notification=Notification(channel=mirage_todo_channel_01 shortcut=null contentView=null vibrate=null sound=null defaults=0x0 flags=0x10 color=0x00000000 vis=PRIVATE)
+        //val notificationManager = NotificationManagerCompat.from(applicationContext)
         val bitmap = ContextCompat.getDrawable(applicationContext, R.drawable.baseline_event_24)?.toBitmap()
         val titleNotification = "Title notification $taskName"
         val subtitleNotification = "Subtitle notification $taskTimeText"
-        val pendingIntent = getActivity(applicationContext, 0, intent, 0)
-        val notification = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL)
-            .setLargeIcon(bitmap).setSmallIcon(R.drawable.mirage_todo_app_icon)
-            .setContentTitle(titleNotification).setContentText(subtitleNotification)
-            .setDefaults(DEFAULT_ALL).setContentIntent(pendingIntent).setAutoCancel(true)
-
-        notification.priority = PRIORITY_MAX
-        notificationManager.notify(id, notification.build())
+        val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val builder: NotificationCompat.Builder
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val channel = NotificationChannel(channelId, titleNotification, importance)
+            notificationManager.createNotificationChannel(channel)
+            builder = NotificationCompat.Builder(applicationContext, channelId)
+            val intent = Intent(applicationContext, LockScreenActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_SINGLE_TOP
+            val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, 0)
+            builder.setContentTitle(titleNotification)
+                .setSmallIcon(R.drawable.baseline_add_24)
+                .setContentText(subtitleNotification)
+                .setDefaults(DEFAULT_ALL)
+                .setAutoCancel(true)
+        }
+        else {
+            builder = NotificationCompat.Builder(applicationContext, channelId)
+            val intent = Intent(applicationContext, LockScreenActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_SINGLE_TOP
+            val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, 0)
+            builder.setContentTitle(titleNotification)
+                .setSmallIcon(R.drawable.baseline_add_24)
+                .setContentText(subtitleNotification)
+                .setDefaults(DEFAULT_ALL)
+                .setAutoCancel(true)
+        }
+        val notification = builder.build()
+        notificationManager.notify(id, notification)
     }
 
     companion object {

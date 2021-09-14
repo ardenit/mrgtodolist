@@ -120,7 +120,7 @@ class TasklistRecyclerAdapter(
         val time = task.time.value ?: return
         val period = task.period.value ?: return
         if (date.year >= 0 && date.monthOfYear >= 0 && date.dayOfMonth >= 0) {
-            datetimeText += "${twoDigits(date.dayOfMonth + 1)}.${twoDigits(date.monthOfYear + 1)}.${date.year} "
+            datetimeText += "${twoDigits(date.dayOfMonth)}.${twoDigits(date.monthOfYear + 1)}.${date.year} "
         }
         if (time.hour >= 0 && time.minute >= 0) {
             datetimeText += "${twoDigits(time.hour)}:${twoDigits(time.minute)} "

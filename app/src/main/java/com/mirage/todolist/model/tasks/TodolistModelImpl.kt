@@ -197,6 +197,7 @@ class TodolistModelImpl: TodolistModel {
         onMoveTaskListeners.forEach { listener ->
             listener(task, oldTasklistID, newTasklistID, oldTaskIndex, newTaskIndex)
         }
+        updateNotifications()
     }
 
     override fun moveTaskInList(taskID: TaskID, newTaskIndex: Int) {
@@ -276,7 +277,7 @@ class TodolistModelImpl: TodolistModel {
     override fun getAllTasks(): Map<TaskID, LiveTask> = localTasks
 
     private fun updateNotifications() {
-        scheduleAllDatetimeNotifications(appCtx, localTasks.values.filter { it.tasklistID >= 0 })
+        scheduleAllDatetimeNotifications(appCtx, localTasks.values.filter { it.tasklistID == 1 })
     }
 
     override fun createNewTag(): LiveTag {

@@ -129,7 +129,7 @@ class EditTaskActivity : AppCompatActivity() {
                 resources.getString(R.string.edit_task_date_not_set)
             }
             else {
-                "${twoDigits(it.dayOfMonth + 1)}.${twoDigits(it.monthOfYear + 1)}.${it.year}"
+                "${twoDigits(it.dayOfMonth)}.${twoDigits(it.monthOfYear + 1)}.${it.year}"
             }
         }
         dateBtn.text = dateText
