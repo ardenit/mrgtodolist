@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.preference.*
 import com.mirage.todolist.R
+import com.mirage.todolist.model.tasks.TodolistModel
+import com.mirage.todolist.model.tasks.getTodolistModel
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
@@ -17,6 +19,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private lateinit var syncSelectAccPreference: Preference
 
     private lateinit var preferences: SharedPreferences
+
+    //TODO Inject
+    private val todolistModel: TodolistModel = getTodolistModel()
+
+    var onSyncPressed: () -> Unit = {}
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.settings_screen, rootKey)
@@ -39,6 +46,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
             else -> R.string.settings_password_no_protection
         }
         setProtectionPreference.setSummary(protectionSummaryRes)
+        val email = todolistModel.getGDriveAccountEmail()
+        if (email == null) {
+            syncSelectAccPreference.setSummary(R.string.settings_sync_status_no_sync)
+        }
+        else {
+            syncSelectAccPreference.summary = email
+        }
     }
 
     private fun initializePreferences() {
@@ -60,6 +74,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
                 }
             }
+            true
+        }
+        syncSelectAccPreference.setOnPreferenceClickListener {
+            onSyncPressed()
             true
         }
     }

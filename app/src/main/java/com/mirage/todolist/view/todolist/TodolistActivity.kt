@@ -48,15 +48,6 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
     private val todolistModel: TodolistModel = getTodolistModel()
 
     /**
-     * Activity result launcher for Google Drive synchronization account picker screen
-     */
-    private val accPickerResultLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        onResultFromAccPicker(result)
-    }
-
-    /**
      * Activity result launcher for Google Drive [UserRecoverableAuthIOException] user intervene screen
      */
     private val gDriveUserInterveneResultLauncher = registerForActivityResult(
@@ -92,11 +83,15 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (activityInstancesCount != 0) {
+            finish()
+            return
+        }
+        ++activityInstancesCount
         setContentView(R.layout.todolist_root)
         initializeDrawer()
         initializeContentFragments()
-        if (activityInstancesCount != 0) finish()
-        else ++activityInstancesCount
+        todolistModel.setGDriveAccountEmail(todolistModel.getGDriveAccountEmail(), gDriveConnectExceptionHandler)
     }
 
     override fun onBackPressed() {
@@ -175,17 +170,6 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             .show(tagsFragment)
             .commit()
         drawerLayout.close()
-    }
-
-    private fun onResultFromAccPicker(result: ActivityResult) {
-        if (result.resultCode == Activity.RESULT_OK) {
-            val extras = result.data?.extras
-            val authAccount = extras?.getString("authAccount")
-            todolistModel.setGDriveAccountEmail(authAccount, gDriveConnectExceptionHandler)
-        }
-        else {
-            Toast.makeText(this, R.string.gdrive_sync_cancelled_toast, Toast.LENGTH_SHORT).show()
-        }
     }
 
     private fun onResultFromGDriveUserIntervene(result: ActivityResult) {

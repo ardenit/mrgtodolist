@@ -1,10 +1,13 @@
 package com.mirage.todolist.view.settings
 
+import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricPrompt
@@ -13,7 +16,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
+import com.google.android.gms.auth.GoogleAuthUtil
+import com.google.android.gms.common.AccountPicker
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAuthIOException
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.mirage.todolist.R
+import com.mirage.todolist.model.gdrive.GDriveConnectExceptionHandler
+import com.mirage.todolist.model.tasks.TodolistModel
+import com.mirage.todolist.model.tasks.TodolistModelImpl
+import com.mirage.todolist.model.tasks.getTodolistModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import java.util.concurrent.Executor
@@ -34,10 +45,62 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
     private var settingsScreen = SettingsScreen.ROOT
     private lateinit var preferences: SharedPreferences
 
+    //TODO Inject
+    private val todolistModel: TodolistModel = getTodolistModel()
+
+    /**
+     * Activity result launcher for Google Drive [UserRecoverableAuthIOException] user intervene screen
+     */
+    private val gDriveUserInterveneResultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        onResultFromGDriveUserIntervene(result)
+    }
+
+    private var pendingEmail: String? = ""
+
+    private val gDriveConnectExceptionHandler = object : GDriveConnectExceptionHandler {
+
+        override suspend fun onSuccessfulConnect() {
+            println("GDRIVE_CONNECT_SUCCESSFUL")
+            Toast.makeText(this@SettingsActivity, "OK", Toast.LENGTH_SHORT).show()
+            preferences.edit().putString(TodolistModelImpl.ACC_NAME_KEY, pendingEmail ?: "").apply()
+            todolistModel.getGDriveAccountEmail()
+            settingsFragment.updateSummaries()
+        }
+
+        override suspend fun onUserRecoverableFailure(ex: UserRecoverableAuthIOException) {
+            println("USER_RECOVERABLE")
+            gDriveUserInterveneResultLauncher.launch(ex.intent)
+        }
+
+        override suspend fun onGoogleAuthFailure(ex: GoogleAuthIOException) {
+            println("GOOGLE_AUTH_FAIL")
+            println(ex.message)
+            Toast.makeText(this@SettingsActivity, "GOOGLE_AUTH_FAILURE SEE LOGS", Toast.LENGTH_SHORT).show()
+        }
+
+        override suspend fun onUnspecifiedFailure(ex: Exception) {
+            println("UNSPECIFIED_GDRIVE_CONNECT_FAILURE")
+            println(ex.message)
+            Toast.makeText(this@SettingsActivity, "UNSPECIFIED_GDRIVE_CONNECT_FAILURE SEE LOGS", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    /**
+     * Activity result launcher for Google Drive synchronization account picker screen
+     */
+    private val accPickerResultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        onResultFromAccPicker(result)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings_activity)
         settingsFragment = SettingsFragment()
+        settingsFragment.onSyncPressed = { configureSync() }
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.settings, settingsFragment)
@@ -66,6 +129,37 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
             supportActionBar?.setTitle(R.string.protection_action_bar_title)
         }
         return true
+    }
+
+    private fun configureSync() {
+        val options = AccountPicker.AccountChooserOptions.Builder()
+            .setAllowableAccountsTypes(listOf(GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE))
+            .setAlwaysShowAccountPicker(true)
+            .setTitleOverrideText(resources.getString(R.string.gdrive_acc_picker_title))
+            .build()
+        val intent = AccountPicker.newChooseAccountIntent(options)
+        accPickerResultLauncher.launch(intent)
+    }
+
+    private fun onResultFromAccPicker(result: ActivityResult) {
+        if (result.resultCode == Activity.RESULT_OK) {
+            val extras = result.data?.extras
+            val authAccount = extras?.getString("authAccount")
+            pendingEmail = authAccount
+            todolistModel.setGDriveAccountEmail(authAccount, gDriveConnectExceptionHandler)
+        }
+        else {
+            Toast.makeText(this, R.string.gdrive_sync_cancelled_toast, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun onResultFromGDriveUserIntervene(result: ActivityResult) {
+        if (result.resultCode == Activity.RESULT_OK) {
+            todolistModel.setGDriveAccountEmail(todolistModel.getGDriveAccountEmail(), gDriveConnectExceptionHandler)
+        }
+        else {
+            Toast.makeText(this, R.string.gdrive_sync_cancelled_toast, Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun onProtectionOptionSelected(key: String?) {

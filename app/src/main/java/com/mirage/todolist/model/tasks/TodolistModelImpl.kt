@@ -2,14 +2,15 @@ package com.mirage.todolist.model.tasks
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.provider.Settings
 import androidx.preference.PreferenceManager
 import com.mirage.todolist.R
 import com.mirage.todolist.model.gdrive.GDriveConnectExceptionHandler
 import com.mirage.todolist.model.gdrive.GDriveRestApi
 import com.mirage.todolist.model.room.*
 import com.mirage.todolist.model.workers.scheduleAllDatetimeNotifications
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import java.lang.Exception
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.collections.LinkedHashMap
@@ -51,7 +52,8 @@ class TodolistModelImpl: TodolistModel {
         databaseModel.init(appCtx) {
             reloadData(it)
         }
-        gDriveRestApi.init(this.appCtx, email)
+        gDriveRestApi.init(this.appCtx, prefs.getString(ACC_NAME_KEY, null).let { if (it.isNullOrBlank()) null else it})
+        getGDriveAccountEmail()
     }
 
     private suspend fun reloadData(dbSnapshot: DatabaseSnapshot) {
@@ -108,14 +110,32 @@ class TodolistModelImpl: TodolistModel {
     }
 
     override fun getGDriveAccountEmail(): String? {
-        if (email == null) email = prefs.getString(ACC_NAME_KEY, null)
+        val newEmail = prefs.getString(ACC_NAME_KEY, null)
+        if (newEmail != email) {
+            email = newEmail
+            println("Sync email changed to $newEmail")
+            GlobalScope.launch (Dispatchers.Main + CoroutineExceptionHandler { coroutineContext, throwable -> println("ERROR $throwable ${(throwable as Exception).message}") }) {
+                gDriveRestApi.run {
+                    var id = getFileId("testfilelol")
+                    if (id == null) {
+                        println("creating file")
+                        id = createFile("testfilelol")
+                        id = getFileId("testfilelol")!!
+                    }
+                    println("file id: $id")
+                    val bytes = downloadFile(id)
+                    println("bytes: |${bytes.decodeToString()}|")
+                    updateFile(id, "ROFLAN".encodeToByteArray())
+                    val bytess = downloadFile(id)
+                    println("bytes: |${bytess.decodeToString()}|")
+                }
+            }
+        }
         return email
     }
 
     override fun setGDriveAccountEmail(newEmail: String?, exHandler: GDriveConnectExceptionHandler) {
-        email = newEmail
-        prefs.edit().putString(ACC_NAME_KEY, email).apply()
-        gDriveRestApi.init(appCtx, email)
+        gDriveRestApi.init(appCtx, newEmail)
         gDriveRestApi.connect(exHandler)
     }
 
@@ -371,7 +391,7 @@ class TodolistModelImpl: TodolistModel {
 
     companion object {
 
-        private const val ACC_NAME_KEY = "account_name"
+        const val ACC_NAME_KEY = "account_name"
         private const val HIDDEN_TASKLIST_ID = -1
     }
 }
