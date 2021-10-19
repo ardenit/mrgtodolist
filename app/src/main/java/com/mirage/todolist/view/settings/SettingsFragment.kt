@@ -7,8 +7,9 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.preference.*
 import com.mirage.todolist.R
+import com.mirage.todolist.model.dagger.App
 import com.mirage.todolist.model.tasks.TodolistModel
-import com.mirage.todolist.model.tasks.getTodolistModel
+import javax.inject.Inject
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
@@ -20,12 +21,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private lateinit var preferences: SharedPreferences
 
-    //TODO Inject
-    private val todolistModel: TodolistModel = getTodolistModel()
+    @Inject
+    lateinit var todolistModel: TodolistModel
 
     var onSyncPressed: () -> Unit = {}
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        (requireActivity().application as App).appComponent.inject(this)
         setPreferencesFromResource(R.xml.settings_screen, rootKey)
         initializePreferences()
         updateSummaries()

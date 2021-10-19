@@ -20,7 +20,6 @@ import com.mirage.todolist.R
 import com.mirage.todolist.databinding.TasksRootFragmentBinding
 import com.mirage.todolist.model.tasks.LiveTag
 import com.mirage.todolist.model.tasks.LiveTask
-import com.mirage.todolist.model.tasks.getTodolistModel
 import com.mirage.todolist.viewmodel.TasklistType
 
 /**

@@ -2,28 +2,77 @@ package com.mirage.todolist.viewmodel
 
 import androidx.annotation.ColorInt
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.mirage.todolist.model.dagger.App
 import com.mirage.todolist.model.tasks.*
+import javax.inject.Inject
 
-abstract class TagsViewModel : ViewModel() {
+class TagsViewModel
+@Inject constructor(
+    private val todolistModel: TodolistModel
+) : ViewModel() {
 
-    abstract fun init()
+    private lateinit var onNewTagListener: OnNewTagListener
+    private lateinit var onRemoveTagListener: OnRemoveTagListener
+    private lateinit var onFullUpdateTagListener: OnFullUpdateTagListener
 
-    abstract fun createNewTag(): LiveTag
+    private val newTagObservable = MutableLiveData<LiveTag>()
+    private val removeTagObservable = MutableLiveData<Pair<LiveTag, Int>>()
+    private val fullUpdateObservable = MutableLiveData<Map<TagID, LiveTag>>()
 
-    abstract fun removeTag(tagID: TagID)
+    private var initialized = false
 
-    abstract fun modifyTag(
-        tagID: TagID,
-        newName: String? = null,
-        newStyleIndex: Int? = null
-    )
+    fun init() {
+        if (initialized) return
+        initialized = true
+        onNewTagListener = { newTag ->
+            newTagObservable.value = newTag
+        }
+        onRemoveTagListener = { tag, tagIndex ->
+            removeTagObservable.value = Pair(tag, tagIndex)
+        }
+        onFullUpdateTagListener = { tags ->
+            fullUpdateObservable.value = tags
+        }
+        todolistModel.addOnNewTagListener(onNewTagListener)
+        todolistModel.addOnRemoveTagListener(onRemoveTagListener)
+        todolistModel.addOnFullUpdateTagListener(onFullUpdateTagListener)
+    }
 
-    abstract fun getAllTags(): Map<TagID, LiveTag>
+    fun createNewTag(): LiveTag {
+        return todolistModel.createNewTag()
+    }
 
-    abstract fun addOnNewTagListener(owner: LifecycleOwner, listener: OnNewTagListener)
+    fun removeTag(tagID: TagID) {
+        todolistModel.removeTag(tagID)
+    }
 
-    abstract fun addOnRemoveTagListener(owner: LifecycleOwner, listener: OnRemoveTagListener)
+    fun modifyTag(tagID: TagID, newName: String? = null, newStyleIndex: Int? = null) {
+        todolistModel.modifyTag(tagID, newName, newStyleIndex)
+    }
 
-    abstract fun addOnFullUpdateTagListener(owner: LifecycleOwner, listener: OnFullUpdateTagListener)
+    fun getAllTags(): Map<TagID, LiveTag> {
+        return todolistModel.getAllTags()
+    }
+
+    fun addOnNewTagListener(owner: LifecycleOwner, listener: OnNewTagListener) {
+        newTagObservable.observe(owner, listener)
+    }
+
+    fun addOnRemoveTagListener(owner: LifecycleOwner, listener: OnRemoveTagListener) {
+        removeTagObservable.observe(owner) { (tag, tagIndex) ->
+            listener(tag, tagIndex)
+        }
+    }
+
+    fun addOnFullUpdateTagListener(owner: LifecycleOwner, listener: OnFullUpdateTagListener) {
+        fullUpdateObservable.observe(owner, listener)
+    }
+
+    override fun onCleared() {
+        todolistModel.removeOnNewTagListener(onNewTagListener)
+        todolistModel.removeOnRemoveTagListener(onRemoveTagListener)
+        todolistModel.removeOnFullUpdateTagListener(onFullUpdateTagListener)
+    }
 }

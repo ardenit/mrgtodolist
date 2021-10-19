@@ -24,14 +24,15 @@ import com.google.android.material.navigation.NavigationView
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAuthIOException
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.mirage.todolist.R
+import com.mirage.todolist.model.dagger.App
 import com.mirage.todolist.model.gdrive.GDriveConnectExceptionHandler
 import com.mirage.todolist.model.tasks.LiveTask
 import com.mirage.todolist.model.tasks.TodolistModel
-import com.mirage.todolist.model.tasks.getTodolistModel
 import com.mirage.todolist.view.edittask.EditTaskActivity
 import com.mirage.todolist.view.settings.SettingsActivity
 import com.mirage.todolist.view.todolist.tags.TagsFragment
 import com.mirage.todolist.view.todolist.tasks.TasksFragment
+import javax.inject.Inject
 
 
 class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -44,8 +45,8 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
     private lateinit var tasksFragment: TasksFragment
     private lateinit var tagsFragment: TagsFragment
 
-    //TODO Inject
-    private val todolistModel: TodolistModel = getTodolistModel()
+    @Inject
+    lateinit var todolistModel: TodolistModel
 
     /**
      * Activity result launcher for Google Drive [UserRecoverableAuthIOException] user intervene screen
@@ -88,6 +89,7 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             return
         }
         ++activityInstancesCount
+        (application as App).appComponent.inject(this)
         setContentView(R.layout.todolist_root)
         initializeDrawer()
         initializeContentFragments()

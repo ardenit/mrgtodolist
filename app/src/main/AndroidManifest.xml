@@ -8,6 +8,7 @@
 
     <application
         android:allowBackup="true"
+        android:name=".model.dagger.App"
         android:icon="@drawable/mirage_todo_app_icon_filled"
         android:label="@string/app_name"
         android:roundIcon="@drawable/mirage_todo_app_icon_filled"

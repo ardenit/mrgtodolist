@@ -9,6 +9,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.biometric.BiometricPrompt
@@ -16,34 +17,34 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.hardware.fingerprint.FingerprintManagerCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.preference.PreferenceManager
 import com.andrognito.patternlockview.PatternLockView
 import com.andrognito.patternlockview.listener.PatternLockViewListener
 import com.andrognito.patternlockview.utils.PatternLockUtils
 import com.mirage.todolist.R
-import com.mirage.todolist.model.tasks.TodolistModel
-import com.mirage.todolist.model.tasks.getTodolistModel
-import com.mirage.todolist.viewmodel.PasswordValidator
+import com.mirage.todolist.model.dagger.App
 import com.mirage.todolist.view.settings.showToast
 import com.mirage.todolist.view.todolist.TodolistActivity
 import com.mirage.todolist.viewmodel.LockScreenType
 import com.mirage.todolist.viewmodel.LockScreenViewModel
-import com.mirage.todolist.viewmodel.LockScreenViewModelImpl
 import kotlinx.coroutines.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import javax.inject.Inject
 import kotlin.math.abs
 
 private const val TAP_HINT_TEXT_ANIMATION_DURATION = 4000L
 
 class LockScreenActivity : AppCompatActivity() {
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
     private val coroutineScope = lifecycleScope
     private lateinit var executor: ExecutorService
     private lateinit var biometricPrompt: BiometricPrompt
     private lateinit var promptInfo: BiometricPrompt.PromptInfo
 
-    private lateinit var viewModel: LockScreenViewModel
+    private val viewModel: LockScreenViewModel by viewModels { viewModelFactory }
 
     private val todolistResultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -53,12 +54,12 @@ class LockScreenActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        (application as App).appComponent.inject(this)
         executor = Executors.newSingleThreadExecutor()
         initializeViewModel()
     }
 
     private fun initializeViewModel() {
-        viewModel = ViewModelProvider(this).get(LockScreenViewModelImpl::class.java)
         viewModel.lockScreenType.observe(this) {
             when (it) {
                 LockScreenType.NO_PROTECTION -> initializeSplashScreen()

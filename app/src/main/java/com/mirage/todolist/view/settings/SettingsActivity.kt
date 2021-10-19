@@ -24,12 +24,7 @@ import com.mirage.todolist.R
 import com.mirage.todolist.model.gdrive.GDriveConnectExceptionHandler
 import com.mirage.todolist.model.tasks.TodolistModel
 import com.mirage.todolist.model.tasks.TodolistModelImpl
-import com.mirage.todolist.model.tasks.getTodolistModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
-import java.util.concurrent.Executor
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
+import javax.inject.Inject
 
 enum class SettingsScreen {
     ROOT,
@@ -45,8 +40,8 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
     private var settingsScreen = SettingsScreen.ROOT
     private lateinit var preferences: SharedPreferences
 
-    //TODO Inject
-    private val todolistModel: TodolistModel = getTodolistModel()
+    @Inject
+    lateinit var todolistModel: TodolistModel
 
     /**
      * Activity result launcher for Google Drive [UserRecoverableAuthIOException] user intervene screen

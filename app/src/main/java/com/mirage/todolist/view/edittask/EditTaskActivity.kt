@@ -21,12 +21,13 @@ import com.mirage.todolist.model.tasks.*
 import com.mirage.todolist.view.settings.showToast
 import com.mirage.todolist.view.todolist.tags.TagsView
 import java.util.*
+import javax.inject.Inject
 
 
 class EditTaskActivity : AppCompatActivity() {
 
-    //TODO Inject
-    private val todolistModel: TodolistModel = getTodolistModel()
+    @Inject
+    lateinit var todolistModel: TodolistModel
     private var initialTask: LiveTask? = null
     private var tasklistID: Int = 1
     private var newTagsList: MutableList<LiveTag> = arrayListOf()

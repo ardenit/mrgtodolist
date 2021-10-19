@@ -1,32 +1,30 @@
 package com.mirage.todolist.view.todolist.tags
 
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.findViewTreeLifecycleOwner
-import com.google.android.material.chip.Chip
 import com.mirage.todolist.R
 import com.mirage.todolist.databinding.TagsRootFragmentBinding
+import com.mirage.todolist.model.dagger.App
 import com.mirage.todolist.model.tasks.LiveTag
-import com.mirage.todolist.model.tasks.TagID
-import com.mirage.todolist.model.tasks.TodolistModel
-import com.mirage.todolist.model.tasks.getTodolistModel
+import com.mirage.todolist.viewmodel.LockScreenViewModel
 import com.mirage.todolist.viewmodel.TagsViewModel
-import com.mirage.todolist.viewmodel.TagsViewModelImpl
+import javax.inject.Inject
 
 /**
  * Main activity subscreen for "Tags" navigation option
  */
 class TagsFragment : Fragment() {
 
-    private lateinit var tagsViewModel: TagsViewModel
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    private val tagsViewModel: TagsViewModel by viewModels { viewModelFactory }
     private var _binding: TagsRootFragmentBinding? = null
     private val binding get() = _binding!!
 
@@ -38,13 +36,13 @@ class TagsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        (requireActivity().application as App).appComponent.inject(this)
         _binding = TagsRootFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        tagsViewModel = ViewModelProvider(this).get(TagsViewModelImpl::class.java)
         tagsViewModel.init()
         initializeToolbar()
         initializeTags()

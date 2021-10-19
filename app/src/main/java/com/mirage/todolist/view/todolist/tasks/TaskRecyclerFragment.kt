@@ -5,21 +5,26 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mirage.todolist.databinding.TaskRecyclerRootFragmentBinding
+import com.mirage.todolist.model.dagger.App
 import com.mirage.todolist.model.tasks.LiveTag
 import com.mirage.todolist.model.tasks.LiveTask
 import com.mirage.todolist.viewmodel.*
+import javax.inject.Inject
 
 /**
  * Container for a single tasklist (e.g. archived, completed, current tasks) inside [TasksFragment]
  */
 class TaskRecyclerFragment : Fragment() {
 
-    private lateinit var taskRecyclerViewModel: TaskRecyclerViewModel
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    private val taskRecyclerViewModel: TaskRecyclerViewModel by viewModels { viewModelFactory }
     private lateinit var recycler: RecyclerView
     private lateinit var recyclerAdapter: TasklistRecyclerAdapter
     private lateinit var itemTouchHelper: ItemTouchHelper
@@ -32,10 +37,9 @@ class TaskRecyclerFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        taskRecyclerViewModel = ViewModelProvider(this).get(TaskRecyclerViewModelImpl::class.java).apply {
-            val tasklistID = arguments?.getInt(ARG_SECTION_NUMBER) ?: 1
-            init(tasklistID)
-        }
+        (requireActivity().application as App).appComponent.inject(this)
+        val tasklistID = arguments?.getInt(ARG_SECTION_NUMBER) ?: 1
+        taskRecyclerViewModel.init(tasklistID)
     }
 
     override fun onCreateView(
