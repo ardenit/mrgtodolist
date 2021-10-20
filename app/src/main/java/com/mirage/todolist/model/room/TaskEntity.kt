@@ -40,5 +40,7 @@ data class TaskEntity(
     @ColumnInfo(name = "period_id")
     val periodId: Int = 0,
     @ColumnInfo(name = "last_modified")
-    val lastModifiedTimeMillis: Long = System.currentTimeMillis()
+    val lastModifiedTimeMillis: Long = System.currentTimeMillis(),
+    @ColumnInfo(name = "account_name")
+    val accountName: String = ""
 )

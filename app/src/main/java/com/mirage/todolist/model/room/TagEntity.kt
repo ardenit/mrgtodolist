@@ -19,5 +19,7 @@ data class TagEntity(
     @ColumnInfo(name = "deleted")
     val deleted: Boolean,
     @ColumnInfo(name = "last_modified")
-    val lastModifiedTimeMillis: Long
+    val lastModifiedTimeMillis: Long,
+    @ColumnInfo(name = "account_name")
+    val accountName: String = ""
 )

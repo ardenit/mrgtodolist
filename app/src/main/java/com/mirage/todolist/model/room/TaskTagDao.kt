@@ -41,4 +41,13 @@ interface TaskTagDao {
 
     @Query("SELECT * FROM tasks_x_tags")
     fun getAllRelations(): List<TaskTagEntity>
+
+    @Query("""
+        DELETE FROM tasks_x_tags
+        WHERE 1
+    """)
+    fun removeAllRelations()
+
+    @Insert
+    fun insertAllRelations(relations: List<TaskTagEntity>)
 }

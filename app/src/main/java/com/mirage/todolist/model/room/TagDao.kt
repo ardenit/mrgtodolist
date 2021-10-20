@@ -44,4 +44,13 @@ interface TagDao {
         WHERE tag_id = :tagId
         """)
     fun setTagLastModifiedTime(tagId: UUID, lastModifiedTimeMillis: Long)
+
+    @Query("""
+        DELETE FROM tags
+        WHERE 1
+    """)
+    fun removeAllTags()
+
+    @Insert
+    fun insertAllTags(tags: List<TagEntity>)
 }

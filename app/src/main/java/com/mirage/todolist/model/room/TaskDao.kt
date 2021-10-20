@@ -101,4 +101,13 @@ interface TaskDao {
         WHERE task_id = :taskId
         """)
     fun setTaskModifiedTime(taskId: UUID, modifiedTimeMillis: Long)
+
+    @Query("""
+        DELETE FROM tasks
+        WHERE 1
+    """)
+    fun removeAllTasks()
+
+    @Insert
+    fun insertAllTasks(tasks: List<TaskEntity>)
 }

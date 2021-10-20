@@ -9,6 +9,7 @@ import kotlinx.coroutines.*
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * @see [DatabaseModel] for API documentation
@@ -50,6 +51,27 @@ class DatabaseModelImpl : DatabaseModel {
             val snapshot = DatabaseSnapshot(allTasks, allTags, allRelations, allMeta)
             onSyncUpdateListener(snapshot)
         }
+    }
+
+    override fun updateDatabaseAfterSync(newSnapshot: DatabaseSnapshot, oldDatabaseVersion: UUID): Boolean {
+        val result = AtomicBoolean(true)
+        database.runInTransaction {
+            val allMeta = metaDao.getAllMeta()
+            val localVersion = allMeta.firstOrNull()?.value ?: UUID.randomUUID()
+            if (localVersion != oldDatabaseVersion) {
+                result.set(false)
+                return@runInTransaction
+            }
+            taskDao.removeAllTasks()
+            taskDao.insertAllTasks(newSnapshot.tasks.toList())
+            tagDao.removeAllTags()
+            tagDao.insertAllTags(newSnapshot.tags.toList())
+            taskTagDao.removeAllRelations()
+            taskTagDao.insertAllRelations(newSnapshot.relations.toList())
+            metaDao.setDataVersion(newSnapshot.dataVersion)
+            result.set(true)
+        }
+        return result.get()
     }
 
     override fun createNewTask(tasklistId: Int): TaskID {

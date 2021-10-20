@@ -60,13 +60,24 @@ class SyncWorker(context: Context, workerParams: WorkerParameters) : Worker(cont
             val lockSuccessful = tryLockGDrive()
             if (!lockSuccessful) return@runBlocking false
             val syncStartTime = System.currentTimeMillis()
-            val dataFromDrive = async {
+            val dataFromDriveAsync = async {
                 loadDataFromGDrive()
             }
-            val dataFromDatabase = async {
+            val dataFromDatabaseAsync = async {
                 loadDataFromDatabase()
             }
-            true
+            val dataFromDrive = dataFromDriveAsync.await()
+            val dataFromDatabase = dataFromDatabaseAsync.await()
+            val databaseVersion = dataFromDatabase.dataVersion
+            val mergedSnapshot = mergeSnapshots(dataFromDatabase, dataFromDrive)
+            val syncEndTime = System.currentTimeMillis()
+            // If sync took too long, abort and retry later
+            if (syncEndTime - syncStartTime > SYNC_TIMEOUT_TIME_MILLIS) return@runBlocking false
+            writeDataToGDrive(mergedSnapshot)
+            val databaseModel: DatabaseModel = DatabaseModelImpl()
+            databaseModel.init(applicationContext) { }
+            val databaseWriteSuccessful = databaseModel.updateDatabaseAfterSync(mergedSnapshot, databaseVersion)
+            databaseWriteSuccessful
         }
         return if (syncCompleted) Result.success() else Result.retry()
     }
@@ -127,10 +138,22 @@ class SyncWorker(context: Context, workerParams: WorkerParameters) : Worker(cont
         return snapshot.await()
     }
 
+    private suspend fun writeDataToGDrive(newSnapshot: DatabaseSnapshot) {
+        val newVersion = newSnapshot.dataVersion
+        val newLockFileData = LockFileData(-1L, identity, newVersion)
+        val newData = gson.toJson(newSnapshot).encodeToByteArray()
+        val newLock = gson.toJson(newLockFileData).encodeToByteArray()
+        val lockFileId = gDriveApi.getFileId(LOCKFILE_NAME)!!
+        val dataFileId = gDriveApi.getFileId(DATAFILE_NAME)!!
+        gDriveApi.updateFile(dataFileId, newData)
+        gDriveApi.updateFile(lockFileId, newLock)
+    }
+
     companion object {
         private const val LOCKFILE_NAME = "com-mirage-todolist-lockfile.json"
         private const val DATAFILE_NAME = "com-mirage-todolist-datafile.json"
         private const val MAX_LOCK_TIME_MILLIS = 60 * 1000L
         private const val LOCK_CONFIRM_WAIT_TIME_MILLIS = 5 * 1000L
+        private const val SYNC_TIMEOUT_TIME_MILLIS = 40 * 1000L
     }
 }

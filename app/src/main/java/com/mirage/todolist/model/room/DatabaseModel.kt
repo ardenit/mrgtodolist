@@ -4,6 +4,7 @@ import android.content.Context
 import com.mirage.todolist.model.tasks.LiveTask
 import com.mirage.todolist.model.tasks.TagID
 import com.mirage.todolist.model.tasks.TaskID
+import java.util.*
 
 /**
  * Interface for interacting with Room database
@@ -18,6 +19,13 @@ interface DatabaseModel {
      * Listener is also invoked immediately after this method finishes initialization
      */
     fun init(appCtx: Context, onSyncUpdateListener: suspend (DatabaseSnapshot) -> Unit)
+
+    /**
+     * Fully updates the database to store the new snapshot, merged with data loaded from Google Drive
+     * @return true if database was successfully updated, false if sync must be retried later
+     * (e.g. if user updates the tasklist, sync was done with outdated local database snapshot and must be redone)
+     */
+    fun updateDatabaseAfterSync(newSnapshot: DatabaseSnapshot, oldDatabaseVersion: UUID): Boolean
 
     /** Returns [TaskID] immediately without waiting for DB query to complete */
     fun createNewTask(tasklistId: Int): TaskID
