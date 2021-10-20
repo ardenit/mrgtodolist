@@ -3,6 +3,7 @@ package com.mirage.todolist.model.dagger
 import android.app.Application
 import com.mirage.todolist.view.edittask.EditTaskActivity
 import com.mirage.todolist.view.lockscreen.LockScreenActivity
+import com.mirage.todolist.view.settings.SettingsActivity
 import com.mirage.todolist.view.settings.SettingsFragment
 import com.mirage.todolist.view.todolist.TodolistActivity
 import com.mirage.todolist.view.todolist.tags.TagsFragment
@@ -30,6 +31,8 @@ interface AppComponent {
     fun inject(todolistActivity: TodolistActivity)
 
     fun inject(editTaskActivity: EditTaskActivity)
+
+    fun inject(settingsActivity: SettingsActivity)
 
     fun inject(tagsFragment: TagsFragment)
 

@@ -19,6 +19,7 @@ import com.google.android.gms.common.AccountPicker
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAuthIOException
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.mirage.todolist.R
+import com.mirage.todolist.model.dagger.App
 import com.mirage.todolist.model.sync.GDriveConnectExceptionHandler
 import com.mirage.todolist.model.tasks.TodolistModel
 import com.mirage.todolist.model.tasks.TodolistModelImpl
@@ -91,6 +92,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        (application as App).appComponent.inject(this)
         setContentView(R.layout.settings_activity)
         settingsFragment = SettingsFragment()
         settingsFragment.onSyncPressed = { configureSync() }

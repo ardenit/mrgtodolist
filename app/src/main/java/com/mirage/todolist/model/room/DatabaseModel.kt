@@ -5,13 +5,6 @@ import com.mirage.todolist.model.tasks.LiveTask
 import com.mirage.todolist.model.tasks.TagID
 import com.mirage.todolist.model.tasks.TaskID
 
-data class DatabaseSnapshot(
-    val tasks: List<TaskEntity>,
-    val tags: List<TagEntity>,
-    val relations: List<TaskTagEntity>,
-    val meta: List<MetaEntity>
-    )
-
 /**
  * Interface for interacting with Room database
  * This model encapsulates working with its own thread,

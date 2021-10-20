@@ -43,10 +43,10 @@ class DatabaseModelImpl : DatabaseModel {
             tagDao = database.getTagDao()
             taskTagDao = database.getTaskTagDao()
             metaDao = database.getMetaDao()
-            val allTasks = taskDao.getAllTasks()
-            val allTags = tagDao.getAllTags()
-            val allRelations = taskTagDao.getAllRelations()
-            val allMeta = metaDao.getAllMeta()
+            val allTasks = taskDao.getAllTasks().toSet()
+            val allTags = tagDao.getAllTags().toSet()
+            val allRelations = taskTagDao.getAllRelations().toSet()
+            val allMeta = metaDao.getAllMeta().toSet()
             val snapshot = DatabaseSnapshot(allTasks, allTags, allRelations, allMeta)
             onSyncUpdateListener(snapshot)
         }
@@ -116,11 +116,7 @@ class DatabaseModelImpl : DatabaseModel {
     override fun setTaskTags(taskId: TaskID, tagIds: List<TagID>) {
         val tagIdsSync = CopyOnWriteArrayList(tagIds)
         transaction {
-            val taskIdFirst = taskId.mostSignificantBits
-            val taskIdLast = taskId.leastSignificantBits
             tagIdsSync.forEach { tagId ->
-                val tagIdFirst = tagId.mostSignificantBits
-                val tagIdLast = tagId.leastSignificantBits
                 val relationsCount = taskTagDao.checkRelation(taskId, tagId)
                 if (relationsCount == 0) {
                     val relation = TaskTagEntity(taskId, tagId, false, System.currentTimeMillis())

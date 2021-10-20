@@ -105,7 +105,7 @@ class SyncWorker(context: Context, workerParams: WorkerParameters) : Worker(cont
         val dataFileData = try {
             gson.fromJson(dataFile.decodeToString(), DatabaseSnapshot::class.java)
         } catch (ex: JsonSyntaxException) {
-            DatabaseSnapshot(emptyList(), emptyList(), emptyList(), emptyList())
+            DatabaseSnapshot(emptySet(), emptySet(), emptySet(), emptySet())
         }
         return dataFileData
     }
