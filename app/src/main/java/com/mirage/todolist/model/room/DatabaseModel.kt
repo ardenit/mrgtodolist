@@ -8,7 +8,8 @@ import com.mirage.todolist.model.tasks.TaskID
 data class DatabaseSnapshot(
     val tasks: List<TaskEntity>,
     val tags: List<TagEntity>,
-    val relations: List<TaskTagEntity>
+    val relations: List<TaskTagEntity>,
+    val meta: List<MetaEntity>
     )
 
 /**

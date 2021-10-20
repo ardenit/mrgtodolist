@@ -7,18 +7,28 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAuthIOException
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
+import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
 import com.mirage.todolist.R
+import com.mirage.todolist.model.room.DatabaseModel
+import com.mirage.todolist.model.room.DatabaseModelImpl
+import com.mirage.todolist.model.room.DatabaseSnapshot
 import com.mirage.todolist.model.tasks.TodolistModelImpl
 import kotlinx.coroutines.*
+import java.util.*
+import kotlin.math.abs
 
 class SyncWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
+
+    private val gDriveApi = GDriveRestApi()
+    private val gson = Gson()
+    private val identity = UUID.randomUUID()
 
     override fun doWork(): Result {
         val accNameKey = TodolistModelImpl.ACC_NAME_KEY
         val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         val email = prefs.getString(accNameKey, "")
         if (email.isNullOrBlank()) return Result.success()
-        val gDriveApi = GDriveRestApi()
         gDriveApi.init(applicationContext, email)
         val connectionCompleted = CompletableDeferred<Boolean>()
         val gDriveConnectExceptionHandler = object : GDriveConnectExceptionHandler {
@@ -46,22 +56,81 @@ class SyncWorker(context: Context, workerParams: WorkerParameters) : Worker(cont
             }
         }
         gDriveApi.connect(gDriveConnectExceptionHandler)
-        runBlocking(Dispatchers.IO) {
-            loadFromGDrive(gDriveApi)
+        val syncCompleted = runBlocking(Dispatchers.IO) {
+            val lockSuccessful = tryLockGDrive()
+            if (!lockSuccessful) return@runBlocking false
+            val syncStartTime = System.currentTimeMillis()
+            val dataFromDrive = async {
+                loadDataFromGDrive()
+            }
+            val dataFromDatabase = async {
+                loadDataFromDatabase()
+            }
+            true
         }
-        return Result.success()
+        return if (syncCompleted) Result.success() else Result.retry()
     }
 
-    private suspend fun loadFromGDrive(gDriveApi: GDriveRestApi) {
+    /**
+     * Tries to take lock of Google Drive.
+     * @return true if successful, false if should be retried later
+     */
+    private suspend fun tryLockGDrive(): Boolean {
         var lockFileId = gDriveApi.getFileId(LOCKFILE_NAME)
         if (lockFileId == null) {
             lockFileId = gDriveApi.createFile(LOCKFILE_NAME)
         }
+        val lockFileData = readLockFile(lockFileId)
+        val currentTime = System.currentTimeMillis()
+        if (abs(lockFileData.lockStartMillis - currentTime) < MAX_LOCK_TIME_MILLIS) {
+            return false
+        }
+        val newLockFileData = LockFileData(currentTime, identity, lockFileData.dataVersion)
+        gDriveApi.updateFile(lockFileId, gson.toJson(newLockFileData).encodeToByteArray())
+        // Waiting a bit and reading the file again to prevent concurrent lock acquisition
+        delay(LOCK_CONFIRM_WAIT_TIME_MILLIS)
+        val updatedLockFileData = readLockFile(lockFileId)
+        if (updatedLockFileData.lockOwner != identity) {
+            return false
+        }
+        return true
+    }
 
+    private suspend fun loadDataFromGDrive(): DatabaseSnapshot {
+        var dataFileId = gDriveApi.getFileId(DATAFILE_NAME)
+        if (dataFileId == null) {
+            dataFileId = gDriveApi.createFile(DATAFILE_NAME)
+        }
+        val dataFile = gDriveApi.downloadFile(dataFileId)
+        val dataFileData = try {
+            gson.fromJson(dataFile.decodeToString(), DatabaseSnapshot::class.java)
+        } catch (ex: JsonSyntaxException) {
+            DatabaseSnapshot(emptyList(), emptyList(), emptyList(), emptyList())
+        }
+        return dataFileData
+    }
+
+    private suspend fun readLockFile(lockFileId: String): LockFileData {
+        val lockFile = gDriveApi.downloadFile(lockFileId)
+        val lockFileData = try {
+            gson.fromJson(lockFile.decodeToString(), LockFileData::class.java)
+        } catch (ex: JsonSyntaxException) {
+            LockFileData(-1L, null, null)
+        }
+        return lockFileData
+    }
+
+    private suspend fun loadDataFromDatabase(): DatabaseSnapshot {
+        val databaseModel: DatabaseModel = DatabaseModelImpl()
+        val snapshot = CompletableDeferred<DatabaseSnapshot>()
+        databaseModel.init(applicationContext) { snapshot.complete(it) }
+        return snapshot.await()
     }
 
     companion object {
         private const val LOCKFILE_NAME = "com-mirage-todolist-lockfile.json"
         private const val DATAFILE_NAME = "com-mirage-todolist-datafile.json"
+        private const val MAX_LOCK_TIME_MILLIS = 60 * 1000L
+        private const val LOCK_CONFIRM_WAIT_TIME_MILLIS = 5 * 1000L
     }
 }

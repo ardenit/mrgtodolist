@@ -19,6 +19,7 @@ class DatabaseModelImpl : DatabaseModel {
     private lateinit var taskDao: TaskDao
     private lateinit var tagDao: TagDao
     private lateinit var taskTagDao: TaskTagDao
+    private lateinit var metaDao: MetaDao
 
     @Volatile
     private lateinit var appCtx: Context
@@ -41,10 +42,12 @@ class DatabaseModelImpl : DatabaseModel {
             taskDao = database.getTaskDao()
             tagDao = database.getTagDao()
             taskTagDao = database.getTaskTagDao()
+            metaDao = database.getMetaDao()
             val allTasks = taskDao.getAllTasks()
             val allTags = tagDao.getAllTags()
             val allRelations = taskTagDao.getAllRelations()
-            val snapshot = DatabaseSnapshot(allTasks, allTags, allRelations)
+            val allMeta = metaDao.getAllMeta()
+            val snapshot = DatabaseSnapshot(allTasks, allTags, allRelations, allMeta)
             onSyncUpdateListener(snapshot)
         }
     }
