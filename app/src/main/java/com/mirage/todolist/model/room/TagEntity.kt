@@ -2,15 +2,14 @@ package com.mirage.todolist.model.room
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.PrimaryKey
+import java.util.*
 
-@Entity(tableName = "tags", primaryKeys = ["tag_id_first", "tag_id_last"])
+@Entity(tableName = "tags")
 data class TagEntity(
-    /** Most significant bits of tag's unique ID */
-    @ColumnInfo(name = "tag_id_first")
-    val tagIdFirst: Long,
-    /** Least significant bits of tag's unique ID */
-    @ColumnInfo(name = "tag_id_last")
-    val tagIdLast: Long,
+    @PrimaryKey
+    @ColumnInfo(name = "tag_id")
+    val tagId: UUID,
     @ColumnInfo(name = "tag_index")
     val tagIndex: Int,
     @ColumnInfo(name = "name")

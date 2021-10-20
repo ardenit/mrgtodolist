@@ -2,11 +2,10 @@ package com.mirage.todolist.model.tasks
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.provider.Settings
 import androidx.preference.PreferenceManager
 import com.mirage.todolist.R
-import com.mirage.todolist.model.gdrive.GDriveConnectExceptionHandler
-import com.mirage.todolist.model.gdrive.GDriveRestApi
+import com.mirage.todolist.model.sync.GDriveConnectExceptionHandler
+import com.mirage.todolist.model.sync.GDriveRestApi
 import com.mirage.todolist.model.room.*
 import com.mirage.todolist.model.workers.scheduleAllDatetimeNotifications
 import kotlinx.coroutines.*
@@ -60,7 +59,7 @@ class TodolistModelImpl: TodolistModel {
         val newLocalTasks = LinkedHashMap<TaskID, MutableLiveTask>()
         val newLocalTags = LinkedHashMap<TagID, MutableLiveTag>()
         dbSnapshot.tags.forEach { tagEntity ->
-            val tagId = UUID(tagEntity.tagIdFirst, tagEntity.tagIdLast)
+            val tagId = tagEntity.tagId
             val tag = MutableLiveTag(
                 tagID = tagId,
                 tagIndex = tagEntity.tagIndex,
@@ -73,11 +72,11 @@ class TodolistModelImpl: TodolistModel {
             val tags: List<LiveTag> = dbSnapshot.relations
                 .asSequence()
                 .filterNot { it.deleted }
-                .filter { it.taskIdFirst == taskEntity.taskIdFirst && it.taskIdLast == taskEntity.taskIdLast }
-                .map { UUID(it.tagIdFirst, it.tagIdLast) }
+                .filter { it.taskId == taskEntity.taskId }
+                .map { it.tagId }
                 .mapNotNull { newLocalTags[it] }
                 .toList()
-            val taskId = UUID(taskEntity.taskIdFirst, taskEntity.taskIdLast)
+            val taskId = taskEntity.taskId
             val tasklistId = taskEntity.tasklistId
             val date = TaskDate(taskEntity.dateYear, taskEntity.dateMonth, taskEntity.dateDay)
             val time = TaskTime(taskEntity.timeHour, taskEntity.timeMinute)
@@ -110,6 +109,7 @@ class TodolistModelImpl: TodolistModel {
     }
 
     override fun getGDriveAccountEmail(): String? {
+        prefs = PreferenceManager.getDefaultSharedPreferences(this.appCtx)
         val newEmail = prefs.getString(ACC_NAME_KEY, null)
         if (newEmail != email) {
             email = newEmail

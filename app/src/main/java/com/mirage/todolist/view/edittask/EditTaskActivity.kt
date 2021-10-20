@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import com.mirage.todolist.R
+import com.mirage.todolist.model.dagger.App
 import com.mirage.todolist.model.tasks.*
 import com.mirage.todolist.view.settings.showToast
 import com.mirage.todolist.view.todolist.tags.TagsView
@@ -47,6 +48,7 @@ class EditTaskActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        (application as App).appComponent.inject(this)
         setContentView(R.layout.edit_task_root)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)

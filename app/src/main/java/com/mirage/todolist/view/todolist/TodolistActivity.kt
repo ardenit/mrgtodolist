@@ -2,30 +2,22 @@ package com.mirage.todolist.view.todolist
 
 import android.app.Activity
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.get
-import androidx.core.view.isNotEmpty
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.preference.PreferenceManager
-import com.google.android.gms.auth.GoogleAuthUtil
-import com.google.android.gms.common.AccountPicker
-import com.google.android.material.internal.NavigationMenuView
 import com.google.android.material.navigation.NavigationView
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAuthIOException
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.mirage.todolist.R
 import com.mirage.todolist.model.dagger.App
-import com.mirage.todolist.model.gdrive.GDriveConnectExceptionHandler
+import com.mirage.todolist.model.sync.GDriveConnectExceptionHandler
 import com.mirage.todolist.model.tasks.LiveTask
 import com.mirage.todolist.model.tasks.TodolistModel
 import com.mirage.todolist.view.edittask.EditTaskActivity
@@ -93,6 +85,7 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         setContentView(R.layout.todolist_root)
         initializeDrawer()
         initializeContentFragments()
+        todolistModel.init(applicationContext)
         todolistModel.setGDriveAccountEmail(todolistModel.getGDriveAccountEmail(), gDriveConnectExceptionHandler)
     }
 

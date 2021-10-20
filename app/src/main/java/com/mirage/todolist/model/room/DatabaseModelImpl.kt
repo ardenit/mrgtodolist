@@ -36,6 +36,7 @@ class DatabaseModelImpl : DatabaseModel {
         this.appCtx = appCtx
         coroutineScope.launch {
             database = Room.databaseBuilder(appCtx, AppDatabase::class.java, "mirage_todolist_db")
+                .fallbackToDestructiveMigration()
                 .build()
             taskDao = database.getTaskDao()
             tagDao = database.getTagDao()
@@ -56,8 +57,7 @@ class DatabaseModelImpl : DatabaseModel {
             database.runInTransaction {
                 val taskIndex = taskDao.getTasklistSize(tasklistId)
                 val taskEntity = TaskEntity(
-                    taskIdFirst = taskId.mostSignificantBits,
-                    taskIdLast = taskId.leastSignificantBits,
+                    taskId = taskId,
                     tasklistId = tasklistId,
                     taskIndex = taskIndex,
                     title = defaultTitle,
@@ -70,44 +70,44 @@ class DatabaseModelImpl : DatabaseModel {
         return taskId
     }
 
-    override fun removeTask(taskId: TaskID) = taskTransaction(taskId) { idFirst, idLast ->
-        setTasklistId(idFirst, idLast, -1)
-        setTaskModifiedTime(idFirst, idLast, System.currentTimeMillis())
+    override fun removeTask(taskId: TaskID) = taskTransaction(taskId) { id ->
+        setTasklistId(id, -1)
+        setTaskModifiedTime(id, System.currentTimeMillis())
     }
 
-    override fun moveTask(taskId: TaskID, newTasklistId: Int) = taskTransaction(taskId) { idFirst, idLast ->
-        val oldTasklistId = getTasklistId(idFirst, idLast)
-        val oldTaskIndex = getTaskIndex(idFirst, idLast)
+    override fun moveTask(taskId: TaskID, newTasklistId: Int) = taskTransaction(taskId) { id ->
+        val oldTasklistId = getTasklistId(id)
+        val oldTaskIndex = getTaskIndex(id)
         val newTaskIndex = getTasklistSize(newTasklistId)
         shiftTaskIndicesInSlice(oldTasklistId, oldTaskIndex + 1, Int.MAX_VALUE, -1)
-        setTaskIndex(idFirst, idLast, newTaskIndex)
-        setTasklistId(idFirst, idLast, newTasklistId)
-        setTaskModifiedTime(idFirst, idLast, System.currentTimeMillis())
+        setTaskIndex(id, newTaskIndex)
+        setTasklistId(id, newTasklistId)
+        setTaskModifiedTime(id, System.currentTimeMillis())
     }
 
-    override fun moveTaskInList(taskId: TaskID, newTaskIndex: Int) = taskTransaction(taskId) { idFirst, idLast ->
-        val tasklistId = getTasklistId(idFirst, idLast)
-        val oldTaskIndex = getTaskIndex(idFirst, idLast)
+    override fun moveTaskInList(taskId: TaskID, newTaskIndex: Int) = taskTransaction(taskId) { id ->
+        val tasklistId = getTasklistId(id)
+        val oldTaskIndex = getTaskIndex(id)
         if (oldTaskIndex < newTaskIndex) {
             setTimeModifiedInSlice(tasklistId, oldTaskIndex + 1, newTaskIndex + 1, System.currentTimeMillis())
             shiftTaskIndicesInSlice(tasklistId, oldTaskIndex + 1, newTaskIndex + 1, -1)
-            setTaskIndex(idFirst, idLast, newTaskIndex)
+            setTaskIndex(id, newTaskIndex)
         } else if (oldTaskIndex > newTaskIndex) {
             setTimeModifiedInSlice(tasklistId, newTaskIndex, oldTaskIndex, System.currentTimeMillis())
             shiftTaskIndicesInSlice(tasklistId, newTaskIndex, oldTaskIndex, 1)
-            setTaskIndex(idFirst, idLast, newTaskIndex)
+            setTaskIndex(id, newTaskIndex)
         }
-        setTaskModifiedTime(idFirst, idLast, System.currentTimeMillis())
+        setTaskModifiedTime(id, System.currentTimeMillis())
     }
 
-    override fun setTaskTitle(taskId: TaskID, title: String) = taskTransaction(taskId) { idFirst, idLast ->
-        setTaskTitle(idFirst, idLast, title)
-        setTaskModifiedTime(idFirst, idLast, System.currentTimeMillis())
+    override fun setTaskTitle(taskId: TaskID, title: String) = taskTransaction(taskId) { id ->
+        setTaskTitle(id, title)
+        setTaskModifiedTime(id, System.currentTimeMillis())
     }
 
-    override fun setTaskDescription(taskId: TaskID, description: String) = taskTransaction(taskId) { idFirst, idLast ->
-        setTaskDescription(idFirst, idLast, description)
-        setTaskModifiedTime(idFirst, idLast, System.currentTimeMillis())
+    override fun setTaskDescription(taskId: TaskID, description: String) = taskTransaction(taskId) { id ->
+        setTaskDescription(id, description)
+        setTaskModifiedTime(id, System.currentTimeMillis())
     }
 
     override fun setTaskTags(taskId: TaskID, tagIds: List<TagID>) {
@@ -118,34 +118,34 @@ class DatabaseModelImpl : DatabaseModel {
             tagIdsSync.forEach { tagId ->
                 val tagIdFirst = tagId.mostSignificantBits
                 val tagIdLast = tagId.leastSignificantBits
-                val relationsCount = taskTagDao.checkRelation(taskIdFirst, taskIdLast, tagIdFirst, tagIdLast)
+                val relationsCount = taskTagDao.checkRelation(taskId, tagId)
                 if (relationsCount == 0) {
-                    val relation = TaskTagEntity(taskIdFirst, taskIdLast, tagIdFirst, tagIdLast, false, System.currentTimeMillis())
+                    val relation = TaskTagEntity(taskId, tagId, false, System.currentTimeMillis())
                     taskTagDao.insertRelation(relation)
                 }
                 else {
-                    taskTagDao.restoreRelation(taskIdFirst, taskIdLast, tagIdFirst, tagIdLast)
-                    taskTagDao.setRelationModifiedTime(taskIdFirst, taskIdLast, tagIdFirst, tagIdLast, System.currentTimeMillis())
+                    taskTagDao.restoreRelation(taskId, tagId)
+                    taskTagDao.setRelationModifiedTime(taskId, tagId, System.currentTimeMillis())
                 }
             }
         }
     }
 
     override fun setTaskDate(taskId: TaskID, year: Int, monthOfYear: Int, dayOfMonth: Int) =
-        taskTransaction(taskId) { idFirst, idLast ->
-        setTaskDate(idFirst, idLast, year, monthOfYear, dayOfMonth)
-        setTaskModifiedTime(idFirst, idLast, System.currentTimeMillis())
+        taskTransaction(taskId) { id ->
+        setTaskDate(id, year, monthOfYear, dayOfMonth)
+        setTaskModifiedTime(id, System.currentTimeMillis())
     }
 
     override fun setTaskTime(taskId: TaskID, hour: Int, minute: Int) =
-        taskTransaction(taskId) { idFirst, idLast ->
-            setTaskTime(idFirst, idLast, hour, minute)
-            setTaskModifiedTime(idFirst, idLast, System.currentTimeMillis())
+        taskTransaction(taskId) { id ->
+            setTaskTime(id, hour, minute)
+            setTaskModifiedTime(id, System.currentTimeMillis())
         }
 
-    override fun setTaskPeriod(taskId: TaskID, periodId: Int) = taskTransaction(taskId) { idFirst, idLast ->
-        setTaskPeriodId(idFirst, idLast, periodId)
-        setTaskModifiedTime(idFirst, idLast, System.currentTimeMillis())
+    override fun setTaskPeriod(taskId: TaskID, periodId: Int) = taskTransaction(taskId) { id ->
+        setTaskPeriodId(id, periodId)
+        setTaskModifiedTime(id, System.currentTimeMillis())
     }
 
     override fun createNewTag(): TagID {
@@ -154,8 +154,7 @@ class DatabaseModelImpl : DatabaseModel {
             database.runInTransaction {
                 val tagIndex = tagDao.getTagsCount()
                 val tagEntity = TagEntity(
-                    tagIdFirst = tagId.mostSignificantBits,
-                    tagIdLast = tagId.leastSignificantBits,
+                    tagId = tagId,
                     tagIndex = tagIndex,
                     name = "",
                     styleIndex = 0,
@@ -168,19 +167,19 @@ class DatabaseModelImpl : DatabaseModel {
         return tagId
     }
 
-    override fun setTagName(tagId: TagID, name: String) = tagTransaction(tagId) { idFirst, idLast ->
-        setTagName(idFirst, idLast, name)
-        setTagLastModifiedTime(idFirst, idLast, System.currentTimeMillis())
+    override fun setTagName(tagId: TagID, name: String) = tagTransaction(tagId) { id ->
+        setTagName(id, name)
+        setTagLastModifiedTime(id, System.currentTimeMillis())
     }
 
-    override fun setTagStyleIndex(tagId: TagID, styleIndex: Int) = tagTransaction(tagId) { idFirst, idLast ->
-        setTagStyleIndex(idFirst, idLast, styleIndex)
-        setTagLastModifiedTime(idFirst, idLast, System.currentTimeMillis())
+    override fun setTagStyleIndex(tagId: TagID, styleIndex: Int) = tagTransaction(tagId) { id ->
+        setTagStyleIndex(id, styleIndex)
+        setTagLastModifiedTime(id, System.currentTimeMillis())
     }
 
-    override fun removeTag(tagId: TagID) = tagTransaction(tagId) { idFirst, idLast ->
-        setTagDeleted(idFirst, idLast, true)
-        setTagLastModifiedTime(idFirst, idLast, System.currentTimeMillis())
+    override fun removeTag(tagId: TagID) = tagTransaction(tagId) { id ->
+        setTagDeleted(id, true)
+        setTagLastModifiedTime(id, System.currentTimeMillis())
     }
 
     private fun transaction(block: () -> Unit) {
@@ -189,22 +188,18 @@ class DatabaseModelImpl : DatabaseModel {
         }
     }
 
-    private fun taskTransaction(taskId: TaskID, block: TaskDao.(Long, Long) -> Unit) {
-        val taskIdFirst = taskId.mostSignificantBits
-        val taskIdLast = taskId.leastSignificantBits
+    private fun taskTransaction(taskId: TaskID, block: TaskDao.(TaskID) -> Unit) {
         coroutineScope.launch {
             database.runInTransaction {
-                taskDao.block(taskIdFirst, taskIdLast)
+                taskDao.block(taskId)
             }
         }
     }
 
-    private fun tagTransaction(tagId: TagID, block: TagDao.(Long, Long) -> Unit) {
-        val tagIdFirst = tagId.mostSignificantBits
-        val tagIdLast = tagId.leastSignificantBits
+    private fun tagTransaction(tagId: TagID, block: TagDao.(TagID) -> Unit) {
         coroutineScope.launch {
             database.runInTransaction {
-                tagDao.block(tagIdFirst, tagIdLast)
+                tagDao.block(tagId)
             }
         }
     }

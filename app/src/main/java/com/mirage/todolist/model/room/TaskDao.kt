@@ -4,6 +4,7 @@ import androidx.room.*
 import com.mirage.todolist.model.tasks.LiveTag
 import com.mirage.todolist.model.tasks.LiveTask
 import com.mirage.todolist.viewmodel.TasklistType
+import java.util.*
 
 @Dao
 interface TaskDao {
@@ -28,30 +29,30 @@ interface TaskDao {
     @Query("""
         UPDATE tasks
         SET task_index = :newTaskIndex
-        WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast
+        WHERE task_id = :taskId
         """)
-    fun setTaskIndex(taskIdFirst: Long, taskIdLast: Long, newTaskIndex: Int)
+    fun setTaskIndex(taskId: UUID, newTaskIndex: Int)
 
     @Query("""
         UPDATE tasks
         SET tasklist_id = :newTasklistId
-        WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast
+        WHERE task_id = :taskId
         """)
-    fun setTasklistId(taskIdFirst: Long, taskIdLast: Long, newTasklistId: Int)
+    fun setTasklistId(taskId: UUID, newTasklistId: Int)
 
     @Query("""
         SELECT task_index
         FROM tasks
-        WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast
+        WHERE task_id = :taskId
     """)
-    fun getTaskIndex(taskIdFirst: Long, taskIdLast: Long): Int
+    fun getTaskIndex(taskId: UUID): Int
 
     @Query("""
         SELECT tasklist_id
         FROM tasks
-        WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast
+        WHERE task_id = :taskId
     """)
-    fun getTasklistId(taskIdFirst: Long, taskIdLast: Long): Int
+    fun getTasklistId(taskId: UUID): Int
 
     @Insert
     fun insertTask(task: TaskEntity)
@@ -62,42 +63,42 @@ interface TaskDao {
     @Query("""
         UPDATE tasks
         SET title = :title
-        WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast
+        WHERE task_id = :taskId
         """)
-    fun setTaskTitle(taskIdFirst: Long, taskIdLast: Long, title: String)
+    fun setTaskTitle(taskId: UUID, title: String)
 
     @Query("""
         UPDATE tasks
         SET description = :description
-        WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast
+        WHERE task_id = :taskId
         """)
-    fun setTaskDescription(taskIdFirst: Long, taskIdLast: Long, description: String)
+    fun setTaskDescription(taskId: UUID, description: String)
 
     @Query("""
         UPDATE tasks
         SET date_year = :year, date_month = :monthOfYear, date_day = :dayOfMonth
-        WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast
+        WHERE task_id = :taskId
         """)
-    fun setTaskDate(taskIdFirst: Long, taskIdLast: Long, year: Int, monthOfYear: Int, dayOfMonth: Int)
+    fun setTaskDate(taskId: UUID, year: Int, monthOfYear: Int, dayOfMonth: Int)
 
     @Query("""
         UPDATE tasks
         SET time_hour = :hour, time_minute = :minute
-        WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast
+        WHERE task_id = :taskId
         """)
-    fun setTaskTime(taskIdFirst: Long, taskIdLast: Long, hour: Int, minute: Int)
+    fun setTaskTime(taskId: UUID, hour: Int, minute: Int)
 
     @Query("""
         UPDATE tasks
         SET period_id = :periodId
-        WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast
+        WHERE task_id = :taskId
         """)
-    fun setTaskPeriodId(taskIdFirst: Long, taskIdLast: Long, periodId: Int)
+    fun setTaskPeriodId(taskId: UUID, periodId: Int)
 
     @Query("""
         UPDATE tasks
         SET last_modified = :modifiedTimeMillis
-        WHERE task_id_first = :taskIdFirst AND task_id_last = :taskIdLast
+        WHERE task_id = :taskId
         """)
-    fun setTaskModifiedTime(taskIdFirst: Long, taskIdLast: Long, modifiedTimeMillis: Long)
+    fun setTaskModifiedTime(taskId: UUID, modifiedTimeMillis: Long)
 }

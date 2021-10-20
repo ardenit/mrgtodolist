@@ -3,15 +3,14 @@ package com.mirage.todolist.model.room
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.util.*
 
-@Entity(tableName = "tasks", primaryKeys = ["task_id_first", "task_id_last"])
+@Entity(tableName = "tasks")
 data class TaskEntity(
-    /** Most significant bits of task's unique ID */
-    @ColumnInfo(name = "task_id_first")
-    val taskIdFirst: Long,
-    /** Least significant bits of task's unique ID */
-    @ColumnInfo(name = "task_id_last")
-    val taskIdLast: Long,
+    /** Task's unique ID */
+    @PrimaryKey
+    @ColumnInfo(name = "task_id")
+    val taskId: UUID,
     /**
      * Index of the task's tasklist
      * */

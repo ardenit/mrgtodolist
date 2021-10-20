@@ -3,6 +3,7 @@ package com.mirage.todolist.model.room
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import java.util.*
 
 @Dao
 interface TagDao {
@@ -19,28 +20,28 @@ interface TagDao {
     @Query("""
         UPDATE tags
         SET name = :name
-        WHERE tag_id_first = :tagIdFirst AND tag_id_last = :tagIdLast
+        WHERE tag_id = :tagId
         """)
-    fun setTagName(tagIdFirst: Long, tagIdLast: Long, name: String)
+    fun setTagName(tagId: UUID, name: String)
 
     @Query("""
         UPDATE tags
         SET style_index = :styleIndex
-        WHERE tag_id_first = :tagIdFirst AND tag_id_last = :tagIdLast
+        WHERE tag_id = :tagId
         """)
-    fun setTagStyleIndex(tagIdFirst: Long, tagIdLast: Long, styleIndex: Int)
+    fun setTagStyleIndex(tagId: UUID, styleIndex: Int)
 
     @Query("""
         UPDATE tags
         SET deleted = :deleted
-        WHERE tag_id_first = :tagIdFirst AND tag_id_last = :tagIdLast
+        WHERE tag_id = :tagId
         """)
-    fun setTagDeleted(tagIdFirst: Long, tagIdLast: Long, deleted: Boolean)
+    fun setTagDeleted(tagId: UUID, deleted: Boolean)
 
     @Query("""
         UPDATE tags
         SET last_modified = :lastModifiedTimeMillis
-        WHERE tag_id_first = :tagIdFirst AND tag_id_last = :tagIdLast
+        WHERE tag_id = :tagId
         """)
-    fun setTagLastModifiedTime(tagIdFirst: Long, tagIdLast: Long, lastModifiedTimeMillis: Long)
+    fun setTagLastModifiedTime(tagId: UUID, lastModifiedTimeMillis: Long)
 }

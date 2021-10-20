@@ -1,7 +1,7 @@
 package com.mirage.todolist.model.tasks
 
 import android.content.Context
-import com.mirage.todolist.model.gdrive.GDriveConnectExceptionHandler
+import com.mirage.todolist.model.sync.GDriveConnectExceptionHandler
 
 //TODO Inject
 private val todolistModelInstance: TodolistModel = TodolistModelImpl()
