@@ -1,4 +1,4 @@
-package com.mirage.todolist.model.dagger
+package com.mirage.todolist.di
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

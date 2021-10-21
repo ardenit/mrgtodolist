@@ -16,7 +16,7 @@ import com.google.android.material.navigation.NavigationView
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAuthIOException
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.mirage.todolist.R
-import com.mirage.todolist.model.dagger.App
+import com.mirage.todolist.App
 import com.mirage.todolist.model.sync.GDriveConnectExceptionHandler
 import com.mirage.todolist.model.tasks.LiveTask
 import com.mirage.todolist.model.tasks.TodolistModel

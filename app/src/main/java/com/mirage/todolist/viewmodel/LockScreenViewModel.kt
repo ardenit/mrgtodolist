@@ -1,17 +1,13 @@
 package com.mirage.todolist.viewmodel
 
-import android.app.Application
 import android.content.SharedPreferences
 import android.content.res.Resources
-import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.preference.Preference
 import androidx.preference.PreferenceManager
 import com.mirage.todolist.R
-import com.mirage.todolist.model.dagger.App
+import com.mirage.todolist.App
 import com.mirage.todolist.model.tasks.TodolistModel
 import javax.inject.Inject
 

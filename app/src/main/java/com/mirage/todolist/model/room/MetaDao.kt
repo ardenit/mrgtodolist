@@ -16,21 +16,35 @@ interface MetaDao {
     @Query("""
         SELECT meta_value
         FROM meta
-        WHERE meta_name = 'data_version'
+        WHERE meta_key = ${MetaEntity.DATA_VERSION_KEY}
     """)
     fun getDataVersion(): List<UUID>
 
     @Query("""
         INSERT OR REPLACE
-        INTO meta(meta_name, meta_value)
-        VALUES('data_version', :newVersion)
+        INTO meta(meta_key, meta_value)
+        VALUES (${MetaEntity.MUST_BE_PROCESSED_KEY}, :mustBeProcessed), (${MetaEntity.DATA_VERSION_KEY}, :newVersion)
         """)
-    fun setDataVersion(newVersion: UUID)
+    fun setDataVersion(newVersion: UUID, mustBeProcessed: Boolean)
+
+    @Query("""
+        INSERT OR REPLACE
+        INTO meta(meta_key, meta_value)
+        VALUES (${MetaEntity.MUST_BE_PROCESSED_KEY}, :mustBeProcessed)
+        """)
+    fun setMustBeProcessed(mustBeProcessed: Boolean)
 
     @Query("""
         SELECT meta_value
         FROM meta
-        WHERE meta_name = 'data_version'
+        WHERE meta_key = ${MetaEntity.MUST_BE_PROCESSED_KEY}
+    """)
+    fun getMustBeProcessed(): Boolean
+
+    @Query("""
+        SELECT meta_value
+        FROM meta
+        WHERE meta_key = ${MetaEntity.DATA_VERSION_KEY}
     """)
     fun getLiveDataVersion(): LiveData<UUID>
 

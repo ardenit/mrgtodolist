@@ -1,10 +1,8 @@
 package com.mirage.todolist.viewmodel
 
-import androidx.annotation.ColorInt
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.mirage.todolist.model.dagger.App
 import com.mirage.todolist.model.tasks.*
 import javax.inject.Inject
 
@@ -13,12 +11,10 @@ class TagsViewModel
     private val todolistModel: TodolistModel
 ) : ViewModel() {
 
-    private lateinit var onNewTagListener: OnNewTagListener
-    private lateinit var onRemoveTagListener: OnRemoveTagListener
     private lateinit var onFullUpdateTagListener: OnFullUpdateTagListener
 
     private val newTagObservable = MutableLiveData<LiveTag>()
-    private val removeTagObservable = MutableLiveData<Pair<LiveTag, Int>>()
+    private val removeTagObservable = MutableLiveData<LiveTag>()
     private val fullUpdateObservable = MutableLiveData<Map<TagID, LiveTag>>()
 
     private var initialized = false
@@ -26,26 +22,24 @@ class TagsViewModel
     fun init() {
         if (initialized) return
         initialized = true
-        onNewTagListener = { newTag ->
-            newTagObservable.value = newTag
-        }
-        onRemoveTagListener = { tag, tagIndex ->
-            removeTagObservable.value = Pair(tag, tagIndex)
+        onRemoveTagListener = { tag ->
+            removeTagObservable.value = tag
         }
         onFullUpdateTagListener = { tags ->
             fullUpdateObservable.value = tags
         }
-        todolistModel.addOnNewTagListener(onNewTagListener)
-        todolistModel.addOnRemoveTagListener(onRemoveTagListener)
         todolistModel.addOnFullUpdateTagListener(onFullUpdateTagListener)
     }
 
     fun createNewTag(): LiveTag {
-        return todolistModel.createNewTag()
+        val newTag = todolistModel.createNewTag()
+        newTagObservable.value = newTag
+        return newTag
     }
 
-    fun removeTag(tagID: TagID) {
-        todolistModel.removeTag(tagID)
+    fun removeTag(tag: LiveTag) {
+        todolistModel.removeTag(tag.tagID)
+        removeTagObservable.value = tag
     }
 
     fun modifyTag(tagID: TagID, newName: String? = null, newStyleIndex: Int? = null) {
@@ -71,8 +65,6 @@ class TagsViewModel
     }
 
     override fun onCleared() {
-        todolistModel.removeOnNewTagListener(onNewTagListener)
-        todolistModel.removeOnRemoveTagListener(onRemoveTagListener)
         todolistModel.removeOnFullUpdateTagListener(onFullUpdateTagListener)
     }
 }

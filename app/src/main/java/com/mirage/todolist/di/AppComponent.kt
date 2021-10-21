@@ -1,6 +1,6 @@
-package com.mirage.todolist.model.dagger
+package com.mirage.todolist.di
 
-import android.app.Application
+import com.mirage.todolist.App
 import com.mirage.todolist.view.edittask.EditTaskActivity
 import com.mirage.todolist.view.lockscreen.LockScreenActivity
 import com.mirage.todolist.view.settings.SettingsActivity
@@ -14,7 +14,7 @@ import dagger.android.AndroidInjectionModule
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [AppModule::class, ViewModelModule::class, AndroidInjectionModule::class])
+@Component(modules = [ApplicationModule::class, ViewModelModule::class, DatabaseModule::class, AndroidInjectionModule::class])
 interface AppComponent {
 
     @Component.Builder

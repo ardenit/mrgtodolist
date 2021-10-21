@@ -6,48 +6,48 @@ import androidx.room.Query
 import java.util.*
 
 @Dao
-interface TaskTagDao {
+interface RelationDao {
 
     @Insert
-    fun insertRelation(relation: TaskTagEntity)
+    fun insertRelation(relation: RelationEntity)
 
     @Query("""
         SELECT count(*)
-        FROM tasks_x_tags
+        FROM relations
         WHERE task_id = :taskId AND tag_id = :tagId
     """)
     fun checkRelation(taskId: UUID, tagId: UUID): Int
 
     @Query("""
-        UPDATE tasks_x_tags
+        UPDATE relations
         SET deleted = 1
         WHERE task_id = :taskId AND tag_id = :tagId
     """)
     fun deleteRelation(taskId: UUID, tagId: UUID)
 
     @Query("""
-        UPDATE tasks_x_tags
+        UPDATE relations
         SET deleted = 0
         WHERE task_id = :taskId AND tag_id = :tagId
     """)
     fun restoreRelation(taskId: UUID, tagId: UUID)
 
     @Query("""
-        UPDATE tasks_x_tags
+        UPDATE relations
         SET last_modified = :lastModifiedTimeMillis
         WHERE task_id = :taskId AND tag_id = :tagId
     """)
     fun setRelationModifiedTime(taskId: UUID, tagId: UUID, lastModifiedTimeMillis: Long)
 
-    @Query("SELECT * FROM tasks_x_tags")
-    fun getAllRelations(): List<TaskTagEntity>
+    @Query("SELECT * FROM relations")
+    fun getAllRelations(): List<RelationEntity>
 
     @Query("""
-        DELETE FROM tasks_x_tags
+        DELETE FROM relations
         WHERE 1
     """)
     fun removeAllRelations()
 
     @Insert
-    fun insertAllRelations(relations: List<TaskTagEntity>)
+    fun insertAllRelations(relations: List<RelationEntity>)
 }

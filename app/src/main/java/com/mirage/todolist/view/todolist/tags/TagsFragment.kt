@@ -4,16 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.mirage.todolist.R
 import com.mirage.todolist.databinding.TagsRootFragmentBinding
-import com.mirage.todolist.model.dagger.App
+import com.mirage.todolist.App
 import com.mirage.todolist.model.tasks.LiveTag
-import com.mirage.todolist.viewmodel.LockScreenViewModel
 import com.mirage.todolist.viewmodel.TagsViewModel
 import javax.inject.Inject
 
@@ -123,7 +121,7 @@ class TagsFragment : Fragment() {
             .setTitle(R.string.tags_delete_title)
             .setMessage(R.string.tags_delete_subtitle)
             .setPositiveButton(R.string.tags_delete_yes) { _, _ ->
-                tagsViewModel.removeTag(tag.tagID)
+                tagsViewModel.removeTag(tag)
             }
             .setNegativeButton(R.string.tags_delete_cancel) { _, _ -> }
             .create()

@@ -6,9 +6,10 @@ import java.util.*
 
 /**
  * Entity for resolving many-to-many relation between tasks and tags
+ * If task and tag have different account names, the relation is ignored
  */
-@Entity(tableName = "tasks_x_tags", primaryKeys = ["task_id", "tag_id"])
-data class TaskTagEntity(
+@Entity(tableName = "relations", primaryKeys = ["task_id", "tag_id"])
+data class RelationEntity(
     /** Task's unique ID */
     @ColumnInfo(name = "task_id")
     val taskId: UUID,

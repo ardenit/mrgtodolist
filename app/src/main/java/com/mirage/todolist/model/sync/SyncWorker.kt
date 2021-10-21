@@ -1,7 +1,6 @@
 package com.mirage.todolist.model.sync
 
 import android.content.Context
-import android.widget.Toast
 import androidx.preference.PreferenceManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
@@ -9,11 +8,8 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAuthIO
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
-import com.mirage.todolist.R
 import com.mirage.todolist.model.room.DatabaseModel
-import com.mirage.todolist.model.room.DatabaseModelImpl
 import com.mirage.todolist.model.room.DatabaseSnapshot
-import com.mirage.todolist.model.tasks.TodolistModelImpl
 import kotlinx.coroutines.*
 import java.util.*
 import kotlin.math.abs

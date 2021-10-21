@@ -1,7 +1,6 @@
 package com.mirage.todolist.view.lockscreen
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.KeyEvent
 import android.widget.Button
@@ -11,7 +10,6 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.biometric.BiometricPrompt
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.hardware.fingerprint.FingerprintManagerCompat
@@ -21,7 +19,7 @@ import com.andrognito.patternlockview.PatternLockView
 import com.andrognito.patternlockview.listener.PatternLockViewListener
 import com.andrognito.patternlockview.utils.PatternLockUtils
 import com.mirage.todolist.R
-import com.mirage.todolist.model.dagger.App
+import com.mirage.todolist.App
 import com.mirage.todolist.view.settings.showToast
 import com.mirage.todolist.view.todolist.TodolistActivity
 import com.mirage.todolist.viewmodel.LockScreenType

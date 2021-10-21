@@ -4,15 +4,15 @@ import java.util.*
 
 
 data class DatabaseSnapshot(
-    val tasks: Set<TaskEntity>,
-    val tags: Set<TagEntity>,
-    val relations: Set<TaskTagEntity>,
-    val meta: Set<MetaEntity>
+    val tasks: List<TaskEntity>,
+    val tags: List<TagEntity>,
+    val relations: List<RelationEntity>,
+    val meta: List<MetaEntity>
 ) {
 
     val dataVersion: UUID
         get() {
-            val versionEntity = meta.find { it.name == "data_version" }
+            val versionEntity = meta.find { it.key == "data_version" }
             return versionEntity?.value ?: UUID.randomUUID()
         }
 }

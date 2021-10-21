@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mirage.todolist.databinding.TaskRecyclerRootFragmentBinding
-import com.mirage.todolist.model.dagger.App
+import com.mirage.todolist.App
 import com.mirage.todolist.model.tasks.LiveTag
 import com.mirage.todolist.model.tasks.LiveTask
 import com.mirage.todolist.viewmodel.*
