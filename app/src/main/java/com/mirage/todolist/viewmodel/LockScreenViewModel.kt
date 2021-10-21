@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.preference.PreferenceManager
 import com.mirage.todolist.R
-import com.mirage.todolist.App
+import com.mirage.todolist.di.App
 import com.mirage.todolist.model.tasks.TodolistModel
 import javax.inject.Inject
 

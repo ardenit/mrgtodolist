@@ -1,34 +1,39 @@
 package com.mirage.todolist.model.room
 
 import android.content.Context
-import androidx.room.Room
+import com.mirage.todolist.di.App
 import com.mirage.todolist.R
 import com.mirage.todolist.model.tasks.TagID
 import com.mirage.todolist.model.tasks.TaskID
 import kotlinx.coroutines.*
+import timber.log.Timber
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.inject.Inject
 
 /**
  * Interface for interacting with Room database
  * This model encapsulates working with its own thread,
  * so no external thread switching or synchronization is required.
- * Most operations do not require waiting for the result.
  */
 class DatabaseModel {
 
-    private lateinit var database: AppDatabase
-    private lateinit var taskDao: TaskDao
-    private lateinit var tagDao: TagDao
-    private lateinit var relationDao: RelationDao
-    private lateinit var metaDao: MetaDao
+    @Inject
+    lateinit var database: AppDatabase
+    @Inject
+    lateinit var taskDao: TaskDao
+    @Inject
+    lateinit var tagDao: TagDao
+    @Inject
+    lateinit var relationDao: RelationDao
+    @Inject
+    lateinit var metaDao: MetaDao
+    @Inject
+    lateinit var appCtx: Context
 
-    @Volatile
-    private lateinit var appCtx: Context
-    @Volatile
-    private var onSyncUpdateListener: suspend (DatabaseSnapshot) -> Unit = {}
+    private val onSyncUpdateListeners: MutableList<suspend (DatabaseSnapshot) -> Unit> = CopyOnWriteArrayList()
 
     private val dispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
@@ -37,28 +42,40 @@ class DatabaseModel {
     private val coroutineContext = dispatcher + exceptionHandler
     private val coroutineScope = CoroutineScope(SupervisorJob() + coroutineContext)
 
-    /**
-     * Initiates the database
-     */
-    suspend fun init(appCtx: Context) {
-        this@DatabaseModel.appCtx = appCtx
-        withContext(coroutineContext) {
-            taskDao = database.getTaskDao()
-            tagDao = database.getTagDao()
-            relationDao = database.getRelationDao()
-            metaDao = database.getMetaDao()
+    init {
+        App.instance.appComponent.inject(this)
+        //TODO remove
+        Timber.v("Init thread ${Thread.currentThread().id}")
+        coroutineScope.launch {
+            Timber.v("Coroutine thread ${Thread.currentThread().id}")
+            database.runInTransaction {
+                val flag = metaDao.getMustBeProcessed()
+                Timber.v("Transaction thread ${Thread.currentThread().id} mustBeProcessed=$flag")
+            }
+        }
+        coroutineScope.launch {
             val liveVersion = metaDao.getLiveDataVersion()
             liveVersion.observeForever {
-                println("LIVE VERSION CHANGED")
+                Timber.v("Database version changed")
                 coroutineScope.launch {
-                    val newTasks = taskDao.getAllTasks()
-                    val newTags = tagDao.getAllTags()
-                    val newRelations = relationDao.getAllRelations()
-                    val newMeta = metaDao.getAllMeta()
-                    val newSnapshot = DatabaseSnapshot(newTasks, newTags, newRelations, newMeta)
-                    onSyncUpdateListener(newSnapshot)
+                    database.runInTransaction {
+                        val mustBeProcessed = metaDao.getMustBeProcessed()
+                        if (mustBeProcessed) {
+                            Timber.v("Version was changed after sync, calling listeners")
+                            val newTasks = taskDao.getAllTasks()
+                            val newTags = tagDao.getAllTags()
+                            val newRelations = relationDao.getAllRelations()
+                            val newMeta = metaDao.getAllMeta()
+                            val newSnapshot = DatabaseSnapshot(newTasks, newTags, newRelations, newMeta)
+                            metaDao.setMustBeProcessed(false)
+                            coroutineScope.launch(Dispatchers.Main) {
+                                onSyncUpdateListeners.forEach { it(newSnapshot) }
+                            }
+                        } else {
+                            Timber.v("Version was changed by user action, not calling listeners")
+                        }
+                    }
                 }
-
             }
         }
     }
@@ -76,14 +93,14 @@ class DatabaseModel {
      * [onSyncUpdate] will be called on the main dispatcher
      */
     fun addOnSyncUpdateListener(onSyncUpdate: suspend (DatabaseSnapshot) -> Unit) {
-
+        onSyncUpdateListeners += onSyncUpdate
     }
 
     /**
      * Removes the [onSyncUpdate] listener
      */
     fun removeOnSyncUpdateListener(onSyncUpdate: suspend (DatabaseSnapshot) -> Unit) {
-
+        onSyncUpdateListeners -= onSyncUpdate
     }
 
     /**
@@ -93,11 +110,13 @@ class DatabaseModel {
      */
     fun updateDatabaseAfterSync(newSnapshot: DatabaseSnapshot, oldDatabaseVersion: UUID): Boolean {
         val result = AtomicBoolean(true)
+        val resultWasSet = AtomicBoolean(false)
         database.runInTransaction {
             val allMeta = metaDao.getAllMeta()
             val localVersion = allMeta.firstOrNull()?.value ?: UUID.randomUUID()
             if (localVersion != oldDatabaseVersion) {
                 result.set(false)
+                resultWasSet.set(true)
                 return@runInTransaction
             }
             taskDao.removeAllTasks()
@@ -106,14 +125,18 @@ class DatabaseModel {
             tagDao.insertAllTags(newSnapshot.tags.toList())
             relationDao.removeAllRelations()
             relationDao.insertAllRelations(newSnapshot.relations.toList())
-            metaDao.setDataVersion(newSnapshot.dataVersion, false)
+            metaDao.setDataVersion(newSnapshot.dataVersion, true)
+            resultWasSet.set(true)
             result.set(true)
+        }
+        if (!resultWasSet.get()) {
+            Timber.e("RESULT WAS NOT YET SET!")
         }
         return result.get()
     }
 
     /** Returns [TaskID] immediately without waiting for DB query to complete */
-    fun createNewTask(tasklistId: Int): TaskID {
+    fun createNewTask(tasklistId: Int, accountName: String): TaskID {
         val taskId = UUID.randomUUID()
         coroutineScope.launch {
             val defaultTitle = appCtx.resources.getString(R.string.task_default_title)
@@ -126,57 +149,54 @@ class DatabaseModel {
                     taskIndex = taskIndex,
                     title = defaultTitle,
                     description = defaultDescription,
-                    lastModifiedTimeMillis = System.currentTimeMillis()
+                    lastModifiedTimeMillis = System.currentTimeMillis(),
+                    accountName = accountName
                 )
                 taskDao.insertTask(taskEntity)
+                metaDao.updateVersion()
             }
         }
         return taskId
     }
 
-    fun removeTask(taskId: TaskID) = taskTransaction(taskId) { id ->
-        setTasklistId(id, -1)
-        setTaskModifiedTime(id, System.currentTimeMillis())
-    }
-
-    fun moveTask(taskId: TaskID, newTasklistId: Int) = taskTransaction(taskId) { id ->
-        val oldTasklistId = getTasklistId(id)
-        val oldTaskIndex = getTaskIndex(id)
+    fun moveTask(taskId: TaskID, newTasklistId: Int) = launchTaskTransaction {
+        val oldTasklistId = getTasklistId(taskId)
+        val oldTaskIndex = getTaskIndex(taskId)
         val newTaskIndex = getTasklistSize(newTasklistId)
         shiftTaskIndicesInSlice(oldTasklistId, oldTaskIndex + 1, Int.MAX_VALUE, -1)
-        setTaskIndex(id, newTaskIndex)
-        setTasklistId(id, newTasklistId)
-        setTaskModifiedTime(id, System.currentTimeMillis())
+        setTaskIndex(taskId, newTaskIndex)
+        setTasklistId(taskId, newTasklistId)
+        setTaskModifiedTime(taskId, System.currentTimeMillis())
     }
 
-    fun moveTaskInList(taskId: TaskID, newTaskIndex: Int) = taskTransaction(taskId) { id ->
-        val tasklistId = getTasklistId(id)
-        val oldTaskIndex = getTaskIndex(id)
+    fun moveTaskInList(taskId: TaskID, newTaskIndex: Int) = launchTaskTransaction {
+        val tasklistId = getTasklistId(taskId)
+        val oldTaskIndex = getTaskIndex(taskId)
         if (oldTaskIndex < newTaskIndex) {
             setTimeModifiedInSlice(tasklistId, oldTaskIndex + 1, newTaskIndex + 1, System.currentTimeMillis())
             shiftTaskIndicesInSlice(tasklistId, oldTaskIndex + 1, newTaskIndex + 1, -1)
-            setTaskIndex(id, newTaskIndex)
+            setTaskIndex(taskId, newTaskIndex)
         } else if (oldTaskIndex > newTaskIndex) {
             setTimeModifiedInSlice(tasklistId, newTaskIndex, oldTaskIndex, System.currentTimeMillis())
             shiftTaskIndicesInSlice(tasklistId, newTaskIndex, oldTaskIndex, 1)
-            setTaskIndex(id, newTaskIndex)
+            setTaskIndex(taskId, newTaskIndex)
         }
-        setTaskModifiedTime(id, System.currentTimeMillis())
+        setTaskModifiedTime(taskId, System.currentTimeMillis())
     }
 
-    fun setTaskTitle(taskId: TaskID, title: String) = taskTransaction(taskId) { id ->
-        setTaskTitle(id, title)
-        setTaskModifiedTime(id, System.currentTimeMillis())
+    fun setTaskTitle(taskId: TaskID, title: String) = launchTaskTransaction {
+        setTaskTitle(taskId, title)
+        setTaskModifiedTime(taskId, System.currentTimeMillis())
     }
 
-    fun setTaskDescription(taskId: TaskID, description: String) = taskTransaction(taskId) { id ->
-        setTaskDescription(id, description)
-        setTaskModifiedTime(id, System.currentTimeMillis())
+    fun setTaskDescription(taskId: TaskID, description: String) = launchTaskTransaction {
+        setTaskDescription(taskId, description)
+        setTaskModifiedTime(taskId, System.currentTimeMillis())
     }
 
     fun setTaskTags(taskId: TaskID, tagIds: List<TagID>) {
         val tagIdsSync = CopyOnWriteArrayList(tagIds)
-        transaction {
+        launchTaskTransaction {
             tagIdsSync.forEach { tagId ->
                 val relationsCount = relationDao.checkRelation(taskId, tagId)
                 if (relationsCount == 0) {
@@ -191,75 +211,67 @@ class DatabaseModel {
         }
     }
 
-    fun setTaskDate(taskId: TaskID, year: Int, monthOfYear: Int, dayOfMonth: Int) =
-        taskTransaction(taskId) { id ->
-            setTaskDate(id, year, monthOfYear, dayOfMonth)
-            setTaskModifiedTime(id, System.currentTimeMillis())
-        }
+    fun setTaskDate(taskId: TaskID, year: Int, monthOfYear: Int, dayOfMonth: Int) = launchTaskTransaction {
+        setTaskDate(taskId, year, monthOfYear, dayOfMonth)
+        setTaskModifiedTime(taskId, System.currentTimeMillis())
+    }
 
-    fun setTaskTime(taskId: TaskID, hour: Int, minute: Int) =
-        taskTransaction(taskId) { id ->
-            setTaskTime(id, hour, minute)
-            setTaskModifiedTime(id, System.currentTimeMillis())
-        }
+    fun setTaskTime(taskId: TaskID, hour: Int, minute: Int) = launchTaskTransaction {
+        setTaskTime(taskId, hour, minute)
+        setTaskModifiedTime(taskId, System.currentTimeMillis())
+    }
 
-    fun setTaskPeriod(taskId: TaskID, periodId: Int) = taskTransaction(taskId) { id ->
-        setTaskPeriodId(id, periodId)
-        setTaskModifiedTime(id, System.currentTimeMillis())
+    fun setTaskPeriod(taskId: TaskID, periodId: Int) = launchTaskTransaction {
+        setTaskPeriodId(taskId, periodId)
+        setTaskModifiedTime(taskId, System.currentTimeMillis())
     }
 
     fun createNewTag(): TagID {
         val tagId = UUID.randomUUID()
-        coroutineScope.launch {
-            database.runInTransaction {
-                val tagIndex = tagDao.getTagsCount()
-                val tagEntity = TagEntity(
-                    tagId = tagId,
-                    tagIndex = tagIndex,
-                    name = "",
-                    styleIndex = 0,
-                    deleted = false,
-                    lastModifiedTimeMillis = System.currentTimeMillis()
-                )
-                tagDao.insertTag(tagEntity)
-            }
+        launchTagTransaction {
+            val tagIndex = getTagsCount()
+            val tagEntity = TagEntity(
+                tagId = tagId,
+                tagIndex = tagIndex,
+                name = "",
+                styleIndex = 0,
+                deleted = false,
+                lastModifiedTimeMillis = System.currentTimeMillis()
+            )
+            insertTag(tagEntity)
         }
         return tagId
     }
 
-    fun setTagName(tagId: TagID, name: String) = tagTransaction(tagId) { id ->
-        setTagName(id, name)
-        setTagLastModifiedTime(id, System.currentTimeMillis())
+    fun setTagName(tagId: TagID, name: String) = launchTagTransaction {
+        setTagName(tagId, name)
+        setTagLastModifiedTime(tagId, System.currentTimeMillis())
     }
 
-    fun setTagStyleIndex(tagId: TagID, styleIndex: Int) = tagTransaction(tagId) { id ->
-        setTagStyleIndex(id, styleIndex)
-        setTagLastModifiedTime(id, System.currentTimeMillis())
+    fun setTagStyleIndex(tagId: TagID, styleIndex: Int) = launchTagTransaction {
+        setTagStyleIndex(tagId, styleIndex)
+        setTagLastModifiedTime(tagId, System.currentTimeMillis())
     }
 
-    fun removeTag(tagId: TagID) = tagTransaction(tagId) { id ->
-        setTagDeleted(id, true)
-        setTagLastModifiedTime(id, System.currentTimeMillis())
+    fun removeTag(tagId: TagID) = launchTagTransaction {
+        setTagDeleted(tagId, true)
+        setTagLastModifiedTime(tagId, System.currentTimeMillis())
     }
 
-    private fun transaction(block: () -> Unit) {
-        coroutineScope.launch {
-            database.runInTransaction(block)
-        }
-    }
-
-    private fun taskTransaction(taskId: TaskID, block: TaskDao.(TaskID) -> Unit) {
+    private fun launchTaskTransaction(block: TaskDao.() -> Unit) {
         coroutineScope.launch {
             database.runInTransaction {
-                taskDao.block(taskId)
+                taskDao.block()
+                metaDao.updateVersion()
             }
         }
     }
 
-    private fun tagTransaction(tagId: TagID, block: TagDao.(TagID) -> Unit) {
+    private fun launchTagTransaction(block: TagDao.() -> Unit) {
         coroutineScope.launch {
             database.runInTransaction {
-                tagDao.block(tagId)
+                tagDao.block()
+                metaDao.updateVersion()
             }
         }
     }

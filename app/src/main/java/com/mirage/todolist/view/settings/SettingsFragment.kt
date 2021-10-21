@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.preference.*
 import com.mirage.todolist.R
-import com.mirage.todolist.App
+import com.mirage.todolist.di.App
 import com.mirage.todolist.model.tasks.TodolistModel
 import javax.inject.Inject
 

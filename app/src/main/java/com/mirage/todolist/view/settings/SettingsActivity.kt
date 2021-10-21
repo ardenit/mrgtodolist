@@ -19,7 +19,7 @@ import com.google.android.gms.common.AccountPicker
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAuthIOException
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.mirage.todolist.R
-import com.mirage.todolist.App
+import com.mirage.todolist.di.App
 import com.mirage.todolist.model.sync.GDriveConnectExceptionHandler
 import com.mirage.todolist.model.tasks.TodolistModel
 import javax.inject.Inject

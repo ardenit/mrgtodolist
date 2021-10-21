@@ -10,7 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.mirage.todolist.R
 import com.mirage.todolist.databinding.TagsRootFragmentBinding
-import com.mirage.todolist.App
+import com.mirage.todolist.di.App
 import com.mirage.todolist.model.tasks.LiveTag
 import com.mirage.todolist.viewmodel.TagsViewModel
 import javax.inject.Inject

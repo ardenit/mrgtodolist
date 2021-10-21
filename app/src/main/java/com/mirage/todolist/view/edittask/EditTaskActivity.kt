@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import com.mirage.todolist.R
-import com.mirage.todolist.App
+import com.mirage.todolist.di.App
 import com.mirage.todolist.model.tasks.*
 import com.mirage.todolist.view.settings.showToast
 import com.mirage.todolist.view.todolist.tags.TagsView

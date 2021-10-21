@@ -51,3 +51,8 @@ interface MetaDao {
     @Query("SELECT * FROM meta")
     fun getAllMeta(): List<MetaEntity>
 }
+
+/** Updates database version without signaling for sync processing */
+fun MetaDao.updateVersion() {
+    setDataVersion(UUID.randomUUID(), false)
+}

@@ -19,7 +19,7 @@ import com.andrognito.patternlockview.PatternLockView
 import com.andrognito.patternlockview.listener.PatternLockViewListener
 import com.andrognito.patternlockview.utils.PatternLockUtils
 import com.mirage.todolist.R
-import com.mirage.todolist.App
+import com.mirage.todolist.di.App
 import com.mirage.todolist.view.settings.showToast
 import com.mirage.todolist.view.todolist.TodolistActivity
 import com.mirage.todolist.viewmodel.LockScreenType

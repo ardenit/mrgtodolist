@@ -1,6 +1,7 @@
 package com.mirage.todolist.di
 
-import com.mirage.todolist.App
+import android.content.Context
+import com.mirage.todolist.model.room.DatabaseModel
 import com.mirage.todolist.view.edittask.EditTaskActivity
 import com.mirage.todolist.view.lockscreen.LockScreenActivity
 import com.mirage.todolist.view.settings.SettingsActivity
@@ -11,11 +12,12 @@ import com.mirage.todolist.view.todolist.tasks.TaskRecyclerFragment
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjectionModule
+import dagger.android.AndroidInjector
 import javax.inject.Singleton
 
 @Singleton
 @Component(modules = [ApplicationModule::class, ViewModelModule::class, DatabaseModule::class, AndroidInjectionModule::class])
-interface AppComponent {
+interface AppComponent : AndroidInjector<App> {
 
     @Component.Builder
     interface Builder {
@@ -25,6 +27,14 @@ interface AppComponent {
 
         fun build(): AppComponent
     }
+
+    @ApplicationContext
+    fun getContext(): Context
+
+    fun getApplication(): App
+
+    @DatabaseInfo
+    fun getDatabaseName(): String
 
     fun inject(lockScreenActivity: LockScreenActivity)
 
@@ -39,4 +49,6 @@ interface AppComponent {
     fun inject(settingsFragment: SettingsFragment)
 
     fun inject(tagsRecyclerFragment: TaskRecyclerFragment)
+
+    fun inject(databaseModel: DatabaseModel)
 }
