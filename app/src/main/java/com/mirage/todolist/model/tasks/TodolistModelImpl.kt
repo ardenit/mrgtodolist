@@ -2,6 +2,7 @@ package com.mirage.todolist.model.tasks
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.lifecycle.LifecycleOwner
 import androidx.preference.PreferenceManager
 import com.mirage.todolist.R
 import com.mirage.todolist.model.sync.GDriveConnectExceptionHandler

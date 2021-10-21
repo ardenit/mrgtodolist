@@ -75,7 +75,7 @@ class SyncWorker(context: Context, workerParams: WorkerParameters) : Worker(cont
             if (syncEndTime - syncStartTime > SYNC_TIMEOUT_TIME_MILLIS) return@runBlocking false
             writeDataToGDrive(mergedSnapshot)
             val databaseModel: DatabaseModel = DatabaseModelImpl()
-            databaseModel.init(applicationContext) { }
+            databaseModel.init(applicationContext)
             val databaseWriteSuccessful = databaseModel.updateDatabaseAfterSync(mergedSnapshot, databaseVersion)
             databaseWriteSuccessful
         }
@@ -133,9 +133,7 @@ class SyncWorker(context: Context, workerParams: WorkerParameters) : Worker(cont
 
     private suspend fun loadDataFromDatabase(): DatabaseSnapshot {
         val databaseModel: DatabaseModel = DatabaseModelImpl()
-        val snapshot = CompletableDeferred<DatabaseSnapshot>()
-        databaseModel.init(applicationContext) { snapshot.complete(it) }
-        return snapshot.await()
+        return databaseModel.init(applicationContext)
     }
 
     private suspend fun writeDataToGDrive(newSnapshot: DatabaseSnapshot) {

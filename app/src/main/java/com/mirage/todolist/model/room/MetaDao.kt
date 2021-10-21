@@ -1,5 +1,6 @@
 package com.mirage.todolist.model.room
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -25,6 +26,13 @@ interface MetaDao {
         VALUES('data_version', :newVersion)
         """)
     fun setDataVersion(newVersion: UUID)
+
+    @Query("""
+        SELECT meta_value
+        FROM meta
+        WHERE meta_name = 'data_version'
+    """)
+    fun getLiveDataVersion(): LiveData<UUID>
 
     @Query("SELECT * FROM meta")
     fun getAllMeta(): List<MetaEntity>

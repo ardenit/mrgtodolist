@@ -1,6 +1,7 @@
 package com.mirage.todolist.model.room
 
 import android.content.Context
+import androidx.lifecycle.LifecycleOwner
 import androidx.room.Room
 import com.mirage.todolist.R
 import com.mirage.todolist.model.tasks.TagID
@@ -50,6 +51,37 @@ class DatabaseModelImpl : DatabaseModel {
             val allMeta = metaDao.getAllMeta().toSet()
             val snapshot = DatabaseSnapshot(allTasks, allTags, allRelations, allMeta)
             onSyncUpdateListener(snapshot)
+            val liveVersion = metaDao.getLiveDataVersion()
+            liveVersion.observeForever {
+                println("LIVE VERSION CHANGED")
+                coroutineScope.launch {
+                    val newTasks = taskDao.getAllTasks().toSet()
+                    val newTags = tagDao.getAllTags().toSet()
+                    val newRelations = taskTagDao.getAllRelations().toSet()
+                    val newMeta = metaDao.getAllMeta().toSet()
+                    val newSnapshot = DatabaseSnapshot(newTasks, newTags, newRelations, newMeta)
+                    onSyncUpdateListener(newSnapshot)
+                }
+            }
+        }
+    }
+
+    override fun init(appCtx: Context): DatabaseSnapshot {
+        this.appCtx = appCtx
+        return runBlocking(Dispatchers.IO) {
+            database = Room.databaseBuilder(appCtx, AppDatabase::class.java, "mirage_todolist_db")
+                .fallbackToDestructiveMigration()
+                .build()
+            taskDao = database.getTaskDao()
+            tagDao = database.getTagDao()
+            taskTagDao = database.getTaskTagDao()
+            metaDao = database.getMetaDao()
+            val allTasks = taskDao.getAllTasks().toSet()
+            val allTags = tagDao.getAllTags().toSet()
+            val allRelations = taskTagDao.getAllRelations().toSet()
+            val allMeta = metaDao.getAllMeta().toSet()
+            val snapshot = DatabaseSnapshot(allTasks, allTags, allRelations, allMeta)
+            snapshot
         }
     }
 

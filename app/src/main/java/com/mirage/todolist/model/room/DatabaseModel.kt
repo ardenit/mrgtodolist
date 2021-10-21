@@ -1,6 +1,7 @@
 package com.mirage.todolist.model.room
 
 import android.content.Context
+import androidx.lifecycle.LifecycleOwner
 import com.mirage.todolist.model.tasks.LiveTask
 import com.mirage.todolist.model.tasks.TagID
 import com.mirage.todolist.model.tasks.TaskID
@@ -19,6 +20,10 @@ interface DatabaseModel {
      * Listener is also invoked immediately after this method finishes initialization
      */
     fun init(appCtx: Context, onSyncUpdateListener: suspend (DatabaseSnapshot) -> Unit)
+    /**
+     * Initiates the database without listening for content changes
+     */
+    fun init(appCtx: Context): DatabaseSnapshot
 
     /**
      * Fully updates the database to store the new snapshot, merged with data loaded from Google Drive
