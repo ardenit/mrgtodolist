@@ -6,8 +6,8 @@ import androidx.preference.PreferenceManager
 import com.mirage.todolist.R
 import com.mirage.todolist.model.room.DatabaseModel
 import com.mirage.todolist.model.room.DatabaseSnapshot
-import com.mirage.todolist.model.sync.GDriveConnectExceptionHandler
-import com.mirage.todolist.model.sync.GDriveRestApi
+import com.mirage.todolist.model.googledrive.GoogleDriveConnectExceptionHandler
+import com.mirage.todolist.model.googledrive.GoogleDriveModel
 import com.mirage.todolist.model.workers.scheduleAllDatetimeNotifications
 import kotlinx.coroutines.*
 import java.lang.Exception
@@ -21,7 +21,7 @@ typealias OnFullUpdateTagListener = (newTags: Map<TagID, LiveTag>) -> Unit
 
 class TodolistModel {
 
-    private val gDriveRestApi = GDriveRestApi()
+    private val gDriveRestApi = GoogleDriveModel()
     private lateinit var appCtx: Context
     private lateinit var prefs: SharedPreferences
     //TODO Inject?
@@ -93,7 +93,7 @@ class TodolistModel {
      * Changes Google Drive email.
      * Should be invoked when user selects new account for synchronization.
      */
-    fun setGDriveAccountEmail(newEmail: String?, exHandler: GDriveConnectExceptionHandler) {
+    fun setGDriveAccountEmail(newEmail: String?, exHandler: GoogleDriveConnectExceptionHandler) {
         gDriveRestApi.init(appCtx, newEmail)
         gDriveRestApi.connect(exHandler)
     }
@@ -449,7 +449,6 @@ class TodolistModel {
     }
 
     companion object {
-        const val ACC_NAME_KEY = "account_name"
         private const val HIDDEN_TASKLIST_ID = -1
     }
 }

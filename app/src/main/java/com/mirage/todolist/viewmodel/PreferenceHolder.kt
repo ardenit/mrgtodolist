@@ -5,7 +5,6 @@ import android.content.res.Resources
 import androidx.annotation.StringRes
 
 interface PreferenceHolder {
-
     val preferences: SharedPreferences
     val resources: Resources
 }

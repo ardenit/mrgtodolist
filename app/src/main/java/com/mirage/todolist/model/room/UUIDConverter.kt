@@ -3,6 +3,9 @@ package com.mirage.todolist.model.room
 import androidx.room.TypeConverter
 import java.util.*
 
+/**
+ * Class used by Room to store UUID as a string value in database
+ */
 class UUIDConverter {
 
     companion object {

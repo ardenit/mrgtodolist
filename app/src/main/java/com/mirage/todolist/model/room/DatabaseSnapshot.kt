@@ -7,12 +7,8 @@ data class DatabaseSnapshot(
     val tasks: List<TaskEntity>,
     val tags: List<TagEntity>,
     val relations: List<RelationEntity>,
-    val meta: List<MetaEntity>
+    val meta: List<VersionEntity>
 ) {
-
-    val dataVersion: UUID
-        get() {
-            val versionEntity = meta.find { it.key == "data_version" }
-            return versionEntity?.value ?: UUID.randomUUID()
-        }
+    fun getDataVersion(email: String) =
+        meta.firstOrNull { it.accountName == email }?.dataVersion ?: UUID.randomUUID()
 }

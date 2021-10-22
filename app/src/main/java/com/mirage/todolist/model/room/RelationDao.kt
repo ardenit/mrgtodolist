@@ -44,9 +44,9 @@ interface RelationDao {
 
     @Query("""
         DELETE FROM relations
-        WHERE 1
+        WHERE account_name = :email
     """)
-    fun removeAllRelations()
+    fun removeAllRelations(email: String)
 
     @Insert
     fun insertAllRelations(relations: List<RelationEntity>)

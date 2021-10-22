@@ -17,7 +17,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAuthIO
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.mirage.todolist.R
 import com.mirage.todolist.di.App
-import com.mirage.todolist.model.sync.GDriveConnectExceptionHandler
+import com.mirage.todolist.model.googledrive.GoogleDriveConnectExceptionHandler
 import com.mirage.todolist.model.tasks.LiveTask
 import com.mirage.todolist.model.tasks.TodolistModel
 import com.mirage.todolist.view.edittask.EditTaskActivity
@@ -49,7 +49,7 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         onResultFromGDriveUserIntervene(result)
     }
 
-    private val gDriveConnectExceptionHandler = object : GDriveConnectExceptionHandler {
+    private val gDriveConnectExceptionHandler = object : GoogleDriveConnectExceptionHandler {
 
         override suspend fun onSuccessfulConnect() {
             println("GDRIVE_CONNECT_SUCCESSFUL")

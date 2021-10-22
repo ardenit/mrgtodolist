@@ -6,7 +6,7 @@ import java.util.*
 
 /**
  * Entity for resolving many-to-many relation between tasks and tags
- * If task and tag have different account names, the relation is ignored
+ * If task, tag or relation have different account names, the relation is ignored
  */
 @Entity(tableName = "relations", primaryKeys = ["task_id", "tag_id"])
 data class RelationEntity(
@@ -20,5 +20,7 @@ data class RelationEntity(
     @ColumnInfo(name = "deleted")
     val deleted: Boolean,
     @ColumnInfo(name = "last_modified")
-    val lastModifiedTimeMillis: Long
+    val lastModifiedTimeMillis: Long,
+    @ColumnInfo(name = "account_name")
+    val accountName: String = ""
 )

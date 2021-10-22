@@ -37,5 +37,5 @@ class DatabaseModule(@ApplicationContext val context: Context) {
 
     @Provides
     @Singleton
-    fun provideMetaDao(database: AppDatabase) = database.getMetaDao()
+    fun provideMetaDao(database: AppDatabase) = database.getVersionDao()
 }

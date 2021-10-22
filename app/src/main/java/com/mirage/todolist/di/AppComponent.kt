@@ -1,6 +1,7 @@
 package com.mirage.todolist.di
 
 import android.content.Context
+import com.mirage.todolist.model.googledrive.GoogleDriveModel
 import com.mirage.todolist.model.room.DatabaseModel
 import com.mirage.todolist.view.edittask.EditTaskActivity
 import com.mirage.todolist.view.lockscreen.LockScreenActivity
@@ -51,4 +52,6 @@ interface AppComponent : AndroidInjector<App> {
     fun inject(tagsRecyclerFragment: TaskRecyclerFragment)
 
     fun inject(databaseModel: DatabaseModel)
+
+    fun inject(googleDriveModel: GoogleDriveModel)
 }

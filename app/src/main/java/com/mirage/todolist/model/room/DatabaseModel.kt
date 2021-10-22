@@ -1,6 +1,10 @@
 package com.mirage.todolist.model.room
 
 import android.content.Context
+import android.content.SharedPreferences
+import android.content.res.Resources
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import com.mirage.todolist.di.App
 import com.mirage.todolist.R
 import com.mirage.todolist.model.tasks.TagID
@@ -29,11 +33,22 @@ class DatabaseModel {
     @Inject
     lateinit var relationDao: RelationDao
     @Inject
-    lateinit var metaDao: MetaDao
+    lateinit var versionDao: VersionDao
     @Inject
     lateinit var appCtx: Context
+    @Inject
+    lateinit var sharedPreferences: SharedPreferences
+    @Inject
+    lateinit var resources: Resources
 
     private val onSyncUpdateListeners: MutableList<suspend (DatabaseSnapshot) -> Unit> = CopyOnWriteArrayList()
+
+    @Volatile
+    private var liveVersionObservable: LiveData<UUID>? = null
+    @Volatile
+    private var liveVersionObserver: Observer<UUID>? = null
+    @Volatile
+    private var currentEmail: String = ""
 
     private val dispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
@@ -44,39 +59,20 @@ class DatabaseModel {
 
     init {
         App.instance.appComponent.inject(this)
-        //TODO remove
-        Timber.v("Init thread ${Thread.currentThread().id}")
-        coroutineScope.launch {
-            Timber.v("Coroutine thread ${Thread.currentThread().id}")
-            database.runInTransaction {
-                val flag = metaDao.getMustBeProcessed()
-                Timber.v("Transaction thread ${Thread.currentThread().id} mustBeProcessed=$flag")
-            }
-        }
-        coroutineScope.launch {
-            val liveVersion = metaDao.getLiveDataVersion()
-            liveVersion.observeForever {
-                Timber.v("Database version changed")
-                coroutineScope.launch {
-                    database.runInTransaction {
-                        val mustBeProcessed = metaDao.getMustBeProcessed()
-                        if (mustBeProcessed) {
-                            Timber.v("Version was changed after sync, calling listeners")
-                            val newTasks = taskDao.getAllTasks()
-                            val newTags = tagDao.getAllTags()
-                            val newRelations = relationDao.getAllRelations()
-                            val newMeta = metaDao.getAllMeta()
-                            val newSnapshot = DatabaseSnapshot(newTasks, newTags, newRelations, newMeta)
-                            metaDao.setMustBeProcessed(false)
-                            coroutineScope.launch(Dispatchers.Main) {
-                                onSyncUpdateListeners.forEach { it(newSnapshot) }
-                            }
-                        } else {
-                            Timber.v("Version was changed by user action, not calling listeners")
-                        }
-                    }
+        val currentEmail = sharedPreferences.getString(resources.getString(R.string.key_sync_select_acc), "")
+        if (currentEmail.isNullOrBlank()) {
+            Timber.v("Synchronization email is empty! No need to observe it.")
+        } else {
+            Timber.v("Observing data version of email $currentEmail")
+            //TODO remove
+            Timber.v("Init thread ${Thread.currentThread().id}")
+            coroutineScope.launch {
+                Timber.v("Coroutine thread ${Thread.currentThread().id}")
+                database.runInTransaction {
+                    Timber.v("Transaction thread ${Thread.currentThread().id}")
                 }
             }
+            startObservingAccount(currentEmail)
         }
     }
 
@@ -84,8 +80,8 @@ class DatabaseModel {
         val allTasks = taskDao.getAllTasks()
         val allTags = tagDao.getAllTags()
         val allRelations = relationDao.getAllRelations()
-        val allMeta = metaDao.getAllMeta()
-        DatabaseSnapshot(allTasks, allTags, allRelations, allMeta)
+        val allVersions = versionDao.getAllVersions()
+        DatabaseSnapshot(allTasks, allTags, allRelations, allVersions)
     }
 
     /**
@@ -112,31 +108,71 @@ class DatabaseModel {
         val result = AtomicBoolean(true)
         val resultWasSet = AtomicBoolean(false)
         database.runInTransaction {
-            val allMeta = metaDao.getAllMeta()
-            val localVersion = allMeta.firstOrNull()?.value ?: UUID.randomUUID()
+            val localVersion = versionDao.getDataVersion(currentEmail).firstOrNull() ?: UUID.randomUUID()
             if (localVersion != oldDatabaseVersion) {
                 result.set(false)
                 resultWasSet.set(true)
                 return@runInTransaction
             }
-            taskDao.removeAllTasks()
+            taskDao.removeAllTasks(currentEmail)
             taskDao.insertAllTasks(newSnapshot.tasks.toList())
-            tagDao.removeAllTags()
+            tagDao.removeAllTags(currentEmail)
             tagDao.insertAllTags(newSnapshot.tags.toList())
-            relationDao.removeAllRelations()
+            relationDao.removeAllRelations(currentEmail)
             relationDao.insertAllRelations(newSnapshot.relations.toList())
-            metaDao.setDataVersion(newSnapshot.dataVersion, true)
+            val newVersion = newSnapshot.meta.firstOrNull { it.accountName == currentEmail }?.dataVersion ?: UUID.randomUUID()
+            versionDao.setDataVersion(currentEmail,  newVersion, true)
             resultWasSet.set(true)
             result.set(true)
         }
         if (!resultWasSet.get()) {
-            Timber.e("RESULT WAS NOT YET SET!")
+            Timber.e("Result has not yet been set!")
         }
         return result.get()
     }
 
+    /**
+     * Starts observing the data version of the given account [email]
+     * Should be used every time current synchronization account changes
+     */
+    fun startObservingAccount(accountEmail: String) {
+        coroutineScope.launch {
+            currentEmail = accountEmail
+            val liveVersion = versionDao.getLiveDataVersion(accountEmail)
+            val observer = Observer<UUID> {
+                Timber.v("Database version changed")
+                coroutineScope.launch {
+                    database.runInTransaction {
+                        val mustBeProcessed = versionDao.getMustBeProcessed(currentEmail)
+                        if (mustBeProcessed) {
+                            Timber.v("Version was changed after sync, calling listeners")
+                            val newTasks = taskDao.getAllTasks()
+                            val newTags = tagDao.getAllTags()
+                            val newRelations = relationDao.getAllRelations()
+                            val newVersions = versionDao.getAllVersions()
+                            val newSnapshot =
+                                DatabaseSnapshot(newTasks, newTags, newRelations, newVersions)
+                            versionDao.setMustBeProcessed(currentEmail, false)
+                            coroutineScope.launch(Dispatchers.Main) {
+                                onSyncUpdateListeners.forEach { it(newSnapshot) }
+                            }
+                        } else {
+                            Timber.v("Version was changed by user action, not calling listeners")
+                        }
+                    }
+                }
+            }
+            liveVersionObserver?.let {
+                liveVersionObservable?.removeObserver(it)
+            }
+            liveVersionObservable = liveVersion
+            liveVersionObserver = observer
+            liveVersion.observeForever(observer)
+        }
+    }
+
     /** Returns [TaskID] immediately without waiting for DB query to complete */
-    fun createNewTask(tasklistId: Int, accountName: String): TaskID {
+    fun createNewTask(tasklistId: Int): TaskID {
         val taskId = UUID.randomUUID()
         coroutineScope.launch {
             val defaultTitle = appCtx.resources.getString(R.string.task_default_title)
@@ -150,10 +186,10 @@ class DatabaseModel {
                     title = defaultTitle,
                     description = defaultDescription,
                     lastModifiedTimeMillis = System.currentTimeMillis(),
-                    accountName = accountName
+                    accountName = currentEmail
                 )
                 taskDao.insertTask(taskEntity)
-                metaDao.updateVersion()
+                versionDao.updateVersion(currentEmail)
             }
         }
         return taskId
@@ -262,7 +298,7 @@ class DatabaseModel {
         coroutineScope.launch {
             database.runInTransaction {
                 taskDao.block()
-                metaDao.updateVersion()
+                versionDao.updateVersion(currentEmail)
             }
         }
     }
@@ -271,7 +307,7 @@ class DatabaseModel {
         coroutineScope.launch {
             database.runInTransaction {
                 tagDao.block()
-                metaDao.updateVersion()
+                versionDao.updateVersion(currentEmail)
             }
         }
     }

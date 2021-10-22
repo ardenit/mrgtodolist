@@ -104,9 +104,9 @@ interface TaskDao {
 
     @Query("""
         DELETE FROM tasks
-        WHERE 1
+        WHERE account_name = :email
     """)
-    fun removeAllTasks()
+    fun removeAllTasks(email: String)
 
     @Insert
     fun insertAllTasks(tasks: List<TaskEntity>)

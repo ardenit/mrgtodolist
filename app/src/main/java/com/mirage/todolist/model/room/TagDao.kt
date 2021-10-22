@@ -47,9 +47,9 @@ interface TagDao {
 
     @Query("""
         DELETE FROM tags
-        WHERE 1
+        WHERE account_name = :email
     """)
-    fun removeAllTags()
+    fun removeAllTags(email: String)
 
     @Insert
     fun insertAllTags(tags: List<TagEntity>)
