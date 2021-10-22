@@ -1,9 +1,10 @@
 package com.mirage.todolist.model.room
 
 import androidx.room.*
-import com.mirage.todolist.model.tasks.LiveTag
-import com.mirage.todolist.model.tasks.LiveTask
-import com.mirage.todolist.viewmodel.TasklistType
+import com.mirage.todolist.model.tasks.TaskPeriod
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalTime
 import java.util.*
 
 @Dao
@@ -18,10 +19,10 @@ interface TaskDao {
 
     @Query("""
         UPDATE tasks
-        SET last_modified = :timeModified
+        SET last_modified = :lastModified
         WHERE tasklist_id = :tasklistId AND task_index >= :startIndex AND task_index < :endIndex
     """)
-    fun setTimeModifiedInSlice(tasklistId: Int, startIndex: Int, endIndex: Int, timeModified: Long)
+    fun setTimeModifiedInSlice(tasklistId: Int, startIndex: Int, endIndex: Int, lastModified: Instant)
 
     @Query("SELECT count(*) FROM tasks WHERE tasklist_id = :tasklistId")
     fun getTasklistSize(tasklistId: Int): Int
@@ -76,31 +77,31 @@ interface TaskDao {
 
     @Query("""
         UPDATE tasks
-        SET date_year = :year, date_month = :monthOfYear, date_day = :dayOfMonth
+        SET date = :date
         WHERE task_id = :taskId
         """)
-    fun setTaskDate(taskId: UUID, year: Int, monthOfYear: Int, dayOfMonth: Int)
+    fun setTaskDate(taskId: UUID, date: LocalDate?)
 
     @Query("""
         UPDATE tasks
-        SET time_hour = :hour, time_minute = :minute
+        SET time = :time
         WHERE task_id = :taskId
         """)
-    fun setTaskTime(taskId: UUID, hour: Int, minute: Int)
+    fun setTaskTime(taskId: UUID, time: LocalTime?)
 
     @Query("""
         UPDATE tasks
-        SET period_id = :periodId
+        SET period = :period
         WHERE task_id = :taskId
         """)
-    fun setTaskPeriodId(taskId: UUID, periodId: Int)
+    fun setTaskPeriod(taskId: UUID, period: TaskPeriod)
 
     @Query("""
         UPDATE tasks
-        SET last_modified = :modifiedTimeMillis
+        SET last_modified = :lastModified
         WHERE task_id = :taskId
         """)
-    fun setTaskModifiedTime(taskId: UUID, modifiedTimeMillis: Long)
+    fun setTaskLastModifiedTime(taskId: UUID, lastModified: Instant)
 
     @Query("""
         DELETE FROM tasks

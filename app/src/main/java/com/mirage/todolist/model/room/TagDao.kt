@@ -3,6 +3,7 @@ package com.mirage.todolist.model.room
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import java.time.Instant
 import java.util.*
 
 @Dao
@@ -40,10 +41,10 @@ interface TagDao {
 
     @Query("""
         UPDATE tags
-        SET last_modified = :lastModifiedTimeMillis
+        SET last_modified = :lastModified
         WHERE tag_id = :tagId
         """)
-    fun setTagLastModifiedTime(tagId: UUID, lastModifiedTimeMillis: Long)
+    fun setTagLastModifiedTime(tagId: UUID, lastModified: Instant)
 
     @Query("""
         DELETE FROM tags

@@ -4,8 +4,13 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
-@Database(entities = [TaskEntity::class, TagEntity::class, RelationEntity::class, VersionEntity::class], version = 1)
-@TypeConverters(UUIDConverter::class)
+@Database(
+    entities = [TaskEntity::class, TagEntity::class, RelationEntity::class, VersionEntity::class],
+    version = 1
+)
+@TypeConverters(
+    UUIDConverter::class, LocalDateTimeConverter::class, InstantConverter::class, TaskPeriodConverter::class
+)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun getTaskDao(): TaskDao

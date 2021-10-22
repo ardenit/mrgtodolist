@@ -3,6 +3,8 @@ package com.mirage.todolist.model.room
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.mirage.todolist.model.tasks.TaskPeriod
+import java.time.*
 import java.util.*
 
 @Entity(tableName = "tasks")
@@ -11,6 +13,8 @@ data class TaskEntity(
     @PrimaryKey
     @ColumnInfo(name = "task_id")
     val taskId: UUID,
+    @ColumnInfo(name = "account_name")
+    val accountName: String = "",
     /**
      * Index of the task's tasklist
      * */
@@ -27,20 +31,12 @@ data class TaskEntity(
     val title: String = "",
     @ColumnInfo(name = "description")
     val description: String = "",
-    @ColumnInfo(name = "date_year")
-    val dateYear: Int = -1,
-    @ColumnInfo(name = "date_month")
-    val dateMonth: Int = -1,
-    @ColumnInfo(name = "date_day")
-    val dateDay: Int = -1,
-    @ColumnInfo(name = "time_hour")
-    val timeHour: Int = -1,
-    @ColumnInfo(name = "time_minute")
-    val timeMinute: Int = -1,
-    @ColumnInfo(name = "period_id")
-    val periodId: Int = 0,
+    @ColumnInfo(name = "date")
+    val date: LocalDate?,
+    @ColumnInfo(name = "time")
+    val time: LocalTime?,
+    @ColumnInfo(name = "period")
+    val period: TaskPeriod = TaskPeriod.NOT_REPEATABLE,
     @ColumnInfo(name = "last_modified")
-    val lastModifiedTimeMillis: Long = System.currentTimeMillis(),
-    @ColumnInfo(name = "account_name")
-    val accountName: String = ""
+    val lastModified: Instant = Clock.systemUTC().instant()
 )

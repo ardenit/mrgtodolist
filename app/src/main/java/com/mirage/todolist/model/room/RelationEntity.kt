@@ -2,6 +2,8 @@ package com.mirage.todolist.model.room
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import java.util.*
 
 /**
@@ -16,11 +18,11 @@ data class RelationEntity(
     /** Tag's unique ID */
     @ColumnInfo(name = "tag_id")
     val tagId: UUID,
+    @ColumnInfo(name = "account_name")
+    val accountName: String = "",
     /** Whether this relation is deleted and should be ignored (used for merging differences on sync) */
     @ColumnInfo(name = "deleted")
     val deleted: Boolean,
     @ColumnInfo(name = "last_modified")
-    val lastModifiedTimeMillis: Long,
-    @ColumnInfo(name = "account_name")
-    val accountName: String = ""
+    val lastModified: Instant = Clock.System.now()
 )

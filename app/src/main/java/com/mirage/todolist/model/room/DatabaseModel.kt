@@ -9,8 +9,12 @@ import com.mirage.todolist.di.App
 import com.mirage.todolist.R
 import com.mirage.todolist.model.tasks.TagID
 import com.mirage.todolist.model.tasks.TaskID
+import com.mirage.todolist.model.tasks.TaskPeriod
 import kotlinx.coroutines.*
 import timber.log.Timber
+import java.time.Clock
+import java.time.LocalDate
+import java.time.LocalTime
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executors
@@ -181,12 +185,15 @@ class DatabaseModel {
                 val taskIndex = taskDao.getTasklistSize(tasklistId)
                 val taskEntity = TaskEntity(
                     taskId = taskId,
+                    accountName = currentEmail,
                     tasklistId = tasklistId,
                     taskIndex = taskIndex,
                     title = defaultTitle,
                     description = defaultDescription,
-                    lastModifiedTimeMillis = System.currentTimeMillis(),
-                    accountName = currentEmail
+                    date = null,
+                    time = null,
+                    period = TaskPeriod.NOT_REPEATABLE,
+                    lastModified = Clock.systemUTC().instant()
                 )
                 taskDao.insertTask(taskEntity)
                 versionDao.updateVersion(currentEmail)
@@ -199,35 +206,36 @@ class DatabaseModel {
         val oldTasklistId = getTasklistId(taskId)
         val oldTaskIndex = getTaskIndex(taskId)
         val newTaskIndex = getTasklistSize(newTasklistId)
+        val instant = Clock.systemUTC().instant()
+        setTimeModifiedInSlice(oldTasklistId, oldTaskIndex + 1, Int.MAX_VALUE, instant)
         shiftTaskIndicesInSlice(oldTasklistId, oldTaskIndex + 1, Int.MAX_VALUE, -1)
         setTaskIndex(taskId, newTaskIndex)
         setTasklistId(taskId, newTasklistId)
-        setTaskModifiedTime(taskId, System.currentTimeMillis())
+        setTaskLastModifiedTime(taskId, instant)
     }
 
     fun moveTaskInList(taskId: TaskID, newTaskIndex: Int) = launchTaskTransaction {
         val tasklistId = getTasklistId(taskId)
         val oldTaskIndex = getTaskIndex(taskId)
+        val instant = Clock.systemUTC().instant()
         if (oldTaskIndex < newTaskIndex) {
-            setTimeModifiedInSlice(tasklistId, oldTaskIndex + 1, newTaskIndex + 1, System.currentTimeMillis())
+            setTimeModifiedInSlice(tasklistId, oldTaskIndex + 1, newTaskIndex + 1, instant)
             shiftTaskIndicesInSlice(tasklistId, oldTaskIndex + 1, newTaskIndex + 1, -1)
             setTaskIndex(taskId, newTaskIndex)
         } else if (oldTaskIndex > newTaskIndex) {
-            setTimeModifiedInSlice(tasklistId, newTaskIndex, oldTaskIndex, System.currentTimeMillis())
+            setTimeModifiedInSlice(tasklistId, newTaskIndex, oldTaskIndex, instant)
             shiftTaskIndicesInSlice(tasklistId, newTaskIndex, oldTaskIndex, 1)
             setTaskIndex(taskId, newTaskIndex)
         }
-        setTaskModifiedTime(taskId, System.currentTimeMillis())
+        setTaskLastModifiedTime(taskId, instant)
     }
 
-    fun setTaskTitle(taskId: TaskID, title: String) = launchTaskTransaction {
+    fun setTaskTitle(taskId: TaskID, title: String) = modifyTask(taskId) {
         setTaskTitle(taskId, title)
-        setTaskModifiedTime(taskId, System.currentTimeMillis())
     }
 
-    fun setTaskDescription(taskId: TaskID, description: String) = launchTaskTransaction {
+    fun setTaskDescription(taskId: TaskID, description: String) = modifyTask(taskId) {
         setTaskDescription(taskId, description)
-        setTaskModifiedTime(taskId, System.currentTimeMillis())
     }
 
     fun setTaskTags(taskId: TaskID, tagIds: List<TagID>) {
@@ -236,30 +244,27 @@ class DatabaseModel {
             tagIdsSync.forEach { tagId ->
                 val relationsCount = relationDao.checkRelation(taskId, tagId)
                 if (relationsCount == 0) {
-                    val relation = RelationEntity(taskId, tagId, false, System.currentTimeMillis())
+                    val relation = RelationEntity(taskId, tagId, currentEmail, false, Clock.systemUTC().instant())
                     relationDao.insertRelation(relation)
                 }
                 else {
                     relationDao.restoreRelation(taskId, tagId)
-                    relationDao.setRelationModifiedTime(taskId, tagId, System.currentTimeMillis())
+                    relationDao.setRelationModifiedTime(taskId, tagId, Clock.systemUTC().instant())
                 }
             }
         }
     }
 
-    fun setTaskDate(taskId: TaskID, year: Int, monthOfYear: Int, dayOfMonth: Int) = launchTaskTransaction {
-        setTaskDate(taskId, year, monthOfYear, dayOfMonth)
-        setTaskModifiedTime(taskId, System.currentTimeMillis())
+    fun setTaskDate(taskId: TaskID, taskDate: LocalDate) = modifyTask(taskId) {
+        taskDao.setTaskDate(taskId, taskDate)
     }
 
-    fun setTaskTime(taskId: TaskID, hour: Int, minute: Int) = launchTaskTransaction {
-        setTaskTime(taskId, hour, minute)
-        setTaskModifiedTime(taskId, System.currentTimeMillis())
+    fun setTaskTime(taskId: TaskID, taskTime: LocalTime) = modifyTask(taskId) {
+        setTaskTime(taskId, taskTime)
     }
 
-    fun setTaskPeriod(taskId: TaskID, periodId: Int) = launchTaskTransaction {
-        setTaskPeriodId(taskId, periodId)
-        setTaskModifiedTime(taskId, System.currentTimeMillis())
+    fun setTaskPeriod(taskId: TaskID, period: TaskPeriod) = modifyTask(taskId) {
+        setTaskPeriod(taskId, period)
     }
 
     fun createNewTag(): TagID {
@@ -272,26 +277,23 @@ class DatabaseModel {
                 name = "",
                 styleIndex = 0,
                 deleted = false,
-                lastModifiedTimeMillis = System.currentTimeMillis()
+                lastModified = Clock.systemUTC().instant()
             )
             insertTag(tagEntity)
         }
         return tagId
     }
 
-    fun setTagName(tagId: TagID, name: String) = launchTagTransaction {
+    fun setTagName(tagId: TagID, name: String) = modifyTag(tagId) {
         setTagName(tagId, name)
-        setTagLastModifiedTime(tagId, System.currentTimeMillis())
     }
 
-    fun setTagStyleIndex(tagId: TagID, styleIndex: Int) = launchTagTransaction {
+    fun setTagStyleIndex(tagId: TagID, styleIndex: Int) = modifyTag(tagId) {
         setTagStyleIndex(tagId, styleIndex)
-        setTagLastModifiedTime(tagId, System.currentTimeMillis())
     }
 
-    fun removeTag(tagId: TagID) = launchTagTransaction {
+    fun removeTag(tagId: TagID) = modifyTag(tagId) {
         setTagDeleted(tagId, true)
-        setTagLastModifiedTime(tagId, System.currentTimeMillis())
     }
 
     private fun launchTaskTransaction(block: TaskDao.() -> Unit) {
@@ -310,5 +312,15 @@ class DatabaseModel {
                 versionDao.updateVersion(currentEmail)
             }
         }
+    }
+
+    private fun modifyTask(taskId: TaskID, block: TaskDao.(TaskID) -> Unit) = launchTaskTransaction {
+        block(taskId)
+        setTaskLastModifiedTime(taskId, Clock.systemUTC().instant())
+    }
+
+    private fun modifyTag(tagId: TagID, block: TagDao.(TagID) -> Unit) = launchTagTransaction {
+        block(tagId)
+        setTagLastModifiedTime(tagId, Clock.systemUTC().instant())
     }
 }

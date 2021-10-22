@@ -3,6 +3,7 @@ package com.mirage.todolist.model.room
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import java.time.Instant
 import java.util.*
 
 @Dao
@@ -34,10 +35,10 @@ interface RelationDao {
 
     @Query("""
         UPDATE relations
-        SET last_modified = :lastModifiedTimeMillis
+        SET last_modified = :lastModified
         WHERE task_id = :taskId AND tag_id = :tagId
     """)
-    fun setRelationModifiedTime(taskId: UUID, tagId: UUID, lastModifiedTimeMillis: Long)
+    fun setRelationModifiedTime(taskId: UUID, tagId: UUID, lastModified: Instant)
 
     @Query("SELECT * FROM relations")
     fun getAllRelations(): List<RelationEntity>
