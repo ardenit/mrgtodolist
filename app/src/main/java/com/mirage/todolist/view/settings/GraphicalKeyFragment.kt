@@ -12,7 +12,7 @@ import androidx.preference.PreferenceManager
 import com.andrognito.patternlockview.PatternLockView
 import com.andrognito.patternlockview.utils.PatternLockUtils
 import com.mirage.todolist.R
-import com.mirage.todolist.viewmodel.PasswordValidator
+import com.mirage.todolist.ui.PasswordValidator
 
 class GraphicalKeyFragment : Fragment() {
 
@@ -27,7 +27,7 @@ class GraphicalKeyFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        inflater.inflate(R.layout.settings_graphical_key, container)
+        inflater.inflate(R.layout.fragment_settings_graphical_key, container)
         this.container = container!!
         preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         patternLock = container.findViewById(R.id.create_pattern_lock)

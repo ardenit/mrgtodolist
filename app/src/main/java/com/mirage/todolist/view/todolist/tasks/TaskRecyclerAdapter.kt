@@ -80,7 +80,7 @@ class TasklistRecyclerAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TasklistViewHolder {
         val itemView = LayoutInflater.from(context ?: parent.context)
-            .inflate(R.layout.task_recycler_item, parent, false)
+            .inflate(R.layout.item_todolist_task, parent, false)
         return TasklistViewHolder(itemView, TasklistType.getType(viewModel.getTasklistID()))
     }
 

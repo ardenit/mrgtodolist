@@ -18,15 +18,15 @@ class SnapshotMerger {
         val tagsSlice = (databaseSnapshot.tags + gDriveSnapshot.tags)
             .filter { it.accountName == email }
             .groupBy { it.tagId }
-            .mapNotNull { (_, tags) -> tags.maxByOrNull { it.lastModifiedTimeMillis } }
+            .mapNotNull { (_, tags) -> tags.maxByOrNull { it.lastModified } }
         val tasksSlice = (databaseSnapshot.tasks + gDriveSnapshot.tasks)
             .filter { it.accountName == email }
             .groupBy { it.taskId }
-            .mapNotNull { (_, tasks) -> tasks.maxByOrNull { it.lastModifiedTimeMillis } }
+            .mapNotNull { (_, tasks) -> tasks.maxByOrNull { it.lastModified } }
         val relationsSlice = (databaseSnapshot.relations + gDriveSnapshot.relations)
             .filter { it.accountName == email }
             .groupBy { Pair(it.tagId, it.taskId) }
-            .mapNotNull { (_, relations) -> relations.maxByOrNull { it.lastModifiedTimeMillis } }
+            .mapNotNull { (_, relations) -> relations.maxByOrNull { it.lastModified } }
         val newVersion = when {
             (tagsSlice.toSet() == gDriveSnapshot.tags.toSet() &&
                     tasksSlice.toSet() == gDriveSnapshot.tasks.toSet() &&

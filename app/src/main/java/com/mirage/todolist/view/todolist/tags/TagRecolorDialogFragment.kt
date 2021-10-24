@@ -10,7 +10,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.mirage.todolist.R
-import kotlinx.coroutines.selects.select
 
 class TagRecolorDialogFragment : DialogFragment() {
 
@@ -19,7 +18,7 @@ class TagRecolorDialogFragment : DialogFragment() {
     var onColorSelected: ((Int) -> Unit)? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val view = View.inflate(requireContext(), R.layout.tags_recolor_dialog, null)
+        val view = View.inflate(requireContext(), R.layout.dialog_tags_recolor, null)
         scrollContainer = view.findViewById(R.id.tags_recolor_container)
         initializeColorSelectButtons()
         val builder = AlertDialog.Builder(requireActivity())

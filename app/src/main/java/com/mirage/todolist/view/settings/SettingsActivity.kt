@@ -92,7 +92,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (application as App).appComponent.inject(this)
-        setContentView(R.layout.settings_activity)
+        setContentView(R.layout.activity_settings)
         settingsFragment = SettingsFragment()
         settingsFragment.onSyncPressed = { configureSync() }
         supportFragmentManager

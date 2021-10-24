@@ -1,4 +1,4 @@
-package com.mirage.todolist.view.lockscreen
+package com.mirage.todolist.ui.lockscreen
 
 import android.content.Intent
 import android.os.Bundle
@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricPrompt
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.hardware.fingerprint.FingerprintManagerCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.andrognito.patternlockview.PatternLockView
@@ -22,15 +23,12 @@ import com.mirage.todolist.R
 import com.mirage.todolist.di.App
 import com.mirage.todolist.view.settings.showToast
 import com.mirage.todolist.view.todolist.TodolistActivity
-import com.mirage.todolist.viewmodel.LockScreenType
-import com.mirage.todolist.viewmodel.LockScreenViewModel
 import kotlinx.coroutines.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import javax.inject.Inject
 import kotlin.math.abs
 
-private const val TAP_HINT_TEXT_ANIMATION_DURATION = 4000L
 
 class LockScreenActivity : AppCompatActivity() {
 
@@ -43,6 +41,7 @@ class LockScreenActivity : AppCompatActivity() {
     private lateinit var promptInfo: BiometricPrompt.PromptInfo
 
     private val viewModel: LockScreenViewModel by viewModels { viewModelFactory }
+    private lateinit var contentFragment: Fragment
 
     private val todolistResultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -54,10 +53,6 @@ class LockScreenActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         (application as App).appComponent.inject(this)
         executor = Executors.newSingleThreadExecutor()
-        initializeViewModel()
-    }
-
-    private fun initializeViewModel() {
         viewModel.lockScreenType.observe(this) {
             when (it) {
                 LockScreenType.NO_PROTECTION -> initializeSplashScreen()
@@ -68,11 +63,11 @@ class LockScreenActivity : AppCompatActivity() {
                 else -> initializeSplashScreen()
             }
         }
-        viewModel.init()
     }
 
     private fun initializeSplashScreen() {
-        setContentView(R.layout.lockscreen_splash)
+        supportFragmentManager.beginTransaction()
+            .replace()
         coroutineScope.launch(Dispatchers.Main) {
             delay(1000)
             openTodolist()
@@ -80,7 +75,7 @@ class LockScreenActivity : AppCompatActivity() {
     }
 
     private fun initializeTapToUnlockScreen() {
-        setContentView(R.layout.lockscreen_tap)
+        setContentView(R.layout.fragment_lockscreen_tap)
         val rootLayout: ConstraintLayout = findViewById(R.id.lockscreen_tap_root)
         rootLayout.setOnClickListener {
             openTodolist()
@@ -99,7 +94,7 @@ class LockScreenActivity : AppCompatActivity() {
     }
 
     private fun initializeGraphicalKeyScreen() {
-        setContentView(R.layout.lockscreen_graphical_key)
+        setContentView(R.layout.fragment_lockscreen_graphical_key)
         val patternLock: PatternLockView = findViewById(R.id.graphical_key_pattern_lock)
         patternLock.addPatternLockListener(object : PatternLockViewListener {
 
@@ -122,7 +117,7 @@ class LockScreenActivity : AppCompatActivity() {
     }
 
     private fun initializePasswordScreen() {
-        setContentView(R.layout.lockscreen_password)
+        setContentView(R.layout.fragment_lockscreen_password)
         val passwordInput: EditText = findViewById(R.id.password_input)
         passwordInput.setOnKeyListener { view, keyCode, keyEvent ->
             if ((keyEvent.action == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
@@ -153,7 +148,7 @@ class LockScreenActivity : AppCompatActivity() {
             initializeSplashScreen()
             return
         }
-        setContentView(R.layout.lockscreen_fingerprint)
+        setContentView(R.layout.fragment_lockscreen_fingerprint)
         val rootLayout: ConstraintLayout = findViewById(R.id.fingerprint_root)
         rootLayout.setOnClickListener {
             requireFingerprint()
@@ -209,5 +204,9 @@ class LockScreenActivity : AppCompatActivity() {
     override fun onDestroy() {
         executor.shutdown()
         super.onDestroy()
+    }
+
+    companion object {
+        private const val TAP_HINT_TEXT_ANIMATION_DURATION = 4000L
     }
 }

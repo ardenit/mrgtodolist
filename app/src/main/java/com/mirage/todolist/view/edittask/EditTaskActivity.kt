@@ -44,7 +44,7 @@ class EditTaskActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (application as App).appComponent.inject(this)
-        setContentView(R.layout.edit_task_root)
+        setContentView(R.layout.activity_edit_task)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
         val editorType = intent?.getStringExtra(EDITOR_TYPE_KEY)

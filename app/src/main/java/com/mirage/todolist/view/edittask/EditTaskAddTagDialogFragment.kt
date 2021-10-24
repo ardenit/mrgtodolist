@@ -19,7 +19,7 @@ class EditTaskAddTagDialogFragment : DialogFragment() {
     var onTagSelected: ((LiveTag) -> Unit)? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val view = View.inflate(requireContext(), R.layout.edit_task_add_tag_dialog, null)
+        val view = View.inflate(requireContext(), R.layout.dialog_edit_task_add_tag, null)
         tagsView = view.findViewById(R.id.edit_task_add_tag_tags)
         tagsView.lifecycleOwner = this
         tagsView.onTagClickListener = {

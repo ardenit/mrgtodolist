@@ -1,4 +1,4 @@
-package com.mirage.todolist.viewmodel
+package com.mirage.todolist.ui
 
 import java.security.MessageDigest
 import java.util.regex.Pattern

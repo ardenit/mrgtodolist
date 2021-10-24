@@ -52,7 +52,7 @@
         android:minHeight="200dp"
         android:textSize="20sp" />
 
-    <include layout="@layout/edit_task_tags" />
-    <include layout="@layout/edit_task_location" android:visibility="gone"/>
-    <include layout="@layout/edit_task_datetime" />
+    <include layout="@layout/layout_edit_task_tags" />
+    <include layout="@layout/layout_edit_task_location" android:visibility="gone"/>
+    <include layout="@layout/layout_edit_task_datetime" />
 </LinearLayout>

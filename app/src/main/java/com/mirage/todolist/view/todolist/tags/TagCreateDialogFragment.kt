@@ -15,7 +15,7 @@ class TagCreateDialogFragment : DialogFragment() {
     var onCreatePressed: ((String) -> Unit)? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val view = View.inflate(requireContext(), R.layout.tags_create_dialog, null)
+        val view = View.inflate(requireContext(), R.layout.dialog_tags_create, null)
         inputText = view.findViewById(R.id.tags_create_input)
         val builder = AlertDialog.Builder(requireActivity())
             .setTitle(resources.getString(R.string.tags_create_title))

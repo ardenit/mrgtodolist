@@ -15,7 +15,7 @@ class TagRenameDialogFragment : DialogFragment() {
     var onRenamePressed: ((String) -> Unit)? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val view = View.inflate(requireContext(), R.layout.tags_rename_dialog, null)
+        val view = View.inflate(requireContext(), R.layout.dialog_tags_rename, null)
         inputText = view.findViewById(R.id.tags_rename_input)
         val builder = AlertDialog.Builder(requireActivity())
             .setTitle(resources.getString(R.string.tags_rename_title))

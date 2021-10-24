@@ -82,7 +82,7 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         }
         ++activityInstancesCount
         (application as App).appComponent.inject(this)
-        setContentView(R.layout.todolist_root)
+        setContentView(R.layout.activity_todolist)
         initializeDrawer()
         initializeContentFragments()
         todoRepository.init(applicationContext)

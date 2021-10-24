@@ -1,4 +1,4 @@
-package com.mirage.todolist.viewmodel
+package com.mirage.todolist.ui.lockscreen
 
 import android.content.SharedPreferences
 import android.content.res.Resources
@@ -9,21 +9,24 @@ import androidx.preference.PreferenceManager
 import com.mirage.todolist.R
 import com.mirage.todolist.di.App
 import com.mirage.todolist.model.repository.TodoRepository
+import com.mirage.todolist.ui.PasswordValidator
+import com.mirage.todolist.util.PreferenceHolder
+import com.mirage.todolist.util.getStringPreference
+import com.mirage.todolist.util.setStringPreference
+import timber.log.Timber
 import javax.inject.Inject
 
-class LockScreenViewModel
-    @Inject constructor(
-        private val application: App,
-        private val todoRepository: TodoRepository
-        ) : ViewModel(), PreferenceHolder {
+class LockScreenViewModel @Inject constructor(
+    private val application: App,
+    private val todoRepository: TodoRepository,
+    override val preferences: SharedPreferences,
+    override val resources: Resources
+) : ViewModel(), PreferenceHolder {
 
     val lockScreenType: MutableLiveData<LockScreenType> = MutableLiveData()
 
-    override val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(application.applicationContext)
-    override val resources: Resources = application.resources
-
-    fun init() {
-        todoRepository.init(application.applicationContext)
+    init {
+        Timber.v("LockScreenViewModel - init")
         processThemePreference()
         processNotificationPreference()
         processProtectionPreference()
@@ -39,31 +42,6 @@ class LockScreenViewModel
         val inputHash = PasswordValidator.getSHA256(password)
         val validHash = getStringPreference(R.string.key_password_hash)
         return inputHash == validHash
-    }
-
-    private fun processProtectionPreference() {
-        lockScreenType.value = when (getStringPreference(R.string.key_set_protection, R.string.value_protection_none)) {
-            resources.getString(R.string.value_protection_none) -> {
-                setStringPreference(R.string.key_set_protection, R.string.value_protection_none)
-                LockScreenType.NO_PROTECTION
-            }
-            resources.getString(R.string.value_protection_tap) -> {
-                LockScreenType.TAP_TO_UNLOCK
-            }
-            resources.getString(R.string.value_protection_graphical) -> {
-                LockScreenType.GRAPHICAL_KEY
-            }
-            resources.getString(R.string.value_protection_password) -> {
-                LockScreenType.PASSWORD
-            }
-            resources.getString(R.string.value_protection_fingerprint) -> {
-                LockScreenType.FINGERPRINT
-            }
-            else -> {
-                setStringPreference(R.string.key_set_protection, R.string.value_protection_none)
-                LockScreenType.NO_PROTECTION
-            }
-        }
     }
 
     private fun processThemePreference() {
@@ -88,12 +66,32 @@ class LockScreenViewModel
             }
         }
     }
-}
 
-enum class LockScreenType {
-    NO_PROTECTION,
-    TAP_TO_UNLOCK,
-    GRAPHICAL_KEY,
-    PASSWORD,
-    FINGERPRINT
+    private fun processProtectionPreference() {
+        lockScreenType.value = when (getStringPreference(
+            R.string.key_set_protection,
+            R.string.value_protection_none
+        )) {
+            resources.getString(R.string.value_protection_none) -> {
+                setStringPreference(R.string.key_set_protection, R.string.value_protection_none)
+                LockScreenType.NO_PROTECTION
+            }
+            resources.getString(R.string.value_protection_tap) -> {
+                LockScreenType.TAP_TO_UNLOCK
+            }
+            resources.getString(R.string.value_protection_graphical) -> {
+                LockScreenType.GRAPHICAL_KEY
+            }
+            resources.getString(R.string.value_protection_password) -> {
+                LockScreenType.PASSWORD
+            }
+            resources.getString(R.string.value_protection_fingerprint) -> {
+                LockScreenType.FINGERPRINT
+            }
+            else -> {
+                setStringPreference(R.string.key_set_protection, R.string.value_protection_none)
+                LockScreenType.NO_PROTECTION
+            }
+        }
+    }
 }

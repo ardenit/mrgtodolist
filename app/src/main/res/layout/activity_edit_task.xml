@@ -9,6 +9,6 @@
         android:layout_height="match_parent"
         tools:ignore="SpeakableTextPresentCheck">
 
-        <include layout="@layout/edit_task_content" />
+        <include layout="@layout/layout_edit_task_content" />
     </ScrollView>
 </FrameLayout>

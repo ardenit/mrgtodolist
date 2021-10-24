@@ -12,6 +12,6 @@
         android:id="@+id/todolist_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:listitem="@layout/task_recycler_item" />
+        tools:listitem="@layout/item_todolist_task" />
 
 </FrameLayout>

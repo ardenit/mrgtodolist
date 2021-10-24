@@ -1,4 +1,4 @@
-package com.mirage.todolist.viewmodel
+package com.mirage.todolist.util
 
 import android.content.SharedPreferences
 import android.content.res.Resources
