@@ -8,7 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.preference.*
 import com.mirage.todolist.R
 import com.mirage.todolist.di.App
-import com.mirage.todolist.model.tasks.TodolistModel
+import com.mirage.todolist.model.repository.TodoRepository
 import javax.inject.Inject
 
 class SettingsFragment : PreferenceFragmentCompat() {
@@ -22,7 +22,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private lateinit var preferences: SharedPreferences
 
     @Inject
-    lateinit var todolistModel: TodolistModel
+    lateinit var todoRepository: TodoRepository
 
     var onSyncPressed: () -> Unit = {}
 
@@ -48,7 +48,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             else -> R.string.settings_password_no_protection
         }
         setProtectionPreference.setSummary(protectionSummaryRes)
-        val email = todolistModel.getGDriveAccountEmail()
+        val email = todoRepository.getGDriveAccountEmail()
         if (email == null) {
             syncSelectAccPreference.setSummary(R.string.settings_sync_status_no_sync)
         }

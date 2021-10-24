@@ -4,10 +4,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
 import androidx.preference.PreferenceManager
-import com.mirage.todolist.model.room.DatabaseModel
+import com.mirage.todolist.model.database.DatabaseModel
 import com.mirage.todolist.model.googledrive.GoogleDriveModel
 import com.mirage.todolist.model.googledrive.SnapshotMerger
-import com.mirage.todolist.model.tasks.TodolistModel
+import com.mirage.todolist.model.repository.TodoRepository
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -44,10 +44,13 @@ class ApplicationModule(private val application: App) {
 
     @Provides
     @Singleton
-    fun provideTodolistModel() = TodolistModel()
+    fun provideTodolistModel() = TodoRepository()
 
     @Provides
     @Singleton
     fun provideDatabaseModel() = DatabaseModel()
 
+    @Provides
+    @Singleton
+    fun provideTodoRepository() = TodoRepository()
 }

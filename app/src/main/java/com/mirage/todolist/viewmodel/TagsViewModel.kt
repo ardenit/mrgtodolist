@@ -3,12 +3,12 @@ package com.mirage.todolist.viewmodel
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.mirage.todolist.model.tasks.*
+import com.mirage.todolist.model.repository.*
 import javax.inject.Inject
 
 class TagsViewModel
 @Inject constructor(
-    private val todolistModel: TodolistModel
+    private val todoRepository: TodoRepository
 ) : ViewModel() {
 
     private lateinit var onFullUpdateTagListener: OnFullUpdateTagListener
@@ -28,26 +28,26 @@ class TagsViewModel
         onFullUpdateTagListener = { tags ->
             fullUpdateObservable.value = tags
         }
-        todolistModel.addOnFullUpdateTagListener(onFullUpdateTagListener)
+        todoRepository.addOnFullUpdateTagListener(onFullUpdateTagListener)
     }
 
     fun createNewTag(): LiveTag {
-        val newTag = todolistModel.createNewTag()
+        val newTag = todoRepository.createNewTag()
         newTagObservable.value = newTag
         return newTag
     }
 
     fun removeTag(tag: LiveTag) {
-        todolistModel.removeTag(tag.tagID)
+        todoRepository.removeTag(tag.tagID)
         removeTagObservable.value = tag
     }
 
     fun modifyTag(tagID: TagID, newName: String? = null, newStyleIndex: Int? = null) {
-        todolistModel.modifyTag(tagID, newName, newStyleIndex)
+        todoRepository.modifyTag(tagID, newName, newStyleIndex)
     }
 
     fun getAllTags(): Map<TagID, LiveTag> {
-        return todolistModel.getAllTags()
+        return todoRepository.getAllTags()
     }
 
     fun addOnNewTagListener(owner: LifecycleOwner, listener: OnNewTagListener) {
@@ -65,6 +65,6 @@ class TagsViewModel
     }
 
     override fun onCleared() {
-        todolistModel.removeOnFullUpdateTagListener(onFullUpdateTagListener)
+        todoRepository.removeOnFullUpdateTagListener(onFullUpdateTagListener)
     }
 }

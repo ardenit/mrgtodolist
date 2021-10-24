@@ -9,8 +9,8 @@ import androidx.lifecycle.LifecycleOwner
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.mirage.todolist.R
-import com.mirage.todolist.model.tasks.LiveTag
-import com.mirage.todolist.model.tasks.TagID
+import com.mirage.todolist.model.repository.LiveTag
+import com.mirage.todolist.model.repository.TagID
 
 /**
  * Possible tag styles which can be selected by a user.

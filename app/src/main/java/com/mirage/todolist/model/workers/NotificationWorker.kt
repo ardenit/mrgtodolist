@@ -3,21 +3,18 @@ package com.mirage.todolist.model.workers
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.app.PendingIntent.getActivity
 import android.content.Context
-import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
 import android.content.Intent.*
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.*
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.mirage.todolist.R
-import com.mirage.todolist.model.tasks.TaskPeriod
+import com.mirage.todolist.model.repository.TaskPeriod
 import com.mirage.todolist.view.lockscreen.LockScreenActivity
 
 /**

@@ -1,10 +1,10 @@
-package com.mirage.todolist.model.room
+package com.mirage.todolist.model.database
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import java.time.Clock
+import java.time.Instant
 import java.util.*
 
 @Entity(tableName = "tags")
@@ -23,5 +23,5 @@ data class TagEntity(
     @ColumnInfo(name = "deleted")
     val deleted: Boolean,
     @ColumnInfo(name = "last_modified")
-    val lastModified: Instant = Clock.System.now()
+    val lastModified: Instant = Clock.systemUTC().instant()
 )

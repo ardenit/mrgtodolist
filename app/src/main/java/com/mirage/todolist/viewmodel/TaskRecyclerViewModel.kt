@@ -3,7 +3,7 @@ package com.mirage.todolist.viewmodel
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.mirage.todolist.model.tasks.*
+import com.mirage.todolist.model.repository.*
 import javax.inject.Inject
 
 typealias OnRemoveTaskListener = (task: LiveTask, taskIndex: Int) -> Unit
@@ -27,7 +27,7 @@ class TaskRecyclerViewModel @Inject constructor(): ViewModel() {
     private var initialized = false
 
     @Inject
-    lateinit var todolistModel: TodolistModel
+    lateinit var todoRepository: TodoRepository
 
     /**
      * [tasklistID] - id of tasklist processed by this view model
@@ -35,13 +35,13 @@ class TaskRecyclerViewModel @Inject constructor(): ViewModel() {
     fun init(tasklistID: Int) {
         if (initialized && this.tasklistID == tasklistID) return
         if (initialized) {
-            todolistModel.removeOnNewTaskListener(onNewTaskListener)
-            todolistModel.removeOnMoveTaskListener(onMoveTaskListener)
-            todolistModel.removeOnFullUpdateTaskListener(onFullUpdateTaskListener)
+            todoRepository.removeOnNewTaskListener(onNewTaskListener)
+            todoRepository.removeOnMoveTaskListener(onMoveTaskListener)
+            todoRepository.removeOnFullUpdateTaskListener(onFullUpdateTaskListener)
         }
         initialized = true
         this.tasklistID = tasklistID
-        tasksSlice = todolistModel.getAllTasks().filter { (_, task) ->
+        tasksSlice = todoRepository.getAllTasks().filter { (_, task) ->
             task.tasklistID == this.tasklistID
         }.toMutableMap()
         onNewTaskListener = { newTask ->
@@ -66,9 +66,9 @@ class TaskRecyclerViewModel @Inject constructor(): ViewModel() {
             }.toMutableMap()
             onFullUpdateObservable.value = tasksSlice.filterValues { it.isVisible }
         }
-        todolistModel.addOnNewTaskListener(onNewTaskListener)
-        todolistModel.addOnMoveTaskListener(onMoveTaskListener)
-        todolistModel.addOnFullUpdateTaskListener(onFullUpdateTaskListener)
+        todoRepository.addOnNewTaskListener(onNewTaskListener)
+        todoRepository.addOnMoveTaskListener(onMoveTaskListener)
+        todoRepository.addOnFullUpdateTaskListener(onFullUpdateTaskListener)
     }
 
     /**
@@ -84,7 +84,7 @@ class TaskRecyclerViewModel @Inject constructor(): ViewModel() {
     fun swipeTaskLeft(taskIndex: Int) {
         if (tasklistID < 1) return
         val task = getTaskByVisibleIndex(taskIndex) ?: return
-        todolistModel.moveTask(task.taskID, tasklistID - 1)
+        todoRepository.moveTask(task.taskID, tasklistID - 1)
     }
 
     /**
@@ -93,7 +93,7 @@ class TaskRecyclerViewModel @Inject constructor(): ViewModel() {
     fun swipeTaskRight(taskIndex: Int) {
         if (tasklistID > TasklistType.values().size - 2) return
         val task = getTaskByVisibleIndex(taskIndex) ?: return
-        todolistModel.moveTask(task.taskID, tasklistID + 1)
+        todoRepository.moveTask(task.taskID, tasklistID + 1)
     }
 
     /**
@@ -106,17 +106,17 @@ class TaskRecyclerViewModel @Inject constructor(): ViewModel() {
         val visibleTasks = tasksSlice.values.filter { it.isVisible }
         if (toIndex < visibleTasks.size) {
             val newIndex = visibleTasks[toIndex].taskIndex
-            todolistModel.moveTaskInList(task.taskID, newIndex)
+            todoRepository.moveTaskInList(task.taskID, newIndex)
         }
         else {
             val newIndex = visibleTasks[visibleTasks.size - 1].taskIndex + 1
-            todolistModel.moveTaskInList(task.taskID, newIndex)
+            todoRepository.moveTaskInList(task.taskID, newIndex)
         }
     }
 
     /** Starts searching for tasks with given tag */
     fun searchForTag(tag: LiveTag) {
-        todolistModel.searchTasks("[${tag.name.value}]")
+        todoRepository.searchTasks("[${tag.name.value}]")
     }
 
     /**
@@ -166,8 +166,8 @@ class TaskRecyclerViewModel @Inject constructor(): ViewModel() {
     }
 
     override fun onCleared() {
-        todolistModel.removeOnNewTaskListener(onNewTaskListener)
-        todolistModel.removeOnMoveTaskListener(onMoveTaskListener)
-        todolistModel.removeOnFullUpdateTaskListener(onFullUpdateTaskListener)
+        todoRepository.removeOnNewTaskListener(onNewTaskListener)
+        todoRepository.removeOnMoveTaskListener(onMoveTaskListener)
+        todoRepository.removeOnFullUpdateTaskListener(onFullUpdateTaskListener)
     }
 }

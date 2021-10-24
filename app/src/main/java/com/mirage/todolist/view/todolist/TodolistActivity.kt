@@ -18,8 +18,8 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.mirage.todolist.R
 import com.mirage.todolist.di.App
 import com.mirage.todolist.model.googledrive.GoogleDriveConnectExceptionHandler
-import com.mirage.todolist.model.tasks.LiveTask
-import com.mirage.todolist.model.tasks.TodolistModel
+import com.mirage.todolist.model.repository.LiveTask
+import com.mirage.todolist.model.repository.TodoRepository
 import com.mirage.todolist.view.edittask.EditTaskActivity
 import com.mirage.todolist.view.settings.SettingsActivity
 import com.mirage.todolist.view.todolist.tags.TagsFragment
@@ -38,7 +38,7 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
     private lateinit var tagsFragment: TagsFragment
 
     @Inject
-    lateinit var todolistModel: TodolistModel
+    lateinit var todoRepository: TodoRepository
 
     /**
      * Activity result launcher for Google Drive [UserRecoverableAuthIOException] user intervene screen
@@ -85,8 +85,8 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         setContentView(R.layout.todolist_root)
         initializeDrawer()
         initializeContentFragments()
-        todolistModel.init(applicationContext)
-        todolistModel.setGDriveAccountEmail(todolistModel.getGDriveAccountEmail(), gDriveConnectExceptionHandler)
+        todoRepository.init(applicationContext)
+        todoRepository.setGDriveAccountEmail(todoRepository.getGDriveAccountEmail(), gDriveConnectExceptionHandler)
     }
 
     override fun onBackPressed() {
@@ -169,7 +169,7 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
     private fun onResultFromGDriveUserIntervene(result: ActivityResult) {
         if (result.resultCode == Activity.RESULT_OK) {
-            todolistModel.setGDriveAccountEmail(todolistModel.getGDriveAccountEmail(), gDriveConnectExceptionHandler)
+            todoRepository.setGDriveAccountEmail(todoRepository.getGDriveAccountEmail(), gDriveConnectExceptionHandler)
         }
         else {
             Toast.makeText(this, R.string.gdrive_sync_cancelled_toast, Toast.LENGTH_SHORT).show()
@@ -209,10 +209,10 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             drawerLayout.open()
         }
         tasksFragment.onSearchQueryListener = {
-            todolistModel.searchTasks(it)
+            todoRepository.searchTasks(it)
         }
         tasksFragment.onSearchStopListener = {
-            todolistModel.cancelTaskSearch()
+            todoRepository.cancelTaskSearch()
         }
         tasksFragment.onEditTaskListener = {
             openTaskEditor(it)

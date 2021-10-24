@@ -1,9 +1,9 @@
-package com.mirage.todolist.model.room
+package com.mirage.todolist.model.database
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.mirage.todolist.model.tasks.TaskPeriod
+import com.mirage.todolist.model.repository.TaskPeriod
 import java.time.*
 import java.util.*
 

@@ -1,103 +1,69 @@
-package com.mirage.todolist.model.tasks
+package com.mirage.todolist.model.repository
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.Resources
 import androidx.preference.PreferenceManager
 import com.mirage.todolist.R
-import com.mirage.todolist.model.room.DatabaseModel
-import com.mirage.todolist.model.room.DatabaseSnapshot
+import com.mirage.todolist.di.App
+import com.mirage.todolist.model.database.DatabaseModel
+import com.mirage.todolist.model.database.DatabaseSnapshot
 import com.mirage.todolist.model.googledrive.GoogleDriveConnectExceptionHandler
 import com.mirage.todolist.model.googledrive.GoogleDriveModel
 import com.mirage.todolist.model.workers.scheduleAllDatetimeNotifications
 import kotlinx.coroutines.*
-import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDateTime
 import java.lang.Exception
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import javax.inject.Inject
+import kotlin.collections.LinkedHashMap
+import kotlin.collections.LinkedHashSet
 
-typealias OnNewTaskListener = (newTask: LiveTask) -> Unit
-typealias OnMoveTaskListener = (task: LiveTask, oldTasklistID: Int, newTasklistID: Int, oldTaskIndex: Int, newTaskIndex: Int) -> Unit
-typealias OnFullUpdateTaskListener = (newTasks: Map<TaskID, LiveTask>) -> Unit
+typealias OnFullUpdateTaskListener = (newTasks: Map<UUID, LiveTask>) -> Unit
+typealias OnFullUpdateTagListener = (newTags: Map<UUID, LiveTag>) -> Unit
 
-typealias OnFullUpdateTagListener = (newTags: Map<TagID, LiveTag>) -> Unit
+/**
+ * Repository class that encapsulates data manipulations with database and remote drive storage.
+ * Intended to be used by ViewModels from the main UI thread.
+ */
+class TodoRepository {
 
-class TodolistModel {
+    @Inject
+    lateinit var appCtx: Context
+    @Inject
+    lateinit var preferences: SharedPreferences
+    @Inject
+    lateinit var resources: Resources
+    @Inject
+    lateinit var databaseModel: DatabaseModel
+    @Inject
+    lateinit var googleDriveModel: GoogleDriveModel
+    @Volatile
+    private var currentEmail: String = ""
 
-    private val gDriveRestApi = GoogleDriveModel()
-    private lateinit var appCtx: Context
-    private lateinit var prefs: SharedPreferences
-    //TODO Inject?
-    private lateinit var databaseModel: DatabaseModel
-    private var email: String? = null
+    /** Local in-memory cache for tasks bound to the current Google account */
+    private var localTasks: MutableMap<UUID, MutableLiveTask> = LinkedHashMap()
+    /** Local in-memory cache for tags bound to the current Google account */
+    private var localTags: MutableMap<UUID, MutableLiveTag> = LinkedHashMap()
 
-    /** Local cache for tasks, key is task's unique taskID */
-    private var localTasks: MutableMap<TaskID, MutableLiveTask> = LinkedHashMap()
-    private val tasklistSizes: MutableMap<Int, Int> = LinkedHashMap()
-    private val onNewTaskListeners: MutableSet<OnNewTaskListener> = LinkedHashSet()
-    private val onMoveTaskListeners: MutableSet<OnMoveTaskListener> = LinkedHashSet()
+    /** Listeners for full cache update after Google Drive sync */
     private val onFullUpdateTaskListeners: MutableSet<OnFullUpdateTaskListener> = LinkedHashSet()
-
-    /** Local cache for tags, key is tag's unique TagID */
-    private var localTags: MutableMap<TagID, MutableLiveTag> = LinkedHashMap()
     private val onFullUpdateTagListeners: MutableSet<OnFullUpdateTagListener> = LinkedHashSet()
 
-    private var initialized = false
-
-    /**
-     * Initiates the model.
-     * Must be called at least once before doing any other operations with model.
-     * May be safely called multiple times during application lifecycle.
-     * [appCtx] - application context.
-     */
-    fun init(appCtx: Context) {
-        if (initialized) return
-        initialized = true
-        this.appCtx = appCtx.applicationContext
-        prefs = PreferenceManager.getDefaultSharedPreferences(this.appCtx)
-        databaseModel = DatabaseModel()
-        databaseModel.init(appCtx) {
+    init {
+        App.instance.appComponent.inject(this)
+        currentEmail = preferences.getString(resources.getString(R.string.key_sync_select_acc), "") ?: ""
+        databaseModel.setOnSyncUpdateListener {
             reloadData(it)
         }
-        gDriveRestApi.init(this.appCtx, prefs.getString(ACC_NAME_KEY, null).let { if (it.isNullOrBlank()) null else it})
-        getGDriveAccountEmail()
     }
 
     /**
-     * Returns current Google Drive account email used for synchronization, or null if sync is not configured.
+     * Changes the email used for Google Drive synchronization.
+     * Should be invoked when user selects a new account.
      */
-    fun getGDriveAccountEmail(): String? {
-        prefs = PreferenceManager.getDefaultSharedPreferences(this.appCtx)
-        val newEmail = prefs.getString(ACC_NAME_KEY, null)
-        if (newEmail != email) {
-            email = newEmail
-            println("Sync email changed to $newEmail")
-            GlobalScope.launch (Dispatchers.Main + CoroutineExceptionHandler { coroutineContext, throwable -> println("ERROR $throwable ${(throwable as Exception).message}") }) {
-                gDriveRestApi.run {
-                    var id = getFileId("testfilelol")
-                    if (id == null) {
-                        println("creating file")
-                        id = createFile("testfilelol")
-                        id = getFileId("testfilelol")!!
-                    }
-                    println("file id: $id")
-                    val bytes = downloadFile(id)
-                    println("bytes: |${bytes.decodeToString()}|")
-                    updateFile(id, "ROFLAN".encodeToByteArray())
-                    val bytess = downloadFile(id)
-                    println("bytes: |${bytess.decodeToString()}|")
-                }
-            }
-        }
-        return email
-    }
-
-    /**
-     * Changes Google Drive email.
-     * Should be invoked when user selects new account for synchronization.
-     */
-    fun setGDriveAccountEmail(newEmail: String?, exHandler: GoogleDriveConnectExceptionHandler) {
-        gDriveRestApi.init(appCtx, newEmail)
-        gDriveRestApi.connect(exHandler)
+    fun setGDriveAccountEmail(newEmail: String, exHandler: GoogleDriveConnectExceptionHandler) {
+        googleDriveModel.connectAsync(newEmail, exHandler)
     }
 
     /**
@@ -289,11 +255,6 @@ class TodolistModel {
     }
 
     /**
-     * Returns a map of all tasks (including hidden/removed ones).
-     */
-    fun getAllTasks(): Map<TaskID, LiveTask> = localTasks
-
-    /**
      * Creates a new tag and returns it.
      */
     fun createNewTag(): LiveTag {
@@ -310,7 +271,7 @@ class TodolistModel {
      * This method automatically updates "last modified" time.
      */
     fun modifyTag(
-        tagID: TagID,
+        tagID: UUID,
         name: String?,
         styleIndex: Int?
     ) {
@@ -347,33 +308,6 @@ class TodolistModel {
     }
 
     /**
-     * Returns a map of all tags
-     */
-    fun getAllTags(): Map<TagID, LiveTag> = localTags
-
-    /**
-     * Adds a listener for new task event
-     */
-    fun addOnNewTaskListener(listener: OnNewTaskListener) {
-        onNewTaskListeners += listener
-    }
-
-    fun removeOnNewTaskListener(listener: OnNewTaskListener) {
-        onNewTaskListeners -= listener
-    }
-
-    /**
-     * Adds a listener for task's tasklist change event (including removal, i.e. moving to -1)
-     */
-    fun addOnMoveTaskListener(listener: OnMoveTaskListener) {
-        onMoveTaskListeners += listener
-    }
-
-    fun removeOnMoveTaskListener(listener: OnMoveTaskListener) {
-        onMoveTaskListeners -= listener
-    }
-
-    /**
      * Adds a listener for tasklist update events coming from model independently from user actions
      * (i.e. updates performed on another device using the same Google Drive account).
      */
@@ -394,8 +328,8 @@ class TodolistModel {
     }
 
     private suspend fun reloadData(dbSnapshot: DatabaseSnapshot) {
-        val newLocalTasks = LinkedHashMap<TaskID, MutableLiveTask>()
-        val newLocalTags = LinkedHashMap<TagID, MutableLiveTag>()
+        val newLocalTasks = LinkedHashMap<UUID, MutableLiveTask>()
+        val newLocalTags = LinkedHashMap<UUID, MutableLiveTag>()
         dbSnapshot.tags.forEach { tagEntity ->
             val tagId = tagEntity.tagId
             val tag = MutableLiveTag(
@@ -416,22 +350,19 @@ class TodolistModel {
                 .toList()
             val taskId = taskEntity.taskId
             val tasklistId = taskEntity.tasklistId
-            val date = TaskDate(taskEntity.dateYear, taskEntity.dateMonth, taskEntity.dateDay)
-            val time = TaskTime(taskEntity.timeHour, taskEntity.timeMinute)
             val task = MutableLiveTask(
-                taskID = taskId,
-                tasklistID = tasklistId,
+                taskId = taskId,
+                tasklistId = tasklistId,
                 taskIndex = taskEntity.taskIndex,
-                isVisible = true,
                 title = taskEntity.title,
                 description = taskEntity.description,
+                date = taskEntity.date,
+                time = taskEntity.time,
+                period = taskEntity.period,
                 tags = tags,
-                date = date,
-                time = time,
-                period = TaskPeriod.values()[taskEntity.periodId.coerceIn(TaskPeriod.values().indices)]
+                isVisible = true
             )
             newLocalTasks[taskId] = task
-            tasklistSizes[tasklistId] = (tasklistSizes[tasklistId] ?: 0) + 1
         }
         val newLocalTasksSync = ConcurrentHashMap(newLocalTasks)
         val newLocalTagsSync = ConcurrentHashMap(newLocalTags)
@@ -447,7 +378,7 @@ class TodolistModel {
     }
 
     private fun updateNotifications() {
-        scheduleAllDatetimeNotifications(appCtx, localTasks.values.filter { it.tasklistID == 1 })
+        scheduleAllDatetimeNotifications(appCtx, localTasks.values.filter { it.tasklistId == 1 })
     }
 
     companion object {

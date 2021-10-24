@@ -1,4 +1,4 @@
-package com.mirage.todolist.model.room
+package com.mirage.todolist.model.database
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -7,9 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import com.mirage.todolist.di.App
 import com.mirage.todolist.R
-import com.mirage.todolist.model.tasks.TagID
-import com.mirage.todolist.model.tasks.TaskID
-import com.mirage.todolist.model.tasks.TaskPeriod
+import com.mirage.todolist.model.repository.TaskPeriod
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.time.Clock
@@ -22,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 /**
- * Interface for interacting with Room database
+ * Class for interacting with Room database
  * This model encapsulates working with its own thread,
  * so no external thread switching or synchronization is required.
  */
@@ -41,12 +39,12 @@ class DatabaseModel {
     @Inject
     lateinit var appCtx: Context
     @Inject
-    lateinit var sharedPreferences: SharedPreferences
+    lateinit var preferences: SharedPreferences
     @Inject
     lateinit var resources: Resources
 
-    private val onSyncUpdateListeners: MutableList<suspend (DatabaseSnapshot) -> Unit> = CopyOnWriteArrayList()
-
+    @Volatile
+    private var onSyncUpdateListener: suspend (DatabaseSnapshot) -> Unit = {}
     @Volatile
     private var liveVersionObservable: LiveData<UUID>? = null
     @Volatile
@@ -63,7 +61,7 @@ class DatabaseModel {
 
     init {
         App.instance.appComponent.inject(this)
-        val currentEmail = sharedPreferences.getString(resources.getString(R.string.key_sync_select_acc), "")
+        val currentEmail = preferences.getString(resources.getString(R.string.key_sync_select_acc), "")
         if (currentEmail.isNullOrBlank()) {
             Timber.v("Synchronization email is empty! No need to observe it.")
         } else {
@@ -90,17 +88,10 @@ class DatabaseModel {
 
     /**
      * Registers a listener to observe full database update events coming from Google Drive sync worker.
-     * [onSyncUpdate] will be called on the main dispatcher
+     * [onSyncUpdate] will be called on the database thread dispatcher
      */
-    fun addOnSyncUpdateListener(onSyncUpdate: suspend (DatabaseSnapshot) -> Unit) {
-        onSyncUpdateListeners += onSyncUpdate
-    }
-
-    /**
-     * Removes the [onSyncUpdate] listener
-     */
-    fun removeOnSyncUpdateListener(onSyncUpdate: suspend (DatabaseSnapshot) -> Unit) {
-        onSyncUpdateListeners -= onSyncUpdate
+    fun setOnSyncUpdateListener(onSyncUpdate: suspend (DatabaseSnapshot) -> Unit) {
+        onSyncUpdateListener = onSyncUpdate
     }
 
     /**
@@ -157,8 +148,8 @@ class DatabaseModel {
                             val newSnapshot =
                                 DatabaseSnapshot(newTasks, newTags, newRelations, newVersions)
                             versionDao.setMustBeProcessed(currentEmail, false)
-                            coroutineScope.launch(Dispatchers.Main) {
-                                onSyncUpdateListeners.forEach { it(newSnapshot) }
+                            coroutineScope.launch {
+                                onSyncUpdateListener(newSnapshot)
                             }
                         } else {
                             Timber.v("Version was changed by user action, not calling listeners")
@@ -175,8 +166,8 @@ class DatabaseModel {
         }
     }
 
-    /** Returns [TaskID] immediately without waiting for DB query to complete */
-    fun createNewTask(tasklistId: Int): TaskID {
+    /** Returns task ID immediately without waiting for DB query to complete */
+    fun createNewTask(tasklistId: Int): UUID {
         val taskId = UUID.randomUUID()
         coroutineScope.launch {
             val defaultTitle = appCtx.resources.getString(R.string.task_default_title)
@@ -202,7 +193,7 @@ class DatabaseModel {
         return taskId
     }
 
-    fun moveTask(taskId: TaskID, newTasklistId: Int) = launchTaskTransaction {
+    fun moveTask(taskId: UUID, newTasklistId: Int) = launchTaskTransaction {
         val oldTasklistId = getTasklistId(taskId)
         val oldTaskIndex = getTaskIndex(taskId)
         val newTaskIndex = getTasklistSize(newTasklistId)
@@ -214,7 +205,7 @@ class DatabaseModel {
         setTaskLastModifiedTime(taskId, instant)
     }
 
-    fun moveTaskInList(taskId: TaskID, newTaskIndex: Int) = launchTaskTransaction {
+    fun moveTaskInList(taskId: UUID, newTaskIndex: Int) = launchTaskTransaction {
         val tasklistId = getTasklistId(taskId)
         val oldTaskIndex = getTaskIndex(taskId)
         val instant = Clock.systemUTC().instant()
@@ -230,15 +221,15 @@ class DatabaseModel {
         setTaskLastModifiedTime(taskId, instant)
     }
 
-    fun setTaskTitle(taskId: TaskID, title: String) = modifyTask(taskId) {
+    fun setTaskTitle(taskId: UUID, title: String) = modifyTask(taskId) {
         setTaskTitle(taskId, title)
     }
 
-    fun setTaskDescription(taskId: TaskID, description: String) = modifyTask(taskId) {
+    fun setTaskDescription(taskId: UUID, description: String) = modifyTask(taskId) {
         setTaskDescription(taskId, description)
     }
 
-    fun setTaskTags(taskId: TaskID, tagIds: List<TagID>) {
+    fun setTaskTags(taskId: UUID, tagIds: List<UUID>) {
         val tagIdsSync = CopyOnWriteArrayList(tagIds)
         launchTaskTransaction {
             tagIdsSync.forEach { tagId ->
@@ -255,19 +246,19 @@ class DatabaseModel {
         }
     }
 
-    fun setTaskDate(taskId: TaskID, taskDate: LocalDate) = modifyTask(taskId) {
+    fun setTaskDate(taskId: UUID, taskDate: LocalDate) = modifyTask(taskId) {
         taskDao.setTaskDate(taskId, taskDate)
     }
 
-    fun setTaskTime(taskId: TaskID, taskTime: LocalTime) = modifyTask(taskId) {
+    fun setTaskTime(taskId: UUID, taskTime: LocalTime) = modifyTask(taskId) {
         setTaskTime(taskId, taskTime)
     }
 
-    fun setTaskPeriod(taskId: TaskID, period: TaskPeriod) = modifyTask(taskId) {
+    fun setTaskPeriod(taskId: UUID, period: TaskPeriod) = modifyTask(taskId) {
         setTaskPeriod(taskId, period)
     }
 
-    fun createNewTag(): TagID {
+    fun createNewTag(): UUID {
         val tagId = UUID.randomUUID()
         launchTagTransaction {
             val tagIndex = getTagsCount()
@@ -284,15 +275,15 @@ class DatabaseModel {
         return tagId
     }
 
-    fun setTagName(tagId: TagID, name: String) = modifyTag(tagId) {
+    fun setTagName(tagId: UUID, name: String) = modifyTag(tagId) {
         setTagName(tagId, name)
     }
 
-    fun setTagStyleIndex(tagId: TagID, styleIndex: Int) = modifyTag(tagId) {
+    fun setTagStyleIndex(tagId: UUID, styleIndex: Int) = modifyTag(tagId) {
         setTagStyleIndex(tagId, styleIndex)
     }
 
-    fun removeTag(tagId: TagID) = modifyTag(tagId) {
+    fun removeTag(tagId: UUID) = modifyTag(tagId) {
         setTagDeleted(tagId, true)
     }
 
@@ -314,12 +305,12 @@ class DatabaseModel {
         }
     }
 
-    private fun modifyTask(taskId: TaskID, block: TaskDao.(TaskID) -> Unit) = launchTaskTransaction {
+    private fun modifyTask(taskId: UUID, block: TaskDao.(UUID) -> Unit) = launchTaskTransaction {
         block(taskId)
         setTaskLastModifiedTime(taskId, Clock.systemUTC().instant())
     }
 
-    private fun modifyTag(tagId: TagID, block: TagDao.(TagID) -> Unit) = launchTagTransaction {
+    private fun modifyTag(tagId: UUID, block: TagDao.(UUID) -> Unit) = launchTagTransaction {
         block(tagId)
         setTagLastModifiedTime(tagId, Clock.systemUTC().instant())
     }

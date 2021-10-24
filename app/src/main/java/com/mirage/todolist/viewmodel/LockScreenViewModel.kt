@@ -8,13 +8,13 @@ import androidx.lifecycle.ViewModel
 import androidx.preference.PreferenceManager
 import com.mirage.todolist.R
 import com.mirage.todolist.di.App
-import com.mirage.todolist.model.tasks.TodolistModel
+import com.mirage.todolist.model.repository.TodoRepository
 import javax.inject.Inject
 
 class LockScreenViewModel
     @Inject constructor(
         private val application: App,
-        private val todolistModel: TodolistModel
+        private val todoRepository: TodoRepository
         ) : ViewModel(), PreferenceHolder {
 
     val lockScreenType: MutableLiveData<LockScreenType> = MutableLiveData()
@@ -23,7 +23,7 @@ class LockScreenViewModel
     override val resources: Resources = application.resources
 
     fun init() {
-        todolistModel.init(application.applicationContext)
+        todoRepository.init(application.applicationContext)
         processThemePreference()
         processNotificationPreference()
         processProtectionPreference()

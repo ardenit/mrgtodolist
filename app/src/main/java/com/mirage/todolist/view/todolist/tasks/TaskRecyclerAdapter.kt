@@ -13,9 +13,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.mirage.todolist.R
-import com.mirage.todolist.model.tasks.LiveTag
-import com.mirage.todolist.model.tasks.LiveTask
-import com.mirage.todolist.model.tasks.TaskPeriod
+import com.mirage.todolist.model.repository.LiveTag
+import com.mirage.todolist.model.repository.LiveTask
 import com.mirage.todolist.view.todolist.tags.TagsView
 import com.mirage.todolist.viewmodel.TasklistType
 import com.mirage.todolist.viewmodel.TaskRecyclerViewModel

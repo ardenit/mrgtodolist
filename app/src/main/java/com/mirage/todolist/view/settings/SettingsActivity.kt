@@ -21,7 +21,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.mirage.todolist.R
 import com.mirage.todolist.di.App
 import com.mirage.todolist.model.googledrive.GoogleDriveConnectExceptionHandler
-import com.mirage.todolist.model.tasks.TodolistModel
+import com.mirage.todolist.model.repository.TodoRepository
 import javax.inject.Inject
 
 enum class SettingsScreen {
@@ -39,7 +39,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
     private lateinit var preferences: SharedPreferences
 
     @Inject
-    lateinit var todolistModel: TodolistModel
+    lateinit var todoRepository: TodoRepository
 
     /**
      * Activity result launcher for Google Drive [UserRecoverableAuthIOException] user intervene screen
@@ -58,7 +58,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
             println("GDRIVE_CONNECT_SUCCESSFUL")
             Toast.makeText(this@SettingsActivity, "OK", Toast.LENGTH_SHORT).show()
             preferences.edit().putString(TodolistModelImpl.ACC_NAME_KEY, pendingEmail ?: "").apply()
-            todolistModel.getGDriveAccountEmail()
+            todoRepository.getGDriveAccountEmail()
             settingsFragment.updateSummaries()
         }
 
@@ -140,7 +140,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
             val extras = result.data?.extras
             val authAccount = extras?.getString("authAccount")
             pendingEmail = authAccount
-            todolistModel.setGDriveAccountEmail(authAccount, gDriveConnectExceptionHandler)
+            todoRepository.setGDriveAccountEmail(authAccount, gDriveConnectExceptionHandler)
         }
         else {
             Toast.makeText(this, R.string.gdrive_sync_cancelled_toast, Toast.LENGTH_SHORT).show()
@@ -149,7 +149,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
 
     private fun onResultFromGDriveUserIntervene(result: ActivityResult) {
         if (result.resultCode == Activity.RESULT_OK) {
-            todolistModel.setGDriveAccountEmail(todolistModel.getGDriveAccountEmail(), gDriveConnectExceptionHandler)
+            todoRepository.setGDriveAccountEmail(todoRepository.getGDriveAccountEmail(), gDriveConnectExceptionHandler)
         }
         else {
             Toast.makeText(this, R.string.gdrive_sync_cancelled_toast, Toast.LENGTH_SHORT).show()

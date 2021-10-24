@@ -1,4 +1,4 @@
-package com.mirage.todolist.model.tasks
+package com.mirage.todolist.model.repository
 
 import androidx.annotation.StringRes
 import com.mirage.todolist.R

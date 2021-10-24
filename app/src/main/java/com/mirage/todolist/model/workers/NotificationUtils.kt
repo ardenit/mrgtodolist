@@ -9,8 +9,8 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.mirage.todolist.R
-import com.mirage.todolist.model.tasks.LiveTask
-import com.mirage.todolist.model.tasks.TaskPeriod
+import com.mirage.todolist.model.repository.LiveTask
+import com.mirage.todolist.model.repository.TaskPeriod
 import java.util.*
 import java.util.concurrent.TimeUnit
 

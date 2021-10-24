@@ -5,7 +5,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import com.mirage.todolist.R
-import com.mirage.todolist.model.tasks.LiveTag
+import com.mirage.todolist.model.repository.LiveTag
 
 enum class TagEditDialogOption {
     RENAME,

@@ -1,9 +1,9 @@
 package com.mirage.todolist.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.mirage.todolist.model.tasks.LiveTask
-import com.mirage.todolist.model.tasks.TaskID
-import com.mirage.todolist.model.tasks.TodolistModel
+import com.mirage.todolist.model.repository.LiveTask
+import com.mirage.todolist.model.repository.TaskID
+import com.mirage.todolist.model.repository.TodoRepository
 import javax.inject.Inject
 
 //TODO Delete? Refactor?
@@ -13,14 +13,14 @@ import javax.inject.Inject
 abstract class TodolistViewModel : ViewModel(){
 
     @Inject
-    lateinit var todolistModel: TodolistModel
+    lateinit var todoRepository: TodoRepository
 
     /**
      * Creates a new task in the bottom of a given tasklist
      * Should be called in floating "add" button click listener
      */
     fun createNewTask(tasklistID: Int): LiveTask {
-        return todolistModel.createNewTask(tasklistID)
+        return todoRepository.createNewTask(tasklistID)
     }
 
     /**
@@ -33,13 +33,13 @@ abstract class TodolistViewModel : ViewModel(){
         title: String?,
         description: String?
     ) {
-        todolistModel.modifyTask(taskID, title, description, null, null, null, null)
+        todoRepository.modifyTask(taskID, title, description, null, null, null, null)
     }
 
     /**
      * Removes the task with ID [taskID].
      */
     fun removeTask(taskID: TaskID) {
-        todolistModel.removeTask(taskID)
+        todoRepository.removeTask(taskID)
     }
 }

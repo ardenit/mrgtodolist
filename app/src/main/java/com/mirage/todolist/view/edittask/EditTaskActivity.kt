@@ -13,7 +13,7 @@ import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import com.mirage.todolist.R
 import com.mirage.todolist.di.App
-import com.mirage.todolist.model.tasks.*
+import com.mirage.todolist.model.repository.*
 import com.mirage.todolist.view.settings.showToast
 import com.mirage.todolist.view.todolist.tags.TagsView
 import java.util.*
@@ -23,7 +23,7 @@ import javax.inject.Inject
 class EditTaskActivity : AppCompatActivity() {
 
     @Inject
-    lateinit var todolistModel: TodolistModel
+    lateinit var todoRepository: TodoRepository
     private var initialTask: LiveTask? = null
     private var tasklistID: Int = 1
     private var newTagsList: MutableList<LiveTag> = arrayListOf()
@@ -55,7 +55,7 @@ class EditTaskActivity : AppCompatActivity() {
             supportActionBar?.setTitle(R.string.edit_task_toolbar_edit)
             val idString = intent?.getStringExtra(EDITOR_TASK_ID_KEY)
             if (idString != null) {
-                initialTask = todolistModel.getAllTasks()[UUID.fromString(idString)]
+                initialTask = todoRepository.getAllTasks()[UUID.fromString(idString)]
             }
         }
         tasklistID = intent?.getIntExtra(EDITOR_TASKLIST_ID_KEY, 1) ?: 1
@@ -83,7 +83,7 @@ class EditTaskActivity : AppCompatActivity() {
         }
         tagsView.recreateTags(newTagsList)
         newTagBtn.setOnClickListener {
-            if (newTagsList.containsAll(todolistModel.getAllTags().values)) {
+            if (newTagsList.containsAll(todoRepository.getAllTags().values)) {
                 showToast(R.string.edit_task_full_tags_toast)
             }
             else {
@@ -107,7 +107,7 @@ class EditTaskActivity : AppCompatActivity() {
 
     private fun openNewTagDialog() {
         val addTagDialog = EditTaskAddTagDialogFragment()
-        addTagDialog.tags = todolistModel.getAllTags().values.filterNot {
+        addTagDialog.tags = todoRepository.getAllTags().values.filterNot {
             it in newTagsList
         }
         addTagDialog.onTagSelected = {
@@ -203,8 +203,8 @@ class EditTaskActivity : AppCompatActivity() {
         savePressed = true
         val newTitle = titleInput.text.toString()
         val newDescription = descriptionInput.text.toString()
-        val task = initialTask ?: todolistModel.createNewTask(tasklistID)
-        todolistModel.modifyTask(
+        val task = initialTask ?: todoRepository.createNewTask(tasklistID)
+        todoRepository.modifyTask(
             taskID = task.taskID,
             title = newTitle,
             description = newDescription,
@@ -263,7 +263,7 @@ class EditTaskActivity : AppCompatActivity() {
     override fun onBackPressed() {
         val newTitle = titleInput.text.toString()
         val newDescription = descriptionInput.text.toString()
-        val task = initialTask ?: todolistModel.createNewTask(tasklistID)
+        val task = initialTask ?: todoRepository.createNewTask(tasklistID)
         //TODO other changes
         if (
             newTitle != task.title.value ||

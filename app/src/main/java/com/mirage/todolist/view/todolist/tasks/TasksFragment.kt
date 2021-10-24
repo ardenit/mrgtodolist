@@ -1,9 +1,7 @@
 package com.mirage.todolist.view.todolist.tasks
 
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
@@ -18,8 +16,8 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.mirage.todolist.R
 import com.mirage.todolist.databinding.TasksRootFragmentBinding
-import com.mirage.todolist.model.tasks.LiveTag
-import com.mirage.todolist.model.tasks.LiveTask
+import com.mirage.todolist.model.repository.LiveTag
+import com.mirage.todolist.model.repository.LiveTask
 import com.mirage.todolist.viewmodel.TasklistType
 
 /**

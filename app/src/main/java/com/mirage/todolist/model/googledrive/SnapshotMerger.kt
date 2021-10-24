@@ -1,6 +1,6 @@
 package com.mirage.todolist.model.googledrive
 
-import com.mirage.todolist.model.room.*
+import com.mirage.todolist.model.database.*
 import java.util.*
 
 class SnapshotMerger {

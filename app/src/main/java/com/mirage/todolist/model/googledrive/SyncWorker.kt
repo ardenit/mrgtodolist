@@ -8,8 +8,8 @@ import androidx.work.WorkerParameters
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import com.mirage.todolist.R
-import com.mirage.todolist.model.room.DatabaseModel
-import com.mirage.todolist.model.room.DatabaseSnapshot
+import com.mirage.todolist.model.database.DatabaseModel
+import com.mirage.todolist.model.database.DatabaseSnapshot
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.util.*

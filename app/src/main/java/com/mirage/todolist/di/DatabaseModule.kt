@@ -2,7 +2,7 @@ package com.mirage.todolist.di
 
 import android.content.Context
 import androidx.room.Room
-import com.mirage.todolist.model.room.AppDatabase
+import com.mirage.todolist.model.database.AppDatabase
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton

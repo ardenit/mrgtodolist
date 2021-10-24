@@ -46,8 +46,10 @@ class GoogleDriveModel {
         gDrive = Drive.Builder(
             NetHttpTransport(),
             GsonFactory(),
-            GoogleAccountCredential.usingOAuth2(context, listOf(DriveScopes.DRIVE_FILE, DriveScopes.DRIVE_APPDATA)
-            ).setSelectedAccountName(email)).setApplicationName(GDRIVE_APP_NAME).build()
+            GoogleAccountCredential.usingOAuth2(
+                context, listOf(DriveScopes.DRIVE_FILE, DriveScopes.DRIVE_APPDATA)
+            ).setSelectedAccountName(email)
+        ).setApplicationName(GDRIVE_APP_NAME).build()
         val successful = try {
             gDrive.files().get("root").setFields("title").execute()
             true

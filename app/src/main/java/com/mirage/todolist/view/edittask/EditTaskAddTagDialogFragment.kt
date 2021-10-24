@@ -3,13 +3,11 @@ package com.mirage.todolist.view.edittask
 import android.app.Dialog
 import android.os.Bundle
 import android.view.View
-import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.mirage.todolist.R
-import com.mirage.todolist.model.tasks.LiveTag
-import com.mirage.todolist.model.tasks.TagID
+import com.mirage.todolist.model.repository.LiveTag
 import com.mirage.todolist.view.todolist.tags.TagsView
 
 class EditTaskAddTagDialogFragment : DialogFragment() {
