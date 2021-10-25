@@ -2,15 +2,35 @@ package com.mirage.todolist.model.database
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import androidx.room.ForeignKey
+import androidx.room.ForeignKey.CASCADE
+import androidx.room.Index
+import java.time.Clock
+import java.time.Instant
 import java.util.*
 
 /**
  * Entity for resolving many-to-many relation between tasks and tags
  * If task, tag or relation have different account names, the relation is ignored
  */
-@Entity(tableName = "relations", primaryKeys = ["task_id", "tag_id"])
+@Entity(
+    tableName = "relations",
+    primaryKeys = ["task_id", "tag_id"],
+    foreignKeys = [
+        ForeignKey(
+            entity = TaskEntity::class,
+            parentColumns = ["task_id"],
+            childColumns = ["task_id"],
+            onDelete = CASCADE
+        ),
+        ForeignKey(
+            entity = TagEntity::class,
+            parentColumns = ["tag_id"],
+            childColumns = ["tag_id"],
+            onDelete = CASCADE
+        )],
+    indices = [Index(value = arrayOf("account_name"), unique = false)]
+)
 data class RelationEntity(
     /** Task's unique ID */
     @ColumnInfo(name = "task_id")
@@ -24,5 +44,5 @@ data class RelationEntity(
     @ColumnInfo(name = "deleted")
     val deleted: Boolean,
     @ColumnInfo(name = "last_modified")
-    val lastModified: Instant = Clock.System.now()
+    val lastModified: Instant = Clock.systemUTC().instant()
 )

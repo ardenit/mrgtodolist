@@ -2,12 +2,16 @@ package com.mirage.todolist.model.database
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.time.Clock
 import java.time.Instant
 import java.util.*
 
-@Entity(tableName = "tags")
+@Entity(
+    tableName = "tags",
+    indices = [Index(value = arrayOf("account_name"), unique = false)]
+)
 data class TagEntity(
     @PrimaryKey
     @ColumnInfo(name = "tag_id")

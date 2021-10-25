@@ -2,12 +2,16 @@ package com.mirage.todolist.model.database
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.mirage.todolist.model.repository.TaskPeriod
 import java.time.*
 import java.util.*
 
-@Entity(tableName = "tasks")
+@Entity(
+    tableName = "tasks",
+    indices = [Index(value = arrayOf("account_name"), unique = false)]
+)
 data class TaskEntity(
     /** Task's unique ID */
     @PrimaryKey
