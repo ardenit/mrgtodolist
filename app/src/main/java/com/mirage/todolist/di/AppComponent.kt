@@ -4,13 +4,16 @@ import android.content.Context
 import com.mirage.todolist.model.googledrive.GoogleDriveModel
 import com.mirage.todolist.model.database.DatabaseModel
 import com.mirage.todolist.model.repository.TodoRepository
+import com.mirage.todolist.ui.lockscreen.LockScreenActivity
+import com.mirage.todolist.ui.lockscreen.PasswordFragment
+import com.mirage.todolist.ui.lockscreen.TapFragment
 import com.mirage.todolist.view.edittask.EditTaskActivity
-import com.mirage.todolist.view.lockscreen.LockScreenActivity
 import com.mirage.todolist.view.settings.SettingsActivity
 import com.mirage.todolist.view.settings.SettingsFragment
 import com.mirage.todolist.ui.todolist.TodolistActivity
 import com.mirage.todolist.ui.todolist.tags.TagsFragment
 import com.mirage.todolist.ui.todolist.tasks.TaskRecyclerFragment
+import com.mirage.todolist.ui.todolist.tasks.TasksFragment
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjectionModule
@@ -48,9 +51,15 @@ interface AppComponent : AndroidInjector<App> {
 
     fun inject(tagsFragment: TagsFragment)
 
+    fun inject(tasksFragment: TasksFragment)
+
     fun inject(settingsFragment: SettingsFragment)
 
-    fun inject(tagsRecyclerFragment: TaskRecyclerFragment)
+    fun inject(tapFragment: TapFragment)
+
+    fun inject(passwordFragment: PasswordFragment)
+
+    fun inject(tasksRecyclerFragment: TaskRecyclerFragment)
 
     fun inject(databaseModel: DatabaseModel)
 

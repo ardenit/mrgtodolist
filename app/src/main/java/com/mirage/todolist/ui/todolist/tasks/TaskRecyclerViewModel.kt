@@ -5,7 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.mirage.todolist.model.repository.*
 import com.mirage.todolist.ui.todolist.tasks.TasklistType
+import java.util.*
 import javax.inject.Inject
+import kotlin.collections.LinkedHashMap
 
 typealias OnRemoveTaskListener = (task: LiveTask, taskIndex: Int) -> Unit
 
@@ -20,11 +22,11 @@ class TaskRecyclerViewModel @Inject constructor(): ViewModel() {
 
     private val onNewTaskObservable = MutableLiveData<LiveTask>()
     private val onRemoveTaskObservable = MutableLiveData<Pair<LiveTask, Int>>()
-    private val onFullUpdateObservable = MutableLiveData<Map<TaskID, LiveTask>>()
+    private val onFullUpdateObservable = MutableLiveData<Map<UUID, LiveTask>>()
 
     private var tasklistID: Int = -1
     /** Slice of actual tasks in this tasklist (including temporarily hidden ones) */
-    private var tasksSlice: MutableMap<TaskID, LiveTask> = LinkedHashMap()
+    private var tasksSlice: MutableMap<UUID, LiveTask> = LinkedHashMap()
     private var initialized = false
 
     @Inject
@@ -43,27 +45,27 @@ class TaskRecyclerViewModel @Inject constructor(): ViewModel() {
         initialized = true
         this.tasklistID = tasklistID
         tasksSlice = todoRepository.getAllTasks().filter { (_, task) ->
-            task.tasklistID == this.tasklistID
+            task.tasklistId == this.tasklistID
         }.toMutableMap()
         onNewTaskListener = { newTask ->
-            if (newTask.tasklistID == this.tasklistID) {
-                tasksSlice[newTask.taskID] = newTask
+            if (newTask.tasklistId == this.tasklistID) {
+                tasksSlice[newTask.taskId] = newTask
                 onNewTaskObservable.value = newTask
             }
         }
         onMoveTaskListener = { task, oldTasklistID, newTasklistID, _, _ ->
             if (oldTasklistID == this.tasklistID) {
-                tasksSlice.remove(task.taskID)
+                tasksSlice.remove(task.taskId)
                 onRemoveTaskObservable.value = Pair(task, task.taskIndex)
             }
             if (newTasklistID == this.tasklistID) {
-                tasksSlice[task.taskID] = task
+                tasksSlice[task.taskId] = task
                 onNewTaskObservable.value = task
             }
         }
         onFullUpdateTaskListener = { newTasks ->
             tasksSlice = newTasks.filter { (_, task) ->
-                task.tasklistID == this.tasklistID
+                task.tasklistId == this.tasklistID
             }.toMutableMap()
             onFullUpdateObservable.value = tasksSlice.filterValues { it.isVisible }
         }
@@ -85,7 +87,7 @@ class TaskRecyclerViewModel @Inject constructor(): ViewModel() {
     fun swipeTaskLeft(taskIndex: Int) {
         if (tasklistID < 1) return
         val task = getTaskByVisibleIndex(taskIndex) ?: return
-        todoRepository.moveTask(task.taskID, tasklistID - 1)
+        todoRepository.moveTask(task.taskId, tasklistID - 1)
     }
 
     /**
@@ -94,7 +96,7 @@ class TaskRecyclerViewModel @Inject constructor(): ViewModel() {
     fun swipeTaskRight(taskIndex: Int) {
         if (tasklistID > TasklistType.values().size - 2) return
         val task = getTaskByVisibleIndex(taskIndex) ?: return
-        todoRepository.moveTask(task.taskID, tasklistID + 1)
+        todoRepository.moveTask(task.taskId, tasklistID + 1)
     }
 
     /**
@@ -107,11 +109,11 @@ class TaskRecyclerViewModel @Inject constructor(): ViewModel() {
         val visibleTasks = tasksSlice.values.filter { it.isVisible }
         if (toIndex < visibleTasks.size) {
             val newIndex = visibleTasks[toIndex].taskIndex
-            todoRepository.moveTaskInList(task.taskID, newIndex)
+            todoRepository.moveTaskInList(task.taskId, newIndex)
         }
         else {
             val newIndex = visibleTasks[visibleTasks.size - 1].taskIndex + 1
-            todoRepository.moveTaskInList(task.taskID, newIndex)
+            todoRepository.moveTaskInList(task.taskId, newIndex)
         }
     }
 
@@ -145,10 +147,10 @@ class TaskRecyclerViewModel @Inject constructor(): ViewModel() {
     }
 
     /**
-     * Returns a [LiveTask] with a given [taskID], or null if there is no task with this ID
+     * Returns a [LiveTask] with a given [taskId], or null if there is no task with this ID
      */
-    fun getTask(taskID: TaskID): LiveTask? {
-        return tasksSlice[taskID]
+    fun getTask(taskId: UUID): LiveTask? {
+        return tasksSlice[taskId]
     }
 
     /**

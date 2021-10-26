@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.view.get
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -14,9 +16,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.mirage.todolist.R
-import com.mirage.todolist.databinding.TasksRootFragmentBinding
+import com.mirage.todolist.databinding.FragmentTasksBinding
+import com.mirage.todolist.di.App
 import com.mirage.todolist.model.repository.LiveTag
 import com.mirage.todolist.model.repository.LiveTask
+import com.mirage.todolist.util.autoCleared
 
 /**
  * Main activity subscreen for "Tasks" navigation option
@@ -27,15 +31,21 @@ class TasksFragment : Fragment() {
     var onSearchQueryListener: (String) -> Unit = {}
     var onSearchStopListener: () -> Unit = {}
     var onEditTaskListener: (LiveTask?) -> Unit = {}
-    private var _binding: TasksRootFragmentBinding? = null
-    private val binding get() = _binding!!
+
+    private var binding by autoCleared<FragmentTasksBinding>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = TasksRootFragmentBinding.inflate(inflater, container, false)
+        (requireActivity().application as App).appComponent.inject(this)
+        binding = DataBindingUtil.inflate(
+            inflater,
+            R.layout.fragment_tags,
+            container,
+            false
+        )
         initializeViewPager()
         initializeToolbar()
         val btn: FloatingActionButton = binding.todolistNewTaskBtn
@@ -43,11 +53,6 @@ class TasksFragment : Fragment() {
             onEditTaskListener(null)
         }
         return binding.root
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
     fun openSearchForTag(tag: LiveTag) {

@@ -4,16 +4,21 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.mirage.todolist.databinding.TaskRecyclerRootFragmentBinding
+import com.mirage.todolist.R
+import com.mirage.todolist.databinding.FragmentTagsBinding
+import com.mirage.todolist.databinding.FragmentTasklistBinding
+import com.mirage.todolist.databinding.FragmentTasksBinding
 import com.mirage.todolist.di.App
 import com.mirage.todolist.model.repository.LiveTag
 import com.mirage.todolist.model.repository.LiveTask
+import com.mirage.todolist.util.autoCleared
 import com.mirage.todolist.viewmodel.*
 import javax.inject.Inject
 
@@ -29,32 +34,31 @@ class TaskRecyclerFragment : Fragment() {
     private lateinit var recyclerAdapter: TasklistRecyclerAdapter
     private lateinit var itemTouchHelper: ItemTouchHelper
 
-    private var _binding: TaskRecyclerRootFragmentBinding? = null
-    private val binding get() = _binding!!
+    private var binding by autoCleared<FragmentTasklistBinding>()
 
     var onSearchTagListener: (LiveTag) -> Unit = {}
     var onTaskEditListener: (LiveTask) -> Unit = {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        (requireActivity().application as App).appComponent.inject(this)
         val tasklistID = arguments?.getInt(ARG_SECTION_NUMBER) ?: 1
         taskRecyclerViewModel.init(tasklistID)
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = TaskRecyclerRootFragmentBinding.inflate(inflater, container, false)
-        val root = binding.root
+        (requireActivity().application as App).appComponent.inject(this)
+        binding = DataBindingUtil.inflate(
+            inflater,
+            R.layout.fragment_tasks,
+            container,
+            false
+        )
         initializeRecycler()
-        return root
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+        return binding.root
     }
 
     private fun initializeRecycler() {

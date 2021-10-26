@@ -4,8 +4,6 @@ import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 
-private const val RECYCLER_ITEM_SPACING = 32
-
 class TasklistItemDecoration : RecyclerView.ItemDecoration() {
 
     override fun getItemOffsets(
@@ -20,4 +18,7 @@ class TasklistItemDecoration : RecyclerView.ItemDecoration() {
         outRect.bottom = 0
     }
 
+    companion object {
+        private const val RECYCLER_ITEM_SPACING = 32
+    }
 }

@@ -16,9 +16,6 @@ import com.mirage.todolist.R
 import com.mirage.todolist.model.repository.LiveTag
 import com.mirage.todolist.model.repository.LiveTask
 import com.mirage.todolist.ui.todolist.tags.TagsView
-import com.mirage.todolist.viewmodel.TaskRecyclerViewModel
-
-const val STROKE_WIDTH = 8
 
 class TasklistRecyclerAdapter(
     private val context: Context,
@@ -78,7 +75,7 @@ class TasklistRecyclerAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TasklistViewHolder {
-        val itemView = LayoutInflater.from(context ?: parent.context)
+        val itemView = LayoutInflater.from(context)
             .inflate(R.layout.item_todolist_task, parent, false)
         return TasklistViewHolder(itemView, TasklistType.getType(viewModel.getTasklistID()))
     }
@@ -117,8 +114,8 @@ class TasklistRecyclerAdapter(
         val date = task.date.value ?: return
         val time = task.time.value ?: return
         val period = task.period.value ?: return
-        if (date.year >= 0 && date.monthOfYear >= 0 && date.dayOfMonth >= 0) {
-            datetimeText += "${twoDigits(date.dayOfMonth)}.${twoDigits(date.monthOfYear + 1)}.${date.year} "
+        if (date.year >= 0 && date.monthValue >= 0 && date.dayOfMonth >= 0) {
+            datetimeText += "${twoDigits(date.dayOfMonth)}.${twoDigits(date.monthValue + 1)}.${date.year} "
         }
         if (time.hour >= 0 && time.minute >= 0) {
             datetimeText += "${twoDigits(time.hour)}:${twoDigits(time.minute)} "
@@ -152,4 +149,8 @@ class TasklistRecyclerAdapter(
 
     private fun twoDigits(number: Int): String =
         if (number < 10) "0$number" else number.toString()
+
+    companion object {
+        private const val STROKE_WIDTH = 8
+    }
 }

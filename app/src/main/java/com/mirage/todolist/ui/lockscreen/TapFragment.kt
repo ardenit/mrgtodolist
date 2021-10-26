@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import com.mirage.todolist.R
 import com.mirage.todolist.databinding.FragmentLockscreenPasswordBinding
 import com.mirage.todolist.databinding.FragmentLockscreenTapBinding
+import com.mirage.todolist.di.App
 import com.mirage.todolist.util.autoCleared
 import com.mirage.todolist.util.startHintTextColorAnimation
 import kotlinx.coroutines.delay
@@ -26,7 +27,6 @@ class TapFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-
     private val viewModel: LockScreenViewModel by activityViewModels { viewModelFactory }
 
     private var binding by autoCleared<FragmentLockscreenTapBinding>()
@@ -36,6 +36,7 @@ class TapFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        (requireActivity().application as App).appComponent.inject(this)
         binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_lockscreen_tap,

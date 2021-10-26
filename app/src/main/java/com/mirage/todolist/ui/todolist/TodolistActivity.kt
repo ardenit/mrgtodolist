@@ -9,9 +9,11 @@ import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.get
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.navigation.NavigationView
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAuthIOException
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
@@ -20,6 +22,7 @@ import com.mirage.todolist.di.App
 import com.mirage.todolist.model.googledrive.GoogleDriveConnectExceptionHandler
 import com.mirage.todolist.model.repository.LiveTask
 import com.mirage.todolist.model.repository.TodoRepository
+import com.mirage.todolist.ui.lockscreen.LockScreenViewModel
 import com.mirage.todolist.view.edittask.EditTaskActivity
 import com.mirage.todolist.view.settings.SettingsActivity
 import com.mirage.todolist.ui.todolist.tags.TagsFragment
@@ -29,6 +32,11 @@ import javax.inject.Inject
 
 class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    private val viewModel: TodolistViewModel by viewModels { viewModelFactory }
+
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private var navViewSelectedItem: Int = 0
@@ -36,9 +44,6 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
     private lateinit var contentContainer: FrameLayout
     private lateinit var tasksFragment: TasksFragment
     private lateinit var tagsFragment: TagsFragment
-
-    @Inject
-    lateinit var todoRepository: TodoRepository
 
     /**
      * Activity result launcher for Google Drive [UserRecoverableAuthIOException] user intervene screen
@@ -85,8 +90,6 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         setContentView(R.layout.activity_todolist)
         initializeDrawer()
         initializeContentFragments()
-        todoRepository.init(applicationContext)
-        todoRepository.setGDriveAccountEmail(todoRepository.getGDriveAccountEmail(), gDriveConnectExceptionHandler)
     }
 
     override fun onBackPressed() {
@@ -169,7 +172,7 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
 
     private fun onResultFromGDriveUserIntervene(result: ActivityResult) {
         if (result.resultCode == Activity.RESULT_OK) {
-            todoRepository.setGDriveAccountEmail(todoRepository.getGDriveAccountEmail(), gDriveConnectExceptionHandler)
+            //todoRepository.setGDriveAccountEmail(todoRepository.getGDriveAccountEmail(), gDriveConnectExceptionHandler)
         }
         else {
             Toast.makeText(this, R.string.gdrive_sync_cancelled_toast, Toast.LENGTH_SHORT).show()
@@ -185,7 +188,7 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         val intent = Intent(this, EditTaskActivity::class.java)
         if (task != null) {
             intent.putExtra(EditTaskActivity.EDITOR_TYPE_KEY, EditTaskActivity.EDITOR_TYPE_EDIT_TASK)
-            intent.putExtra(EditTaskActivity.EDITOR_TASK_ID_KEY, task.taskID.toString())
+            intent.putExtra(EditTaskActivity.EDITOR_TASK_ID_KEY, task.taskId.toString())
         }
         else {
             intent.putExtra(EditTaskActivity.EDITOR_TYPE_KEY, EditTaskActivity.EDITOR_TYPE_CREATE_TASK)
@@ -209,10 +212,10 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             drawerLayout.open()
         }
         tasksFragment.onSearchQueryListener = {
-            todoRepository.searchTasks(it)
+            viewModel.searchTasks(it)
         }
         tasksFragment.onSearchStopListener = {
-            todoRepository.cancelTaskSearch()
+            viewModel.cancelTaskSearch()
         }
         tasksFragment.onEditTaskListener = {
             openTaskEditor(it)
@@ -242,7 +245,6 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
     }
 
     companion object {
-
         private const val NAV_VIEW_OPENED_KEY = "nav_view_opened"
         private const val NAV_VIEW_SELECTED_KEY = "nav_view_selected_item"
 

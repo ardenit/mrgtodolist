@@ -1,19 +1,23 @@
 package com.mirage.todolist.ui.todolist
 
+import android.content.SharedPreferences
+import android.content.res.Resources
 import androidx.lifecycle.ViewModel
+import com.mirage.todolist.di.App
 import com.mirage.todolist.model.repository.LiveTask
-import com.mirage.todolist.model.repository.TaskID
 import com.mirage.todolist.model.repository.TodoRepository
+import java.util.*
 import javax.inject.Inject
 
-//TODO Delete? Refactor?
 /**
  * View model of the todolist screen
  */
-abstract class TodolistViewModel : ViewModel(){
-
-    @Inject
-    lateinit var todoRepository: TodoRepository
+class TodolistViewModel @Inject constructor(
+    private val application: App,
+    private val todoRepository: TodoRepository,
+    private val preferences: SharedPreferences,
+    private val resources: Resources
+) : ViewModel() {
 
     /**
      * Creates a new task in the bottom of a given tasklist
@@ -29,7 +33,7 @@ abstract class TodolistViewModel : ViewModel(){
      * This method automatically updates "last modified" time.
      */
     fun modifyTask(
-        taskID: TaskID,
+        taskID: UUID,
         title: String?,
         description: String?
     ) {
@@ -39,7 +43,21 @@ abstract class TodolistViewModel : ViewModel(){
     /**
      * Removes the task with ID [taskID].
      */
-    fun removeTask(taskID: TaskID) {
+    fun removeTask(taskID: UUID) {
         todoRepository.removeTask(taskID)
+    }
+
+    /**
+     * Starts searching for tasks using [searchQuery], altering [LiveTask.isVisible] flag
+     */
+    fun searchTasks(searchQuery: String) {
+        todoRepository.searchTasks(searchQuery)
+    }
+
+    /**
+     * Cancels searching for tasks, setting [LiveTask.isVisible] to true for all current tasks
+     */
+    fun cancelTaskSearch() {
+        todoRepository.cancelTaskSearch()
     }
 }

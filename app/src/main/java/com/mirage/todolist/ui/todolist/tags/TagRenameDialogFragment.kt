@@ -40,7 +40,6 @@ class TagRenameDialogFragment : DialogFragment() {
     }
 
     companion object {
-
         private const val INPUT_TEXT_KEY = "input_text"
     }
 }

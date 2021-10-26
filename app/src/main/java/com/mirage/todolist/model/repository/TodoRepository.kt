@@ -3,7 +3,6 @@ package com.mirage.todolist.model.repository
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
-import androidx.preference.PreferenceManager
 import com.mirage.todolist.R
 import com.mirage.todolist.di.App
 import com.mirage.todolist.model.database.DatabaseModel
@@ -12,13 +11,16 @@ import com.mirage.todolist.model.googledrive.GoogleDriveConnectExceptionHandler
 import com.mirage.todolist.model.googledrive.GoogleDriveModel
 import com.mirage.todolist.model.workers.scheduleAllDatetimeNotifications
 import kotlinx.coroutines.*
-import java.lang.Exception
+import java.time.LocalDate
+import java.time.LocalTime
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import kotlin.collections.LinkedHashMap
 import kotlin.collections.LinkedHashSet
 
+typealias OnNewTaskListener = (newTask: LiveTask) -> Unit
+typealias OnMoveTaskListener = (task: LiveTask, oldTasklistID: Int, newTasklistID: Int, oldTaskIndex: Int, newTaskIndex: Int) -> Unit
 typealias OnFullUpdateTaskListener = (newTasks: Map<UUID, LiveTask>) -> Unit
 typealias OnFullUpdateTagListener = (newTags: Map<UUID, LiveTag>) -> Unit
 
@@ -43,8 +45,14 @@ class TodoRepository {
 
     /** Local in-memory cache for tasks bound to the current Google account */
     private var localTasks: MutableMap<UUID, MutableLiveTask> = LinkedHashMap()
+    /** Cache for sizes of each tasklist used to speed up some requests */
+    private val tasklistSizes: MutableMap<Int, Int> = LinkedHashMap()
     /** Local in-memory cache for tags bound to the current Google account */
     private var localTags: MutableMap<UUID, MutableLiveTag> = LinkedHashMap()
+
+    /** Listeners for tasklist changes made by user */
+    private val onNewTaskListeners: MutableSet<OnNewTaskListener> = LinkedHashSet()
+    private val onMoveTaskListeners: MutableSet<OnMoveTaskListener> = LinkedHashSet()
 
     /** Listeners for full cache update after Google Drive sync */
     private val onFullUpdateTaskListeners: MutableSet<OnFullUpdateTaskListener> = LinkedHashSet()
@@ -67,15 +75,24 @@ class TodoRepository {
     }
 
     /**
-     * Creates a new task in a given [tasklistID] and returns it.
+     * Creates a new task in a given [tasklistId] and returns it.
      */
-    fun createNewTask(tasklistID: Int): LiveTask {
-        val taskIndex = tasklistSizes[tasklistID] ?: 0
-        val taskId = databaseModel.createNewTask(tasklistID)
-        val title = appCtx.resources.getString(R.string.task_default_title)
-        val description = appCtx.resources.getString(R.string.task_default_description)
-        val task = MutableLiveTask(taskId, tasklistID, taskIndex, true, title, description)
-        tasklistSizes[tasklistID] = taskIndex + 1
+    fun createNewTask(tasklistId: Int): LiveTask {
+        val taskIndex = tasklistSizes[tasklistId] ?: 0
+        val taskId = databaseModel.createNewTask(tasklistId)
+        val task = MutableLiveTask(
+            taskId = taskId,
+            tasklistId = tasklistId,
+            taskIndex = taskIndex,
+            title = appCtx.resources.getString(R.string.task_default_title),
+            description = appCtx.resources.getString(R.string.task_default_description),
+            date = null,
+            time = null,
+            period = TaskPeriod.NOT_REPEATABLE,
+            tags = emptyList(),
+            isVisible = true
+        )
+        tasklistSizes[tasklistId] = taskIndex + 1
         localTasks[taskId] = task
         onNewTaskListeners.forEach { it.invoke(task) }
         updateNotifications()
@@ -88,39 +105,39 @@ class TodoRepository {
      * This method automatically updates "last modified" time.
      */
     fun modifyTask(
-        taskID: TaskID,
+        taskID: UUID,
         title: String?,
         description: String?,
         tags: List<LiveTag>?,
-        date: TaskDate?,
-        time: TaskTime?,
+        date: LocalDate?,
+        time: LocalTime?,
         period: TaskPeriod?
     ) {
         val task = localTasks[taskID] ?: return
         if (title != null && title != task.title.value) {
             task.title.value = title
-            databaseModel.setTaskTitle(task.taskID, title)
+            databaseModel.setTaskTitle(task.taskId, title)
         }
         if (description != null && description != task.description.value) {
             task.description.value = description
             task.title.value = title
-            databaseModel.setTaskDescription(task.taskID, description)
+            databaseModel.setTaskDescription(task.taskId, description)
         }
         if (tags != null && tags != task.tags.value) {
             task.tags.value = tags
-            databaseModel.setTaskTags(task.taskID, tags.map { it.tagID })
+            databaseModel.setTaskTags(task.taskId, tags.map { it.tagId })
         }
         if (date != null && date != task.date.value) {
             task.date.value = date
-            databaseModel.setTaskDate(task.taskID, date.year, date.monthOfYear, date.dayOfMonth)
+            databaseModel.setTaskDate(task.taskId, date)
         }
         if (time != null && time != task.time.value) {
             task.time.value = time
-            databaseModel.setTaskTime(task.taskID, time.hour, time.minute)
+            databaseModel.setTaskTime(task.taskId, time)
         }
         if (period != null && period != task.period.value) {
             task.period.value = period
-            databaseModel.setTaskPeriod(task.taskID, TaskPeriod.values().indexOf(period))
+            databaseModel.setTaskPeriod(task.taskId, period)
         }
         updateNotifications()
     }
@@ -130,7 +147,7 @@ class TodoRepository {
      * (actually just moves to hidden tasklist to simplify diff calculation).
      * This method automatically updates "last modified" time.
      */
-    fun removeTask(taskID: TaskID) {
+    fun removeTask(taskID: UUID) {
         moveTask(taskID, HIDDEN_TASKLIST_ID)
         updateNotifications()
     }
@@ -139,27 +156,27 @@ class TodoRepository {
      * Moves the task with ID [taskID] to another tasklist.
      */
     fun moveTask(
-        taskID: TaskID,
+        taskID: UUID,
         newTasklistID: Int
     ) {
         val task = localTasks[taskID] ?: return
-        val oldTasklistID = task.tasklistID
+        val oldTasklistID = task.tasklistId
         if (oldTasklistID == newTasklistID) return
         val oldTaskIndex = task.taskIndex
         val newTaskIndex = tasklistSizes[newTasklistID] ?: 0
         tasklistSizes[oldTasklistID] = (tasklistSizes[oldTasklistID] ?: 1) - 1
         tasklistSizes[newTasklistID] = (tasklistSizes[newTasklistID] ?: 0) + 1
         localTasks.values.asSequence()
-            .filter { it.tasklistID == oldTasklistID }
+            .filter { it.tasklistId == oldTasklistID }
             .filter { it.taskIndex > oldTaskIndex }
             .forEach { it.taskIndex = it.taskIndex - 1 }
         localTasks.values.asSequence()
-            .filter { it.tasklistID == newTasklistID }
+            .filter { it.tasklistId == newTasklistID }
             .filter { it.taskIndex >= newTaskIndex }
             .forEach { it.taskIndex = it.taskIndex + 1 }
-        task.tasklistID = newTasklistID
+        task.tasklistId = newTasklistID
         task.taskIndex = newTaskIndex
-        databaseModel.moveTask(task.taskID, newTasklistID)
+        databaseModel.moveTask(task.taskId, newTasklistID)
         onMoveTaskListeners.forEach { listener ->
             listener(task, oldTasklistID, newTasklistID, oldTaskIndex, newTaskIndex)
         }
@@ -170,27 +187,27 @@ class TodoRepository {
      * Moves the task to another position inside the tasklist.
      */
     fun moveTaskInList(
-        taskID: TaskID,
+        taskID: UUID,
         newTaskIndex: Int
     ) {
         val task = localTasks[taskID] ?: return
-        val tasklistID = task.tasklistID
+        val tasklistID = task.tasklistId
         val oldTaskIndex = task.taskIndex
         if (oldTaskIndex == newTaskIndex) return
         if (oldTaskIndex < newTaskIndex) {
             localTasks.values.asSequence()
-                .filter { it.tasklistID == tasklistID }
+                .filter { it.tasklistId == tasklistID }
                 .filter { it.taskIndex in (oldTaskIndex + 1)..newTaskIndex }
                 .forEach { it.taskIndex = it.taskIndex - 1 }
         }
         else {
             localTasks.values.asSequence()
-                .filter { it.tasklistID == tasklistID }
+                .filter { it.tasklistId == tasklistID }
                 .filter { it.taskIndex in newTaskIndex until oldTaskIndex }
                 .forEach { it.taskIndex = it.taskIndex + 1 }
         }
         task.taskIndex = newTaskIndex
-        databaseModel.moveTaskInList(task.taskID, newTaskIndex)
+        databaseModel.moveTaskInList(task.taskId, newTaskIndex)
     }
 
     /**
@@ -278,11 +295,11 @@ class TodoRepository {
         val tag = localTags[tagID] ?: return
         if (name != null && name != tag.name.value) {
             tag.name.value = name
-            databaseModel.setTagName(tag.tagID, name)
+            databaseModel.setTagName(tag.tagId, name)
         }
         if (styleIndex != null && styleIndex != tag.styleIndex.value) {
             tag.styleIndex.value = styleIndex
-            databaseModel.setTagStyleIndex(tag.tagID, styleIndex)
+            databaseModel.setTagStyleIndex(tag.tagId, styleIndex)
         }
     }
 
@@ -292,7 +309,7 @@ class TodoRepository {
      * This method automatically updates "last modified" time.
      */
     fun removeTag(tag: LiveTag) {
-        localTags.remove(tag.tagID)
+        localTags.remove(tag.tagId)
         localTags.values.forEach {
             if (it.tagIndex > tag.tagIndex) {
                 --it.tagIndex
@@ -304,13 +321,29 @@ class TodoRepository {
                 it.tags.value = oldTags.filterNot { oldTag -> oldTag == tag }
             }
         }
-        databaseModel.removeTag(tag.tagID)
+        databaseModel.removeTag(tag.tagId)
     }
 
-    /**
-     * Adds a listener for tasklist update events coming from model independently from user actions
-     * (i.e. updates performed on another device using the same Google Drive account).
-     */
+    fun getAllTasks(): Map<UUID, LiveTask> = localTasks
+
+    fun getAllTags(): Map<UUID, LiveTag> = localTags
+
+    fun addOnNewTaskListener(listener: OnNewTaskListener) {
+        onNewTaskListeners += listener
+    }
+
+    fun removeOnNewTaskListener(listener: OnNewTaskListener) {
+        onNewTaskListeners -= listener
+    }
+
+    fun addOnMoveTaskListener(listener: OnMoveTaskListener) {
+        onMoveTaskListeners += listener
+    }
+
+    fun removeOnMoveTaskListener(listener: OnMoveTaskListener) {
+        onMoveTaskListeners -= listener
+    }
+
     fun addOnFullUpdateTaskListener(listener: OnFullUpdateTaskListener) {
         onFullUpdateTaskListeners += listener
     }
@@ -333,7 +366,7 @@ class TodoRepository {
         dbSnapshot.tags.forEach { tagEntity ->
             val tagId = tagEntity.tagId
             val tag = MutableLiveTag(
-                tagID = tagId,
+                tagId = tagId,
                 tagIndex = tagEntity.tagIndex,
                 name = tagEntity.name,
                 styleIndex = tagEntity.styleIndex

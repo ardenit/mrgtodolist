@@ -26,8 +26,8 @@ class LockScreenActivity : AppCompatActivity() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-
     private val viewModel: LockScreenViewModel by viewModels { viewModelFactory }
+
     private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {

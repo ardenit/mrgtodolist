@@ -5,7 +5,7 @@ import java.util.*
 
 interface LiveTag {
     /** Unique ID of the tag. Never changes during tag lifecycle */
-    val tagID: UUID
+    val tagId: UUID
     /** Index of the tag in tag list. May be changed by the model, can't be observed */
     val tagIndex: Int
     /** Name of the tag. Recycler items should observe this data and react to it */

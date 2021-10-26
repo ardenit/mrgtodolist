@@ -121,6 +121,10 @@ class TasklistItemTouchHelperCallback(
         viewHolder.background.setStroke(STROKE_WIDTH, viewHolder.strokeColor)
         super.clearView(recyclerView, viewHolder)
     }
+
+    companion object {
+        private const val STROKE_WIDTH = 8
+    }
 }
 
 @ColorInt

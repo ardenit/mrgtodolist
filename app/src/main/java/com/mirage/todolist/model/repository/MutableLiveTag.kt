@@ -7,7 +7,7 @@ import java.util.*
  * Mutable implementation of [LiveTag] used only in the repository
  */
 class MutableLiveTag(
-    override val tagID: UUID,
+    override val tagId: UUID,
     override var tagIndex: Int,
     name: String,
     styleIndex: Int

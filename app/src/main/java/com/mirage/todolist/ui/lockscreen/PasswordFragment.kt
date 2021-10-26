@@ -13,6 +13,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import com.mirage.todolist.R
 import com.mirage.todolist.databinding.FragmentLockscreenPasswordBinding
+import com.mirage.todolist.di.App
 import com.mirage.todolist.util.autoCleared
 import javax.inject.Inject
 
@@ -20,7 +21,6 @@ class PasswordFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-
     private val viewModel: LockScreenViewModel by activityViewModels { viewModelFactory }
 
     private var binding by autoCleared<FragmentLockscreenPasswordBinding>()
@@ -30,6 +30,7 @@ class PasswordFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        (requireActivity().application as App).appComponent.inject(this)
         binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_lockscreen_password,

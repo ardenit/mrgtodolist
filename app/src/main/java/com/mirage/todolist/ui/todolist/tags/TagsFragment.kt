@@ -5,13 +5,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.mirage.todolist.R
-import com.mirage.todolist.databinding.TagsRootFragmentBinding
+import com.mirage.todolist.databinding.FragmentTagsBinding
 import com.mirage.todolist.di.App
 import com.mirage.todolist.model.repository.LiveTag
+import com.mirage.todolist.util.autoCleared
 import javax.inject.Inject
 
 /**
@@ -21,9 +23,9 @@ class TagsFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-    private val tagsViewModel: TagsViewModel by viewModels { viewModelFactory }
-    private var _binding: TagsRootFragmentBinding? = null
-    private val binding get() = _binding!!
+    private val viewModel: TagsViewModel by viewModels { viewModelFactory }
+
+    private var binding by autoCleared<FragmentTagsBinding>()
 
     var onToolbarUpListener: () -> Unit = {}
     var onTagSearchListener: (LiveTag) -> Unit = {}
@@ -34,13 +36,17 @@ class TagsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         (requireActivity().application as App).appComponent.inject(this)
-        _binding = TagsRootFragmentBinding.inflate(inflater, container, false)
+        binding = DataBindingUtil.inflate(
+            inflater,
+            R.layout.fragment_tags,
+            container,
+            false
+        )
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        tagsViewModel.init()
         initializeToolbar()
         initializeTags()
     }
@@ -70,14 +76,14 @@ class TagsFragment : Fragment() {
             }
             editTagDialog.show(childFragmentManager, "EditTagDialog")
         }
-        chips.recreateTags(tagsViewModel.getAllTags())
-        tagsViewModel.addOnFullUpdateTagListener(viewLifecycleOwner) { tags ->
+        chips.recreateTags(viewModel.getAllTags())
+        viewModel.addOnFullUpdateTagListener(viewLifecycleOwner) { tags ->
             chips.recreateTags(tags)
         }
-        tagsViewModel.addOnNewTagListener(viewLifecycleOwner) { tag ->
+        viewModel.addOnNewTagListener(viewLifecycleOwner) { tag ->
             chips.addNewTag(tag)
         }
-        tagsViewModel.addOnRemoveTagListener(viewLifecycleOwner) { tag, _ ->
+        viewModel.addOnRemoveTagListener(viewLifecycleOwner) { tag ->
             chips.removeTag(tag)
         }
     }
@@ -86,8 +92,8 @@ class TagsFragment : Fragment() {
         val createDialog = TagCreateDialogFragment()
         createDialog.onCreatePressed = { text ->
             if (text.isNotBlank()) {
-                val tag = tagsViewModel.createNewTag()
-                tagsViewModel.modifyTag(tag.tagID, newName = text.trim())
+                val tag = viewModel.createNewTag()
+                viewModel.modifyTag(tag.tagId, newName = text.trim())
             }
         }
         createDialog.show(childFragmentManager, "CreateTagDialog")
@@ -97,7 +103,7 @@ class TagsFragment : Fragment() {
         val renameDialog = TagRenameDialogFragment()
         renameDialog.onRenamePressed = { text ->
             if (text.isNotBlank()) {
-                tagsViewModel.modifyTag(tag.tagID, newName = text.trim())
+                viewModel.modifyTag(tag.tagId, newName = text.trim())
             }
         }
         renameDialog.show(childFragmentManager, "RenameTagDialog")
@@ -106,7 +112,7 @@ class TagsFragment : Fragment() {
     private fun openRecolorDialog(tag: LiveTag) {
         val recolorDialog = TagRecolorDialogFragment()
         recolorDialog.onColorSelected = { colorIndex ->
-            tagsViewModel.modifyTag(tag.tagID, newStyleIndex = colorIndex)
+            viewModel.modifyTag(tag.tagId, newStyleIndex = colorIndex)
         }
         recolorDialog.show(childFragmentManager, "RecolorTagDialog")
     }
@@ -120,7 +126,7 @@ class TagsFragment : Fragment() {
             .setTitle(R.string.tags_delete_title)
             .setMessage(R.string.tags_delete_subtitle)
             .setPositiveButton(R.string.tags_delete_yes) { _, _ ->
-                tagsViewModel.removeTag(tag)
+                viewModel.removeTag(tag)
             }
             .setNegativeButton(R.string.tags_delete_cancel) { _, _ -> }
             .create()
@@ -137,10 +143,5 @@ class TagsFragment : Fragment() {
             openNewTagDialog()
             true
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }
