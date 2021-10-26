@@ -1,4 +1,4 @@
-package com.mirage.todolist.view.todolist.tasks
+package com.mirage.todolist.ui.todolist.tasks
 
 import android.graphics.Canvas
 import android.graphics.Color
@@ -9,7 +9,6 @@ import androidx.core.graphics.green
 import androidx.core.graphics.red
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.mirage.todolist.viewmodel.TasklistType
 import kotlin.math.abs
 import kotlin.math.roundToInt
 

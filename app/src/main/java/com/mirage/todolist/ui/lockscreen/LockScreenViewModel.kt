@@ -1,6 +1,5 @@
 package com.mirage.todolist.ui.lockscreen
 
-import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
 import androidx.appcompat.app.AppCompatDelegate
@@ -8,11 +7,10 @@ import androidx.core.hardware.fingerprint.FingerprintManagerCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.preference.PreferenceManager
 import com.mirage.todolist.R
 import com.mirage.todolist.di.App
 import com.mirage.todolist.model.repository.TodoRepository
-import com.mirage.todolist.ui.PasswordValidator
+import com.mirage.todolist.util.PasswordValidator
 import com.mirage.todolist.util.PreferenceHolder
 import com.mirage.todolist.util.getStringPreference
 import com.mirage.todolist.util.setStringPreference

@@ -1,4 +1,4 @@
-package com.mirage.todolist.viewmodel
+package com.mirage.todolist.ui.todolist.tags
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData

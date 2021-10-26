@@ -1,9 +1,10 @@
-package com.mirage.todolist.viewmodel
+package com.mirage.todolist.ui.todolist.tasks
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.mirage.todolist.model.repository.*
+import com.mirage.todolist.ui.todolist.tasks.TasklistType
 import javax.inject.Inject
 
 typealias OnRemoveTaskListener = (task: LiveTask, taskIndex: Int) -> Unit

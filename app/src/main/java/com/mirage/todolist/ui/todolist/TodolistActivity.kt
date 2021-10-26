@@ -1,4 +1,4 @@
-package com.mirage.todolist.view.todolist
+package com.mirage.todolist.ui.todolist
 
 import android.app.Activity
 import android.content.Intent
@@ -22,8 +22,8 @@ import com.mirage.todolist.model.repository.LiveTask
 import com.mirage.todolist.model.repository.TodoRepository
 import com.mirage.todolist.view.edittask.EditTaskActivity
 import com.mirage.todolist.view.settings.SettingsActivity
-import com.mirage.todolist.view.todolist.tags.TagsFragment
-import com.mirage.todolist.view.todolist.tasks.TasksFragment
+import com.mirage.todolist.ui.todolist.tags.TagsFragment
+import com.mirage.todolist.ui.todolist.tasks.TasksFragment
 import javax.inject.Inject
 
 

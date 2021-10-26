@@ -3,7 +3,7 @@ package com.mirage.todolist.di
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.mirage.todolist.viewmodel.LockScreenViewModel
-import com.mirage.todolist.viewmodel.TagsViewModel
+import com.mirage.todolist.ui.todolist.tags.TagsViewModel
 import com.mirage.todolist.viewmodel.TaskRecyclerViewModel
 import dagger.Binds
 import dagger.Module

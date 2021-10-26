@@ -12,7 +12,7 @@ import androidx.preference.PreferenceManager
 import com.andrognito.patternlockview.PatternLockView
 import com.andrognito.patternlockview.utils.PatternLockUtils
 import com.mirage.todolist.R
-import com.mirage.todolist.ui.PasswordValidator
+import com.mirage.todolist.util.PasswordValidator
 
 class GraphicalKeyFragment : Fragment() {
 

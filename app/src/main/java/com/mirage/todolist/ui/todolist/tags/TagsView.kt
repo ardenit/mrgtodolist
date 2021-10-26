@@ -1,4 +1,4 @@
-package com.mirage.todolist.view.todolist.tags
+package com.mirage.todolist.ui.todolist.tags
 
 import android.content.Context
 import android.util.AttributeSet

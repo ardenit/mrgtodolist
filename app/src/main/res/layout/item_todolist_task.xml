@@ -28,7 +28,7 @@
             android:textColor="@android:color/primary_text_light"
             android:textSize="24sp" />
 
-        <com.mirage.todolist.view.todolist.tags.TagsView
+        <com.mirage.todolist.ui.todolist.tags.TagsView
             android:id="@+id/task_tags"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -40,7 +40,7 @@
             mrg:closeIconEnabled="false"
             mrg:enlarged="false">
 
-        </com.mirage.todolist.view.todolist.tags.TagsView>
+        </com.mirage.todolist.ui.todolist.tags.TagsView>
 
     </LinearLayout>
 

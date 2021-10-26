@@ -1,4 +1,4 @@
-package com.mirage.todolist.view.todolist.tags
+package com.mirage.todolist.ui.todolist.tags
 
 import android.app.Dialog
 import android.os.Bundle

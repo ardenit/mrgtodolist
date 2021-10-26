@@ -58,6 +58,6 @@
     </fragment>
     <activity
         android:id="@+id/nav_unlock_todolist"
-        android:name="com.mirage.todolist.view.todolist.TodolistActivity"
+        android:name="com.mirage.todolist.ui.todolist.TodolistActivity"
         android:label="TodolistActivity" />
 </navigation>

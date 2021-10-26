@@ -15,7 +15,7 @@ import com.mirage.todolist.R
 import com.mirage.todolist.di.App
 import com.mirage.todolist.model.repository.*
 import com.mirage.todolist.view.settings.showToast
-import com.mirage.todolist.view.todolist.tags.TagsView
+import com.mirage.todolist.ui.todolist.tags.TagsView
 import java.util.*
 import javax.inject.Inject
 

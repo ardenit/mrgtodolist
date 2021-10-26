@@ -1,4 +1,4 @@
-package com.mirage.todolist.view.todolist.tags
+package com.mirage.todolist.ui.todolist.tags
 
 import android.app.Dialog
 import android.os.Bundle
@@ -8,20 +8,20 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import com.mirage.todolist.R
 
-class TagRenameDialogFragment : DialogFragment() {
+class TagCreateDialogFragment : DialogFragment() {
 
     private lateinit var inputText: EditText
 
-    var onRenamePressed: ((String) -> Unit)? = null
+    var onCreatePressed: ((String) -> Unit)? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val view = View.inflate(requireContext(), R.layout.dialog_tags_rename, null)
-        inputText = view.findViewById(R.id.tags_rename_input)
+        val view = View.inflate(requireContext(), R.layout.dialog_tags_create, null)
+        inputText = view.findViewById(R.id.tags_create_input)
         val builder = AlertDialog.Builder(requireActivity())
-            .setTitle(resources.getString(R.string.tags_rename_title))
+            .setTitle(resources.getString(R.string.tags_create_title))
             .setView(view)
-            .setPositiveButton(R.string.tags_rename_tag_option) { _, _ ->
-                onRenamePressed?.invoke(inputText.text.toString())
+            .setPositiveButton(R.string.tags_create_tag_option) { _, _ ->
+                onCreatePressed?.invoke(inputText.text.toString())
             }
             .setNegativeButton(R.string.tags_cancel_option) { _, _ -> }
         return builder.create()

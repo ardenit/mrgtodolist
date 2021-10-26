@@ -27,7 +27,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".view.todolist.TodolistActivity"
+            android:name=".ui.todolist.TodolistActivity"
             android:launchMode="singleTop"
             android:icon="@drawable/mirage_todo_app_icon_filled"
             android:roundIcon="@drawable/mirage_todo_app_icon_filled"

@@ -1,4 +1,4 @@
-package com.mirage.todolist.view.todolist.tasks
+package com.mirage.todolist.ui.todolist.tasks
 
 import android.graphics.Rect
 import android.view.View

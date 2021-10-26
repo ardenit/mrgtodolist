@@ -2,45 +2,63 @@ package com.mirage.todolist.ui.lockscreen
 
 import android.os.Bundle
 import android.view.KeyEvent
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.Button
+import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import com.mirage.todolist.R
+import com.mirage.todolist.databinding.FragmentLockscreenPasswordBinding
 import com.mirage.todolist.util.autoCleared
 import javax.inject.Inject
 
-class PasswordFragment : Fragment(R.layout.fragment_lockscreen_password) {
+class PasswordFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
     private val viewModel: LockScreenViewModel by activityViewModels { viewModelFactory }
 
-    var binding by autoCleared<PasswordFragmentBinding>()
+    private var binding by autoCleared<FragmentLockscreenPasswordBinding>()
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = DataBindingUtil.inflate(
+            inflater,
+            R.layout.fragment_lockscreen_password,
+            container,
+            false
+        )
+        binding.fragment = this
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val passwordInput: EditText = view.findViewById(R.id.password_input)
-        passwordInput.setOnKeyListener(::onPasswordKeyInput)
-        val passwordInputBtn: Button = view.findViewById(R.id.password_input_btn)
-        passwordInputBtn.setOnClickListener(::onPasswordButtonClick) // TODO data binding
+        passwordInput.setOnKeyListener { _, keyCode, keyEvent ->
+            onPasswordKeyInput(keyCode, keyEvent)
+        }
         super.onViewCreated(view, savedInstanceState)
     }
 
-    private fun onPasswordKeyInput(view: View, keyCode: Int, keyEvent: KeyEvent): Boolean =
+    fun onPasswordButtonClick(): Boolean {
+        confirmPassword(binding.passwordInput.text.toString())
+        return true
+    }
+
+    private fun onPasswordKeyInput(keyCode: Int, keyEvent: KeyEvent): Boolean =
         if ((keyEvent.action == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-            confirmPassword(passwordInput.text.toString())
+            confirmPassword(binding.passwordInput.text.toString())
             true
         }
         else false
-
-    private fun onPasswordButtonClick(view: View): Boolean {
-        confirmPassword(passwordInput.text.toString())
-        return true
-    }
 
     private fun confirmPassword(input: String) {
         if (viewModel.tryPassword(input)) {

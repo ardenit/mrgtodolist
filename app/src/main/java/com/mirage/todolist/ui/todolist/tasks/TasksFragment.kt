@@ -1,4 +1,4 @@
-package com.mirage.todolist.view.todolist.tasks
+package com.mirage.todolist.ui.todolist.tasks
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
-import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -18,7 +17,6 @@ import com.mirage.todolist.R
 import com.mirage.todolist.databinding.TasksRootFragmentBinding
 import com.mirage.todolist.model.repository.LiveTag
 import com.mirage.todolist.model.repository.LiveTask
-import com.mirage.todolist.viewmodel.TasklistType
 
 /**
  * Main activity subscreen for "Tasks" navigation option

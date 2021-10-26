@@ -1,4 +1,4 @@
-package com.mirage.todolist.view.todolist.tasks
+package com.mirage.todolist.ui.todolist.tasks
 
 import android.content.Context
 import android.graphics.drawable.GradientDrawable
@@ -15,8 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mirage.todolist.R
 import com.mirage.todolist.model.repository.LiveTag
 import com.mirage.todolist.model.repository.LiveTask
-import com.mirage.todolist.view.todolist.tags.TagsView
-import com.mirage.todolist.viewmodel.TasklistType
+import com.mirage.todolist.ui.todolist.tags.TagsView
 import com.mirage.todolist.viewmodel.TaskRecyclerViewModel
 
 const val STROKE_WIDTH = 8

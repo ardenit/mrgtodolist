@@ -1,14 +1,20 @@
 package com.mirage.todolist.ui.lockscreen
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.biometric.BiometricPrompt
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.mirage.todolist.R
+import com.mirage.todolist.databinding.FragmentLockscreenFingerprintBinding
+import com.mirage.todolist.databinding.FragmentLockscreenPasswordBinding
+import com.mirage.todolist.util.autoCleared
 import com.mirage.todolist.util.showToast
 import com.mirage.todolist.util.startHintTextColorAnimation
 import timber.log.Timber
@@ -23,16 +29,29 @@ class FingerprintFragment : Fragment(R.layout.fragment_lockscreen_fingerprint) {
 
     private val viewModel: LockScreenViewModel by activityViewModels { viewModelFactory }
 
+    private var binding by autoCleared<FragmentLockscreenFingerprintBinding>()
+
     private lateinit var executor: ExecutorService
     private lateinit var biometricPrompt: BiometricPrompt
     private lateinit var promptInfo: BiometricPrompt.PromptInfo
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = DataBindingUtil.inflate(
+            inflater,
+            R.layout.fragment_lockscreen_password,
+            container,
+            false
+        )
+        binding.fragment = this
+        return binding.root
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         executor = Executors.newSingleThreadExecutor()
-        val rootLayout: ConstraintLayout = view.findViewById(R.id.fingerprint_root)
-        rootLayout.setOnClickListener {
-            biometricPrompt.authenticate(promptInfo)
-        }
         lifecycleScope.startHintTextColorAnimation(view.findViewById(R.id.fingerprint_subtitle))
         val callback = object : BiometricPrompt.AuthenticationCallback() {
 
@@ -59,8 +78,12 @@ class FingerprintFragment : Fragment(R.layout.fragment_lockscreen_fingerprint) {
             .setDescription(description)
             .setNegativeButtonText(cancel)
             .build()
-        biometricPrompt.authenticate(promptInfo)
+        processFingerprint()
         super.onViewCreated(view, savedInstanceState)
+    }
+
+    fun processFingerprint() {
+        biometricPrompt.authenticate(promptInfo)
     }
 
     override fun onDestroy() {

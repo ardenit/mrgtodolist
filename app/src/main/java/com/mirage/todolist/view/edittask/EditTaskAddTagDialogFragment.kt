@@ -8,7 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.mirage.todolist.R
 import com.mirage.todolist.model.repository.LiveTag
-import com.mirage.todolist.view.todolist.tags.TagsView
+import com.mirage.todolist.ui.todolist.tags.TagsView
 
 class EditTaskAddTagDialogFragment : DialogFragment() {
 

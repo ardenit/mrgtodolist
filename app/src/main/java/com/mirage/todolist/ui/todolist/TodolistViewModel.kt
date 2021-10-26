@@ -1,4 +1,4 @@
-package com.mirage.todolist.viewmodel
+package com.mirage.todolist.ui.todolist
 
 import androidx.lifecycle.ViewModel
 import com.mirage.todolist.model.repository.LiveTask

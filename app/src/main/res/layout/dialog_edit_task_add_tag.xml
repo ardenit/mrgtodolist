@@ -7,7 +7,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.mirage.todolist.view.todolist.tags.TagsView
+        <com.mirage.todolist.ui.todolist.tags.TagsView
             android:id="@+id/edit_task_add_tag_tags"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />

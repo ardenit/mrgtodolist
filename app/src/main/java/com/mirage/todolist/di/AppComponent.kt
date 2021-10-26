@@ -8,9 +8,9 @@ import com.mirage.todolist.view.edittask.EditTaskActivity
 import com.mirage.todolist.view.lockscreen.LockScreenActivity
 import com.mirage.todolist.view.settings.SettingsActivity
 import com.mirage.todolist.view.settings.SettingsFragment
-import com.mirage.todolist.view.todolist.TodolistActivity
-import com.mirage.todolist.view.todolist.tags.TagsFragment
-import com.mirage.todolist.view.todolist.tasks.TaskRecyclerFragment
+import com.mirage.todolist.ui.todolist.TodolistActivity
+import com.mirage.todolist.ui.todolist.tags.TagsFragment
+import com.mirage.todolist.ui.todolist.tasks.TaskRecyclerFragment
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjectionModule

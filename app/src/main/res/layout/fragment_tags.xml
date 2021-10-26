@@ -36,7 +36,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <com.mirage.todolist.view.todolist.tags.TagsView
+            <com.mirage.todolist.ui.todolist.tags.TagsView
                 android:id="@+id/tag_fragment_chips"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

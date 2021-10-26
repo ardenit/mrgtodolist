@@ -1,4 +1,4 @@
-package com.mirage.todolist.viewmodel
+package com.mirage.todolist.ui.todolist.tasks
 
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes

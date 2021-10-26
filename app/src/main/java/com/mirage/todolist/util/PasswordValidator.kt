@@ -1,4 +1,4 @@
-package com.mirage.todolist.ui
+package com.mirage.todolist.util
 
 import java.security.MessageDigest
 import java.util.regex.Pattern
@@ -16,5 +16,4 @@ object PasswordValidator {
         val hash = messageDigest.digest(password.encodeToByteArray())
         return hash.decodeToString()
     }
-
 }

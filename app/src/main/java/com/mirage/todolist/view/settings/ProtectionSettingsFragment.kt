@@ -7,7 +7,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.preference.*
 import com.mirage.todolist.R
-import com.mirage.todolist.ui.PasswordValidator
+import com.mirage.todolist.util.PasswordValidator
 
 class ProtectionSettingsFragment : PreferenceFragmentCompat() {
 

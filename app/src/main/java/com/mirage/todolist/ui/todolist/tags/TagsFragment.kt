@@ -1,4 +1,4 @@
-package com.mirage.todolist.view.todolist.tags
+package com.mirage.todolist.ui.todolist.tags
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,7 +12,6 @@ import com.mirage.todolist.R
 import com.mirage.todolist.databinding.TagsRootFragmentBinding
 import com.mirage.todolist.di.App
 import com.mirage.todolist.model.repository.LiveTag
-import com.mirage.todolist.viewmodel.TagsViewModel
 import javax.inject.Inject
 
 /**
