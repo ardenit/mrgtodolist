@@ -1,10 +1,13 @@
 package com.mirage.todolist.ui.lockscreen
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.hardware.fingerprint.FingerprintManagerCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.preference.PreferenceManager
 import com.mirage.todolist.R
 import com.mirage.todolist.di.App
@@ -13,6 +16,8 @@ import com.mirage.todolist.ui.PasswordValidator
 import com.mirage.todolist.util.PreferenceHolder
 import com.mirage.todolist.util.getStringPreference
 import com.mirage.todolist.util.setStringPreference
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -30,6 +35,10 @@ class LockScreenViewModel @Inject constructor(
         processThemePreference()
         processNotificationPreference()
         processProtectionPreference()
+    }
+
+    fun unlockTodolist() {
+        lockScreenType.value = LockScreenType.UNLOCKED
     }
 
     fun tryPattern(patternString: String): Boolean {
@@ -60,6 +69,7 @@ class LockScreenViewModel @Inject constructor(
     }
 
     private fun processNotificationPreference() {
+        //TODO Notifications
         when (getStringPreference(R.string.key_notify_on_datetime, R.string.value_notify_never)) {
             resources.getString(R.string.value_notify_never) -> {
                 setStringPreference(R.string.key_notify_on_datetime, R.string.value_notify_never)
@@ -67,13 +77,19 @@ class LockScreenViewModel @Inject constructor(
         }
     }
 
+    private fun startSplashScreenAutoUnlock() {
+        viewModelScope.launch {
+            delay(SPLASH_SCREEN_DELAY)
+            lockScreenType.value = LockScreenType.UNLOCKED
+        }
+    }
+
     private fun processProtectionPreference() {
-        lockScreenType.value = when (getStringPreference(
-            R.string.key_set_protection,
-            R.string.value_protection_none
-        )) {
+        val protectionType = getStringPreference(R.string.key_set_protection, R.string.value_protection_none)
+        lockScreenType.value = when (protectionType) {
             resources.getString(R.string.value_protection_none) -> {
                 setStringPreference(R.string.key_set_protection, R.string.value_protection_none)
+                startSplashScreenAutoUnlock()
                 LockScreenType.NO_PROTECTION
             }
             resources.getString(R.string.value_protection_tap) -> {
@@ -86,12 +102,22 @@ class LockScreenViewModel @Inject constructor(
                 LockScreenType.PASSWORD
             }
             resources.getString(R.string.value_protection_fingerprint) -> {
-                LockScreenType.FINGERPRINT
+                val fingerprintManager = FingerprintManagerCompat.from(application.applicationContext)
+                if (!fingerprintManager.isHardwareDetected || !fingerprintManager.hasEnrolledFingerprints()) {
+                    startSplashScreenAutoUnlock()
+                    LockScreenType.NO_PROTECTION
+                } else {
+                    LockScreenType.FINGERPRINT
+                }
             }
             else -> {
                 setStringPreference(R.string.key_set_protection, R.string.value_protection_none)
                 LockScreenType.NO_PROTECTION
             }
         }
+    }
+
+    companion object {
+        private const val SPLASH_SCREEN_DELAY = 1500L
     }
 }

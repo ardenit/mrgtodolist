@@ -5,5 +5,6 @@ enum class LockScreenType {
     TAP_TO_UNLOCK,
     GRAPHICAL_KEY,
     PASSWORD,
-    FINGERPRINT
+    FINGERPRINT,
+    UNLOCKED // Should navigate to TodolistActivity
 }

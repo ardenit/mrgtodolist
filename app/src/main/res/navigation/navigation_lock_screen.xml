@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@id/nav_fragment_no_protection">
+    <fragment
+        android:id="@+id/nav_fragment_no_protection"
+        android:name="com.mirage.todolist.ui.lockscreen.NoProtectionFragment"
+        android:label="NoProtectionFragment" >
+        <action
+            android:id="@+id/action_nav_fragment_no_protection_to_nav_fragment_tap"
+            app:destination="@id/nav_fragment_tap" />
+        <action
+            android:id="@+id/action_nav_fragment_no_protection_to_nav_fragment_graphical_key"
+            app:destination="@id/nav_fragment_graphical_key" />
+        <action
+            android:id="@+id/action_nav_fragment_no_protection_to_nav_fragment_password"
+            app:destination="@id/nav_fragment_password" />
+        <action
+            android:id="@+id/action_nav_fragment_no_protection_to_nav_fragment_fingerprint"
+            app:destination="@id/nav_fragment_fingerprint" />
+        <action
+            android:id="@+id/action_nav_fragment_no_protection_to_todolistActivity"
+            app:destination="@id/nav_unlock_todolist" />
+    </fragment>
+    <fragment
+        android:id="@+id/nav_fragment_tap"
+        android:name="com.mirage.todolist.ui.lockscreen.TapFragment"
+        android:label="TapFragment" >
+        <action
+            android:id="@+id/action_nav_fragment_tap_to_todolistActivity"
+            app:destination="@id/nav_unlock_todolist" />
+    </fragment>
+    <fragment
+        android:id="@+id/nav_fragment_graphical_key"
+        android:name="com.mirage.todolist.view.settings.GraphicalKeyFragment"
+        android:label="GraphicalKeyFragment" >
+        <action
+            android:id="@+id/action_nav_fragment_graphical_key_to_todolistActivity"
+            app:destination="@id/nav_unlock_todolist" />
+    </fragment>
+    <fragment
+        android:id="@+id/nav_fragment_password"
+        android:name="com.mirage.todolist.ui.lockscreen.PasswordFragment"
+        android:label="PasswordFragment" >
+        <action
+            android:id="@+id/action_nav_fragment_password_to_todolistActivity"
+            app:destination="@id/nav_unlock_todolist" />
+    </fragment>
+    <fragment
+        android:id="@+id/nav_fragment_fingerprint"
+        android:name="com.mirage.todolist.ui.lockscreen.FingerprintFragment"
+        android:label="FingerprintFragment" >
+        <action
+            android:id="@+id/action_nav_fragment_fingerprint_to_todolistActivity"
+            app:destination="@id/nav_unlock_todolist" />
+    </fragment>
+    <activity
+        android:id="@+id/nav_unlock_todolist"
+        android:name="com.mirage.todolist.view.todolist.TodolistActivity"
+        android:label="TodolistActivity" />
+</navigation>
