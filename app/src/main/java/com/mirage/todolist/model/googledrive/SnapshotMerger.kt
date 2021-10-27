@@ -1,6 +1,7 @@
 package com.mirage.todolist.model.googledrive
 
-import com.mirage.todolist.model.database.*
+import com.mirage.todolist.model.database.DatabaseSnapshot
+import com.mirage.todolist.model.database.VersionEntity
 import java.util.*
 
 class SnapshotMerger {

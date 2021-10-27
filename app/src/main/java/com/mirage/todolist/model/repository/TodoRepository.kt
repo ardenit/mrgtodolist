@@ -5,14 +5,15 @@ import android.content.SharedPreferences
 import android.content.res.Resources
 import com.mirage.todolist.R
 import com.mirage.todolist.di.App
+import com.mirage.todolist.di.ApplicationContext
 import com.mirage.todolist.model.database.DatabaseModel
 import com.mirage.todolist.model.database.DatabaseSnapshot
 import com.mirage.todolist.model.googledrive.GoogleDriveConnectExceptionHandler
 import com.mirage.todolist.model.googledrive.GoogleDriveModel
 import com.mirage.todolist.model.workers.scheduleAllDatetimeNotifications
+import com.mirage.todolist.util.OptionalDate
+import com.mirage.todolist.util.OptionalTime
 import kotlinx.coroutines.*
-import java.time.LocalDate
-import java.time.LocalTime
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
@@ -30,6 +31,7 @@ typealias OnFullUpdateTagListener = (newTags: Map<UUID, LiveTag>) -> Unit
  */
 class TodoRepository {
 
+    @ApplicationContext
     @Inject
     lateinit var appCtx: Context
     @Inject
@@ -86,8 +88,8 @@ class TodoRepository {
             taskIndex = taskIndex,
             title = appCtx.resources.getString(R.string.task_default_title),
             description = appCtx.resources.getString(R.string.task_default_description),
-            date = null,
-            time = null,
+            date = OptionalDate.NOT_SET,
+            time = OptionalTime.NOT_SET,
             period = TaskPeriod.NOT_REPEATABLE,
             tags = emptyList(),
             isVisible = true
@@ -109,8 +111,8 @@ class TodoRepository {
         title: String?,
         description: String?,
         tags: List<LiveTag>?,
-        date: LocalDate?,
-        time: LocalTime?,
+        date: OptionalDate?,
+        time: OptionalTime?,
         period: TaskPeriod?
     ) {
         val task = localTasks[taskID] ?: return

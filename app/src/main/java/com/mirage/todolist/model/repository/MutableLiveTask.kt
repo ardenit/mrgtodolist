@@ -1,8 +1,8 @@
 package com.mirage.todolist.model.repository
 
 import androidx.lifecycle.MutableLiveData
-import java.time.LocalDate
-import java.time.LocalTime
+import com.mirage.todolist.util.OptionalDate
+import com.mirage.todolist.util.OptionalTime
 import java.util.*
 
 /**
@@ -14,8 +14,8 @@ class MutableLiveTask(
     override var taskIndex: Int,
     title: String,
     description: String,
-    date: LocalDate? = null,
-    time: LocalTime? = null,
+    date: OptionalDate = OptionalDate.NOT_SET,
+    time: OptionalTime = OptionalTime.NOT_SET,
     period: TaskPeriod = TaskPeriod.NOT_REPEATABLE,
     tags: List<LiveTag> = listOf(),
     override var isVisible: Boolean
@@ -23,8 +23,8 @@ class MutableLiveTask(
 
     override val title: MutableLiveData<String> = MutableLiveData(title)
     override val description: MutableLiveData<String> = MutableLiveData(description)
-    override val date: MutableLiveData<LocalDate?> = MutableLiveData(date)
-    override val time: MutableLiveData<LocalTime?> = MutableLiveData(time)
+    override val date: MutableLiveData<OptionalDate> = MutableLiveData(date)
+    override val time: MutableLiveData<OptionalTime> = MutableLiveData(time)
     override val period: MutableLiveData<TaskPeriod> = MutableLiveData(period)
     override val tags: MutableLiveData<List<LiveTag>> = MutableLiveData(tags)
 }

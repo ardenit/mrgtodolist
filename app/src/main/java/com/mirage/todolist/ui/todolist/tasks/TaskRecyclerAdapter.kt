@@ -114,11 +114,11 @@ class TasklistRecyclerAdapter(
         val date = task.date.value ?: return
         val time = task.time.value ?: return
         val period = task.period.value ?: return
-        if (date.year >= 0 && date.monthValue >= 0 && date.dayOfMonth >= 0) {
-            datetimeText += "${twoDigits(date.dayOfMonth)}.${twoDigits(date.monthValue + 1)}.${date.year} "
+        if (date.dateSet) {
+            datetimeText += "${twoDigits(date.date.dayOfMonth)}.${twoDigits(date.date.monthValue + 1)}.${date.date.year} "
         }
-        if (time.hour >= 0 && time.minute >= 0) {
-            datetimeText += "${twoDigits(time.hour)}:${twoDigits(time.minute)} "
+        if (time.timeSet) {
+            datetimeText += "${twoDigits(time.time.hour)}:${twoDigits(time.time.minute)} "
         }
         if (datetimeText.isEmpty()) {
             holder.taskDatetimeView.visibility = View.GONE

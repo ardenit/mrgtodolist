@@ -9,7 +9,7 @@ import androidx.room.TypeConverters
     version = 1
 )
 @TypeConverters(
-    UUIDConverter::class, LocalDateTimeConverter::class, InstantConverter::class, TaskPeriodConverter::class
+    UUIDConverter::class, DateConverter::class, TimeConverter::class, InstantConverter::class, TaskPeriodConverter::class
 )
 abstract class AppDatabase : RoomDatabase() {
 

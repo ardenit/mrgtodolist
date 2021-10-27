@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.biometric.BiometricPrompt
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -13,11 +12,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.mirage.todolist.R
 import com.mirage.todolist.databinding.FragmentLockscreenFingerprintBinding
-import com.mirage.todolist.databinding.FragmentLockscreenPasswordBinding
 import com.mirage.todolist.util.autoCleared
 import com.mirage.todolist.util.showToast
 import com.mirage.todolist.util.startHintTextColorAnimation
-import timber.log.Timber
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import javax.inject.Inject

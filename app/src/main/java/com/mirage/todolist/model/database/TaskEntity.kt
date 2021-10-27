@@ -5,7 +5,10 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.mirage.todolist.model.repository.TaskPeriod
-import java.time.*
+import com.mirage.todolist.util.OptionalDate
+import com.mirage.todolist.util.OptionalTime
+import java.time.Clock
+import java.time.Instant
 import java.util.*
 
 @Entity(
@@ -36,9 +39,9 @@ data class TaskEntity(
     @ColumnInfo(name = "description")
     val description: String = "",
     @ColumnInfo(name = "date")
-    val date: LocalDate?,
+    val date: OptionalDate,
     @ColumnInfo(name = "time")
-    val time: LocalTime?,
+    val time: OptionalTime,
     @ColumnInfo(name = "period")
     val period: TaskPeriod = TaskPeriod.NOT_REPEATABLE,
     @ColumnInfo(name = "last_modified")

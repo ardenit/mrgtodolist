@@ -3,7 +3,9 @@ package com.mirage.todolist.ui.todolist.tags
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.mirage.todolist.model.repository.*
+import com.mirage.todolist.model.repository.LiveTag
+import com.mirage.todolist.model.repository.OnFullUpdateTagListener
+import com.mirage.todolist.model.repository.TodoRepository
 import java.util.*
 import javax.inject.Inject
 

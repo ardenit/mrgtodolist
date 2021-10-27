@@ -13,25 +13,21 @@ import dagger.Provides
 import javax.inject.Singleton
 
 @Module
-class ApplicationModule(private val application: App) {
-
-    @Provides
-    @Singleton
-    fun provideApplication(): App = application
+class ApplicationModule {
 
     @Provides
     @Singleton
     @ApplicationContext
-    fun provideApplicationContext(): Context = application
+    fun provideApplicationContext(application: App): Context = application
 
     @Provides
     @Singleton
-    fun provideSharedPreferences(context: Context): SharedPreferences =
+    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences =
         PreferenceManager.getDefaultSharedPreferences(context)
 
     @Provides
     @Singleton
-    fun provideResources(context: Context): Resources =
+    fun provideResources(@ApplicationContext context: Context): Resources =
         context.resources
 
     @Provides
@@ -41,10 +37,6 @@ class ApplicationModule(private val application: App) {
     @Provides
     @Singleton
     fun provideGoogleDriveModel(): GoogleDriveModel = GoogleDriveModel()
-
-    @Provides
-    @Singleton
-    fun provideTodolistModel() = TodoRepository()
 
     @Provides
     @Singleton

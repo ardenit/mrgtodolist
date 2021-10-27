@@ -1,10 +1,12 @@
 package com.mirage.todolist.model.database
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.Query
 import com.mirage.todolist.model.repository.TaskPeriod
+import com.mirage.todolist.util.OptionalDate
+import com.mirage.todolist.util.OptionalTime
 import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalTime
 import java.util.*
 
 @Dao
@@ -80,14 +82,14 @@ interface TaskDao {
         SET date = :date
         WHERE task_id = :taskId
         """)
-    fun setTaskDate(taskId: UUID, date: LocalDate?)
+    fun setTaskDate(taskId: UUID, date: OptionalDate)
 
     @Query("""
         UPDATE tasks
         SET time = :time
         WHERE task_id = :taskId
         """)
-    fun setTaskTime(taskId: UUID, time: LocalTime?)
+    fun setTaskTime(taskId: UUID, time: OptionalTime)
 
     @Query("""
         UPDATE tasks

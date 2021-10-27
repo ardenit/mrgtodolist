@@ -1,25 +1,14 @@
 package com.mirage.todolist.ui.lockscreen
 
 import android.os.Bundle
-import android.view.KeyEvent
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
-import com.andrognito.patternlockview.PatternLockView
-import com.andrognito.patternlockview.listener.PatternLockViewListener
-import com.andrognito.patternlockview.utils.PatternLockUtils
 import com.mirage.todolist.R
 import com.mirage.todolist.di.App
-import kotlinx.coroutines.*
 import javax.inject.Inject
-import kotlin.math.abs
 
 
 class LockScreenActivity : AppCompatActivity() {

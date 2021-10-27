@@ -1,4 +1,4 @@
-package com.mirage.todolist.view.settings
+package com.mirage.todolist.ui.settings
 
 import android.content.SharedPreferences
 import android.os.Bundle

@@ -1,4 +1,4 @@
-package com.mirage.todolist.view.edittask
+package com.mirage.todolist.ui.edittask
 
 import android.app.Dialog
 import android.os.Bundle

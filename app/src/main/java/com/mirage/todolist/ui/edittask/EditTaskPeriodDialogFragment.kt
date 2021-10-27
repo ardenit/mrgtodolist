@@ -1,17 +1,10 @@
-package com.mirage.todolist.view.edittask
+package com.mirage.todolist.ui.edittask
 
 import android.app.Dialog
-import android.graphics.Color
 import android.os.Bundle
-import android.view.View
-import android.widget.Button
-import android.widget.LinearLayout
-import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.mirage.todolist.R
-import kotlinx.coroutines.selects.select
 
 class EditTaskPeriodDialogFragment : DialogFragment() {
 

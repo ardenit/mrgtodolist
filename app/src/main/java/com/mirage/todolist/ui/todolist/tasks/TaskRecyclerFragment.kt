@@ -12,14 +12,11 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mirage.todolist.R
-import com.mirage.todolist.databinding.FragmentTagsBinding
 import com.mirage.todolist.databinding.FragmentTasklistBinding
-import com.mirage.todolist.databinding.FragmentTasksBinding
 import com.mirage.todolist.di.App
 import com.mirage.todolist.model.repository.LiveTag
 import com.mirage.todolist.model.repository.LiveTask
 import com.mirage.todolist.util.autoCleared
-import com.mirage.todolist.viewmodel.*
 import javax.inject.Inject
 
 /**

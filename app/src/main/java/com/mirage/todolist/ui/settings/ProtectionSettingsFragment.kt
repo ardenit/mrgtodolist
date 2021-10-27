@@ -1,11 +1,13 @@
-package com.mirage.todolist.view.settings
+package com.mirage.todolist.ui.settings
 
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.preference.*
+import androidx.preference.EditTextPreference
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
 import com.mirage.todolist.R
 import com.mirage.todolist.util.PasswordValidator
 

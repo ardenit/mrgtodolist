@@ -8,14 +8,14 @@ import dagger.Provides
 import javax.inject.Singleton
 
 @Module
-class DatabaseModule(@ApplicationContext val context: Context) {
+class DatabaseModule {
 
     @DatabaseInfo
     val databaseName = "mirage_todolist_db"
 
     @Provides
     @Singleton
-    fun provideDatabase() = Room.databaseBuilder(context, AppDatabase::class.java, databaseName)
+    fun provideDatabase(@ApplicationContext context: Context) = Room.databaseBuilder(context, AppDatabase::class.java, databaseName)
         .fallbackToDestructiveMigration()
         .build()
 

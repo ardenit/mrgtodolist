@@ -13,6 +13,7 @@ import com.google.api.services.drive.DriveScopes
 import com.google.api.services.drive.model.File
 import com.mirage.todolist.BuildConfig
 import com.mirage.todolist.di.App
+import com.mirage.todolist.di.ApplicationContext
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.io.ByteArrayInputStream
@@ -24,6 +25,7 @@ import javax.inject.Inject
  */
 class GoogleDriveModel {
 
+    @ApplicationContext
     @Inject
     lateinit var context: Context
     @Volatile

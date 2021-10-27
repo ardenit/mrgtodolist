@@ -22,16 +22,16 @@ fun scheduleAllDatetimeNotifications(appCtx: Context, tasks: Collection<LiveTask
         println("task $task")
         val taskDate = task.date.value ?: continue
         val taskTime = task.time.value ?: continue
-        if (!taskDate.isValid() || !taskTime.isValid()) continue
+        if (!taskDate.dateSet || !taskTime.timeSet) continue
         val taskPeriod = task.period.value ?: continue
         val taskTitle = task.title.value ?: continue
         val calendar = Calendar.getInstance()
-        calendar.set(taskDate.year, taskDate.monthOfYear, taskDate.dayOfMonth, taskTime.hour, taskTime.minute)
+        calendar.set(taskDate.date.year, taskDate.date.monthValue, taskDate.date.dayOfMonth, taskTime.time.hour, taskTime.time.minute)
         println("taskInitial ${calendar.toStr()} taskPeriod $taskPeriod")
         val taskInitialTimeMillis = calendar.timeInMillis
-        val workName = NotificationWorker.NOTIFICATION_WORK_NAME + "@" + task.taskID.toString()
-        val workId = task.taskID.mostSignificantBits + task.taskID.leastSignificantBits
-        val taskTimeText = twoDigits(taskTime.hour) + ":" + twoDigits(taskTime.minute)
+        val workName = NotificationWorker.NOTIFICATION_WORK_NAME + "@" + task.taskId.toString()
+        val workId = task.taskId.mostSignificantBits + task.taskId.leastSignificantBits
+        val taskTimeText = twoDigits(taskTime.time.hour) + ":" + twoDigits(taskTime.time.minute)
         scheduleNextNotification(appCtx, workId, workName, taskTitle, taskTimeText, taskInitialTimeMillis, taskPeriod, false)
     }
 }

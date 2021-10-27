@@ -1,20 +1,24 @@
-package com.mirage.todolist.view.edittask
+package com.mirage.todolist.ui.edittask
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Button
-import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
+import androidx.databinding.DataBindingUtil
 import com.mirage.todolist.R
+import com.mirage.todolist.databinding.ActivityEditTaskBinding
 import com.mirage.todolist.di.App
 import com.mirage.todolist.model.repository.*
-import com.mirage.todolist.ui.todolist.tags.TagsView
+import com.mirage.todolist.util.OptionalDate
+import com.mirage.todolist.util.OptionalTime
+import com.mirage.todolist.util.showToast
+import java.time.LocalDate
+import java.time.LocalTime
 import java.util.*
 import javax.inject.Inject
 
@@ -26,24 +30,19 @@ class EditTaskActivity : AppCompatActivity() {
     private var initialTask: LiveTask? = null
     private var tasklistID: Int = 1
     private var newTagsList: MutableList<LiveTag> = arrayListOf()
-    private var newTaskDate: TaskDate = TaskDate(-1, -1, -1)
-    private var newTaskTime: TaskTime = TaskTime(-1, -1)
+    private var newTaskDate: OptionalDate = OptionalDate.NOT_SET
+    private var newTaskTime: OptionalTime = OptionalTime.NOT_SET
     private var newTaskPeriod: TaskPeriod = TaskPeriod.NOT_REPEATABLE
     /** Flag to prevent multiple clicks on "Save" button */
     private var savePressed: Boolean = false
 
-    private lateinit var titleInput: EditText
-    private lateinit var descriptionInput: EditText
-    private lateinit var newTagBtn: Button
-    private lateinit var tagsView: TagsView
-    private lateinit var dateBtn: Button
-    private lateinit var timeBtn: Button
-    private lateinit var periodBtn: Button
+    private var _binding: ActivityEditTaskBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (application as App).appComponent.inject(this)
-        setContentView(R.layout.activity_edit_task)
+        _binding = DataBindingUtil.setContentView(this, R.layout.activity_edit_task)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
         val editorType = intent?.getStringExtra(EDITOR_TYPE_KEY)
@@ -62,26 +61,24 @@ class EditTaskActivity : AppCompatActivity() {
     }
 
     private fun initTaskEditor() {
-        titleInput = findViewById(R.id.edit_task_title_input)
-        descriptionInput = findViewById(R.id.edit_task_description_input)
-        newTagBtn = findViewById(R.id.edit_task_tags_new_btn)
-        tagsView = findViewById(R.id.edit_task_tags_view)
-        tagsView.lifecycleOwner = this
-        tagsView.onTagClickListener = { tag ->
-            tagsView.removeTag(tag)
-            newTagsList.remove(tag)
-        }
         val task = initialTask
         if (task != null) {
-            titleInput.setText(task.title.value)
-            descriptionInput.setText(task.description.value)
+            binding.editTaskTitleInput.setText(task.title.value)
+            binding.editTaskDescriptionInput.setText(task.description.value)
             newTagsList = task.tags.value?.toMutableList() ?: arrayListOf()
-            newTaskDate = task.date.value ?: TaskDate(-1, -1, -1)
-            newTaskTime = task.time.value ?: TaskTime(-1, -1)
+            newTaskDate = task.date.value ?: OptionalDate.NOT_SET
+            newTaskTime = task.time.value ?: OptionalTime.NOT_SET
             newTaskPeriod = task.period.value ?: TaskPeriod.NOT_REPEATABLE
         }
-        tagsView.recreateTags(newTagsList)
-        newTagBtn.setOnClickListener {
+        with(binding.editTaskTagsView) {
+            lifecycleOwner = this@EditTaskActivity
+            onTagClickListener = { tag ->
+                removeTag(tag)
+                newTagsList.remove(tag)
+            }
+            recreateTags(newTagsList)
+        }
+        binding.editTaskTagsNewBtn.setOnClickListener {
             if (newTagsList.containsAll(todoRepository.getAllTags().values)) {
                 showToast(R.string.edit_task_full_tags_toast)
             }
@@ -89,16 +86,13 @@ class EditTaskActivity : AppCompatActivity() {
                 openNewTagDialog()
             }
         }
-        dateBtn = findViewById(R.id.edit_task_date_btn)
-        timeBtn = findViewById(R.id.edit_task_time_btn)
-        periodBtn = findViewById(R.id.edit_task_period_btn)
-        dateBtn.setOnClickListener {
+        binding.editTaskDateBtn.setOnClickListener {
             openDateChooserDialog()
         }
-        timeBtn.setOnClickListener {
+        binding.editTaskTimeBtn.setOnClickListener {
             openTimeChooserDialog()
         }
-        periodBtn.setOnClickListener {
+        binding.editTaskPeriodBtn.setOnClickListener {
             openPeriodChooserDialog()
         }
         updateTooltips()
@@ -113,7 +107,7 @@ class EditTaskActivity : AppCompatActivity() {
             if (it !in newTagsList) {
                 newTagsList += it
                 newTagsList.sortBy { tag -> tag.tagIndex }
-                tagsView.recreateTags(newTagsList)
+                binding.editTaskTagsView.recreateTags(newTagsList)
             }
             addTagDialog.dismiss()
         }
@@ -121,46 +115,38 @@ class EditTaskActivity : AppCompatActivity() {
     }
 
     private fun updateTooltips() {
-        val dateText = newTaskDate.let {
-            if (it.year < 0 || it.monthOfYear < 0 || it.dayOfMonth < 0) {
-                resources.getString(R.string.edit_task_date_not_set)
-            }
-            else {
-                "${twoDigits(it.dayOfMonth)}.${twoDigits(it.monthOfYear + 1)}.${it.year}"
-            }
+        val dateText = if (newTaskDate.dateSet) {
+            "${twoDigits(newTaskDate.date.dayOfMonth)}.${twoDigits(newTaskDate.date.monthValue + 1)}.${newTaskDate.date.year}"
+        } else {
+            resources.getString(R.string.edit_task_date_not_set)
         }
-        dateBtn.text = dateText
-        val timeText = newTaskTime.let {
-            if (it.hour < 0 || it.minute < 0) {
-                resources.getString(R.string.edit_task_time_not_set)
-            }
-            else {
-                "${twoDigits(it.hour)}:${twoDigits(it.minute)}"
-            }
+        binding.editTaskDateBtn.text = dateText
+        val timeText = if (newTaskTime.timeSet) {
+            "${twoDigits(newTaskTime.time.hour)}:${twoDigits(newTaskTime.time.minute)}"
+        } else {
+            resources.getString(R.string.edit_task_time_not_set)
         }
-        timeBtn.text = timeText
+        binding.editTaskTimeBtn.text = timeText
         val periodText = resources.getString(newTaskPeriod.nameRes)
-        periodBtn.text = periodText
+        binding.editTaskPeriodBtn.text = periodText
     }
 
     private fun twoDigits(number: Int): String =
         if (number < 10) "0$number" else number.toString()
 
     private fun openDateChooserDialog() {
-        val dateListener = DatePickerDialog.OnDateSetListener { datePicker, year, month, day ->
-            val newDate = TaskDate(year, month, day)
-            newTaskDate = newDate
+        val dateListener = DatePickerDialog.OnDateSetListener { _, year, month, day ->
+            val newDate = LocalDate.of(year, month, day)
+            newTaskDate = OptionalDate(newDate, true)
             updateTooltips()
         }
-        val currentTime = Calendar.getInstance()
-        val hasDate = newTaskDate.year >= 0 && newTaskDate.monthOfYear >= 0 && newTaskDate.dayOfMonth >= 0
         val dialog = DatePickerDialog(
             this,
             R.style.Theme_TodoApp_EditTaskAlertDialog,
             dateListener,
-            if (hasDate) newTaskDate.year else currentTime.get(Calendar.YEAR),
-            if (hasDate) newTaskDate.monthOfYear else currentTime.get(Calendar.MONTH),
-            if (hasDate) newTaskDate.dayOfMonth else currentTime.get(Calendar.DAY_OF_MONTH),
+            newTaskDate.date.year,
+            newTaskDate.date.monthValue,
+            newTaskDate.date.dayOfMonth
         )
         dialog.show()
         recolorDialogButtons(dialog)
@@ -168,18 +154,17 @@ class EditTaskActivity : AppCompatActivity() {
 
     private fun openTimeChooserDialog() {
         val timeListener = TimePickerDialog.OnTimeSetListener { datePicker, hour, minute ->
-            val newTime = TaskTime(hour, minute)
-            newTaskTime = newTime
+            val newTime = LocalTime.of(hour, minute)
+            newTaskTime = OptionalTime(newTime, true)
             updateTooltips()
         }
         val currentTime = Calendar.getInstance()
-        val hasTime = newTaskTime.hour >= 0 && newTaskTime.minute >= 0
         val dialog = TimePickerDialog(
             this,
             R.style.Theme_TodoApp_EditTaskAlertDialog,
             timeListener,
-            if (hasTime) newTaskTime.hour else currentTime.get(Calendar.HOUR_OF_DAY),
-            if (hasTime) newTaskTime.minute else currentTime.get(Calendar.MINUTE),
+            newTaskTime.time.hour,
+            newTaskTime.time.minute,
             true
         )
         dialog.show()
@@ -200,11 +185,11 @@ class EditTaskActivity : AppCompatActivity() {
     private fun saveTask() {
         if (savePressed) return
         savePressed = true
-        val newTitle = titleInput.text.toString()
-        val newDescription = descriptionInput.text.toString()
+        val newTitle = binding.editTaskTitleInput.text.toString()
+        val newDescription = binding.editTaskDescriptionInput.text.toString()
         val task = initialTask ?: todoRepository.createNewTask(tasklistID)
         todoRepository.modifyTask(
-            taskID = task.taskID,
+            taskID = task.taskId,
             title = newTitle,
             description = newDescription,
             tags = newTagsList,
@@ -260,8 +245,8 @@ class EditTaskActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        val newTitle = titleInput.text.toString()
-        val newDescription = descriptionInput.text.toString()
+        val newTitle = binding.editTaskTitleInput.text.toString()
+        val newDescription = binding.editTaskDescriptionInput.text.toString()
         val task = initialTask ?: todoRepository.createNewTask(tasklistID)
         //TODO other changes
         if (
@@ -294,8 +279,12 @@ class EditTaskActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    companion object {
+    override fun onDestroy() {
+        _binding = null
+        super.onDestroy()
+    }
 
+    companion object {
         const val EDITOR_TASKLIST_ID_KEY = "tasklist_id"
         const val EDITOR_TASK_ID_KEY = "task_id"
         const val EDITOR_TYPE_KEY = "editor_type"

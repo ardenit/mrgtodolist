@@ -5,14 +5,15 @@ import android.content.SharedPreferences
 import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import com.mirage.todolist.di.App
 import com.mirage.todolist.R
+import com.mirage.todolist.di.App
+import com.mirage.todolist.di.ApplicationContext
 import com.mirage.todolist.model.repository.TaskPeriod
+import com.mirage.todolist.util.OptionalDate
+import com.mirage.todolist.util.OptionalTime
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.time.Clock
-import java.time.LocalDate
-import java.time.LocalTime
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executors
@@ -36,6 +37,7 @@ class DatabaseModel {
     lateinit var relationDao: RelationDao
     @Inject
     lateinit var versionDao: VersionDao
+    @ApplicationContext
     @Inject
     lateinit var appCtx: Context
     @Inject
@@ -181,8 +183,8 @@ class DatabaseModel {
                     taskIndex = taskIndex,
                     title = defaultTitle,
                     description = defaultDescription,
-                    date = null,
-                    time = null,
+                    date = OptionalDate.NOT_SET,
+                    time = OptionalTime.NOT_SET,
                     period = TaskPeriod.NOT_REPEATABLE,
                     lastModified = Clock.systemUTC().instant()
                 )
@@ -246,11 +248,11 @@ class DatabaseModel {
         }
     }
 
-    fun setTaskDate(taskId: UUID, taskDate: LocalDate) = modifyTask(taskId) {
+    fun setTaskDate(taskId: UUID, taskDate: OptionalDate) = modifyTask(taskId) {
         taskDao.setTaskDate(taskId, taskDate)
     }
 
-    fun setTaskTime(taskId: UUID, taskTime: LocalTime) = modifyTask(taskId) {
+    fun setTaskTime(taskId: UUID, taskTime: OptionalTime) = modifyTask(taskId) {
         setTaskTime(taskId, taskTime)
     }
 

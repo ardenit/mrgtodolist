@@ -1,15 +1,15 @@
 package com.mirage.todolist.di
 
 import android.content.Context
-import com.mirage.todolist.model.googledrive.GoogleDriveModel
 import com.mirage.todolist.model.database.DatabaseModel
+import com.mirage.todolist.model.googledrive.GoogleDriveModel
 import com.mirage.todolist.model.repository.TodoRepository
+import com.mirage.todolist.ui.edittask.EditTaskActivity
 import com.mirage.todolist.ui.lockscreen.LockScreenActivity
 import com.mirage.todolist.ui.lockscreen.PasswordFragment
 import com.mirage.todolist.ui.lockscreen.TapFragment
-import com.mirage.todolist.view.edittask.EditTaskActivity
-import com.mirage.todolist.view.settings.SettingsActivity
-import com.mirage.todolist.view.settings.SettingsFragment
+import com.mirage.todolist.ui.settings.SettingsActivity
+import com.mirage.todolist.ui.settings.SettingsFragment
 import com.mirage.todolist.ui.todolist.TodolistActivity
 import com.mirage.todolist.ui.todolist.tags.TagsFragment
 import com.mirage.todolist.ui.todolist.tasks.TaskRecyclerFragment

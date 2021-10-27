@@ -2,9 +2,10 @@ package com.mirage.todolist.model.database
 
 import androidx.room.TypeConverter
 import com.mirage.todolist.model.repository.TaskPeriod
+import com.mirage.todolist.util.OptionalDate
+import com.mirage.todolist.util.OptionalTime
 import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.*
 
@@ -16,28 +17,26 @@ class UUIDConverter {
     fun toUUID(string: String): UUID = UUID.fromString(string)
 }
 
-class LocalDateTimeConverter {
+class DateConverter {
     @TypeConverter
-    fun fromLocalDateTime(datetime: LocalDateTime): String = datetime.toString()
+    fun fromDate(date: OptionalDate): String =
+        if (date.dateSet) date.toString() else "null"
 
     @TypeConverter
-    fun toLocalDateTime(string: String): LocalDateTime = LocalDateTime.parse(string)
+    fun toDate(string: String): OptionalDate =
+        if (string == "null") OptionalDate.NOT_SET
+        else OptionalDate(LocalDate.parse(string), true)
 }
 
-class LocalDateConverter {
+class TimeConverter {
     @TypeConverter
-    fun fromLocalDate(date: LocalDate): String = date.toString()
+    fun fromTime(time: OptionalTime): String =
+        if (time.timeSet) time.toString() else "null"
 
     @TypeConverter
-    fun toLocalDate(string: String): LocalDate = LocalDate.parse(string)
-}
-
-class LocalTimeConverter {
-    @TypeConverter
-    fun fromLocalTime(time: LocalTime): String = time.toString()
-
-    @TypeConverter
-    fun toLocalTime(string: String): LocalTime = LocalTime.parse(string)
+    fun toTime(string: String): OptionalTime =
+        if (string == "null") OptionalTime.NOT_SET
+        else OptionalTime(LocalTime.parse(string), true)
 }
 
 class InstantConverter {

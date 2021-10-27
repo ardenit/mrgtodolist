@@ -1,4 +1,4 @@
-package com.mirage.todolist.view.settings
+package com.mirage.todolist.ui.settings
 
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -48,13 +48,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
             else -> R.string.settings_password_no_protection
         }
         setProtectionPreference.setSummary(protectionSummaryRes)
-        val email = todoRepository.getGDriveAccountEmail()
+        /* TODO val email = todoRepository.getGDriveAccountEmail()
         if (email == null) {
             syncSelectAccPreference.setSummary(R.string.settings_sync_status_no_sync)
         }
         else {
             syncSelectAccPreference.summary = email
-        }
+        }*/
     }
 
     private fun initializePreferences() {

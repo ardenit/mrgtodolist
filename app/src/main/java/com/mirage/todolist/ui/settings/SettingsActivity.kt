@@ -1,14 +1,12 @@
-package com.mirage.todolist.view.settings
+package com.mirage.todolist.ui.settings
 
 import android.app.Activity
-import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.hardware.fingerprint.FingerprintManagerCompat
 import androidx.preference.Preference
@@ -22,6 +20,7 @@ import com.mirage.todolist.R
 import com.mirage.todolist.di.App
 import com.mirage.todolist.model.googledrive.GoogleDriveConnectExceptionHandler
 import com.mirage.todolist.model.repository.TodoRepository
+import com.mirage.todolist.util.showToast
 import javax.inject.Inject
 
 enum class SettingsScreen {
@@ -57,8 +56,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
         override suspend fun onSuccessfulConnect() {
             println("GDRIVE_CONNECT_SUCCESSFUL")
             Toast.makeText(this@SettingsActivity, "OK", Toast.LENGTH_SHORT).show()
-            preferences.edit().putString(TodolistModelImpl.ACC_NAME_KEY, pendingEmail ?: "").apply()
-            todoRepository.getGDriveAccountEmail()
+            preferences.edit().putString(resources.getString(R.string.key_sync_select_acc), pendingEmail ?: "").apply()
             settingsFragment.updateSummaries()
         }
 
@@ -140,7 +138,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
             val extras = result.data?.extras
             val authAccount = extras?.getString("authAccount")
             pendingEmail = authAccount
-            todoRepository.setGDriveAccountEmail(authAccount, gDriveConnectExceptionHandler)
+            //TODO todoRepository.setGDriveAccountEmail(authAccount, gDriveConnectExceptionHandler)
         }
         else {
             Toast.makeText(this, R.string.gdrive_sync_cancelled_toast, Toast.LENGTH_SHORT).show()
@@ -149,7 +147,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
 
     private fun onResultFromGDriveUserIntervene(result: ActivityResult) {
         if (result.resultCode == Activity.RESULT_OK) {
-            todoRepository.setGDriveAccountEmail(todoRepository.getGDriveAccountEmail(), gDriveConnectExceptionHandler)
+            //TODO todoRepository.setGDriveAccountEmail(todoRepository.getGDriveAccountEmail(), gDriveConnectExceptionHandler)
         }
         else {
             Toast.makeText(this, R.string.gdrive_sync_cancelled_toast, Toast.LENGTH_SHORT).show()

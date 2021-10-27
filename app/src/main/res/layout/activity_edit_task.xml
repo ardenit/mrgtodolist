@@ -1,14 +1,244 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:ignore="SpeakableTextPresentCheck">
 
-        <include layout="@layout/layout_edit_task_content" />
+        <LinearLayout
+            android:id="@+id/edit_task_content_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/edit_task_title_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:paddingTop="16dp"
+                android:paddingEnd="16dp"
+                android:text="@string/edit_task_title_title"
+                android:textSize="20sp" />
+
+            <EditText
+                android:id="@+id/edit_task_title_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/edit_task_title_hint"
+                android:importantForAutofill="no"
+                android:inputType="textPersonName"
+                android:paddingStart="16dp"
+                android:paddingTop="16dp"
+                android:paddingEnd="16dp"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/edit_task_description_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:paddingTop="16dp"
+                android:paddingEnd="16dp"
+                android:text="@string/edit_task_description_title"
+                android:textSize="20sp" />
+
+            <EditText
+                android:id="@+id/edit_task_description_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:gravity="start"
+                android:hint="@string/edit_task_description_hint"
+                android:importantForAutofill="no"
+                android:inputType="textMultiLine"
+                android:minHeight="200dp"
+                android:paddingStart="16dp"
+                android:paddingTop="16dp"
+                android:paddingEnd="16dp"
+                android:textSize="20sp" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout xmlns:mrg="http://mirage.com/mrg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/edit_task_tags_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/edit_task_tags_title"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/edit_task_tags_new_btn"
+                    app:layout_constraintEnd_toStartOf="@+id/edit_task_tags_new_btn"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/edit_task_tags_new_btn" />
+
+                <Button
+                    android:id="@+id/edit_task_tags_new_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/edit_task_tags_btn"
+                    android:textAllCaps="false"
+                    android:textSize="16sp"
+                    app:icon="@drawable/baseline_add_24"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.mirage.todolist.ui.todolist.tags.TagsView
+                    android:id="@+id/edit_task_tags_view"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/edit_task_tags_new_btn"
+                    mrg:closeIconEnabled="true"
+                    mrg:enlarged="false" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/edit_task_location_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/edit_task_location_title"
+                    android:textSize="20sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/edit_task_location_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="16dp"
+                    android:maxLength="30"
+                    android:singleLine="true"
+                    android:textSize="20sp"
+                    android:visibility="gone"
+                    app:drawableStartCompat="@drawable/baseline_place_24"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/edit_task_location_title" />
+
+                <Button
+                    android:id="@+id/edit_task_location_add"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/edit_task_location_set_btn"
+                    android:textAllCaps="false"
+                    android:visibility="visible"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/edit_task_location_title" />
+
+                <ImageButton
+                    android:id="@+id/edit_task_location_remove"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="#00FFFFFF"
+                    android:contentDescription="@string/edit_task_location_remove_btn"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="@+id/edit_task_location_text"
+                    app:layout_constraintStart_toEndOf="@+id/edit_task_location_text"
+                    app:layout_constraintTop_toTopOf="@+id/edit_task_location_text"
+                    app:srcCompat="@drawable/baseline_cancel_24" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/edit_task_date_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/edit_task_date_title"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/edit_task_date_btn"
+                    app:layout_constraintEnd_toStartOf="@+id/edit_task_date_btn"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/edit_task_date_btn" />
+
+                <TextView
+                    android:id="@+id/edit_task_time_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/edit_task_time_title"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/edit_task_time_btn"
+                    app:layout_constraintEnd_toStartOf="@+id/edit_task_time_btn"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/edit_task_time_btn" />
+
+                <TextView
+                    android:id="@+id/edit_task_period_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/edit_task_period_title"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/edit_task_period_btn"
+                    app:layout_constraintEnd_toStartOf="@+id/edit_task_period_btn"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/edit_task_period_btn" />
+
+                <Button
+                    android:id="@+id/edit_task_date_btn"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/edit_task_date_not_set"
+                    android:textAllCaps="false"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/edit_task_time_btn"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/edit_task_time_not_set"
+                    android:textAllCaps="false"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/edit_task_date_btn" />
+
+                <Button
+                    android:id="@+id/edit_task_period_btn"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:text=""
+                    android:textAllCaps="false"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/edit_task_time_btn"
+                    tools:ignore="SpeakableTextPresentCheck" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
     </ScrollView>
-</FrameLayout>
+</layout>

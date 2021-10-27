@@ -21,10 +21,8 @@ import com.mirage.todolist.R
 import com.mirage.todolist.di.App
 import com.mirage.todolist.model.googledrive.GoogleDriveConnectExceptionHandler
 import com.mirage.todolist.model.repository.LiveTask
-import com.mirage.todolist.model.repository.TodoRepository
-import com.mirage.todolist.ui.lockscreen.LockScreenViewModel
-import com.mirage.todolist.view.edittask.EditTaskActivity
-import com.mirage.todolist.view.settings.SettingsActivity
+import com.mirage.todolist.ui.edittask.EditTaskActivity
+import com.mirage.todolist.ui.settings.SettingsActivity
 import com.mirage.todolist.ui.todolist.tags.TagsFragment
 import com.mirage.todolist.ui.todolist.tasks.TasksFragment
 import javax.inject.Inject
