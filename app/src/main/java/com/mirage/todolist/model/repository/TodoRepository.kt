@@ -14,6 +14,7 @@ import com.mirage.todolist.model.workers.scheduleAllDatetimeNotifications
 import com.mirage.todolist.util.OptionalDate
 import com.mirage.todolist.util.OptionalTime
 import kotlinx.coroutines.*
+import timber.log.Timber
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
@@ -63,7 +64,11 @@ class TodoRepository {
     init {
         App.instance.appComponent.inject(this)
         currentEmail = preferences.getString(resources.getString(R.string.key_sync_select_acc), "") ?: ""
+        Timber.v("TodoRepository init with email $currentEmail")
         databaseModel.setOnSyncUpdateListener {
+            reloadData(it)
+        }
+        databaseModel.getDatabaseSnapshot {
             reloadData(it)
         }
     }
@@ -80,6 +85,7 @@ class TodoRepository {
      * Creates a new task in a given [tasklistId] and returns it.
      */
     fun createNewTask(tasklistId: Int): LiveTask {
+        Timber.v("Creating new task in tasklist $tasklistId")
         val taskIndex = tasklistSizes[tasklistId] ?: 0
         val taskId = databaseModel.createNewTask(tasklistId)
         val task = MutableLiveTask(

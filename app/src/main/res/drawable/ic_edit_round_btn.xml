@@ -16,6 +16,6 @@
             </item>
         </selector>
     </item>
-    <item android:drawable="@drawable/baseline_edit_24" android:width="48dp" android:height="48dp"
+    <item android:drawable="@drawable/ic_edit" android:width="48dp" android:height="48dp"
         android:gravity="center" />
 </layer-list>

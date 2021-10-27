@@ -10,7 +10,6 @@ import com.mirage.todolist.R
 import com.mirage.todolist.di.App
 import javax.inject.Inject
 
-
 class LockScreenActivity : AppCompatActivity() {
 
     @Inject

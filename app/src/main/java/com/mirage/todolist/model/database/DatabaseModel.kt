@@ -68,14 +68,6 @@ class DatabaseModel {
             Timber.v("Synchronization email is empty! No need to observe it.")
         } else {
             Timber.v("Observing data version of email $currentEmail")
-            //TODO remove
-            Timber.v("Init thread ${Thread.currentThread().id}")
-            coroutineScope.launch {
-                Timber.v("Coroutine thread ${Thread.currentThread().id}")
-                database.runInTransaction {
-                    Timber.v("Transaction thread ${Thread.currentThread().id}")
-                }
-            }
             startObservingAccount(currentEmail)
         }
     }
@@ -86,6 +78,12 @@ class DatabaseModel {
         val allRelations = relationDao.getAllRelations()
         val allVersions = versionDao.getAllVersions()
         DatabaseSnapshot(allTasks, allTags, allRelations, allVersions)
+    }
+
+    fun getDatabaseSnapshot(snapshotHandler: suspend (DatabaseSnapshot) -> Unit) {
+        coroutineScope.launch {
+            snapshotHandler(getDatabaseSnapshot())
+        }
     }
 
     /**
@@ -171,10 +169,13 @@ class DatabaseModel {
     /** Returns task ID immediately without waiting for DB query to complete */
     fun createNewTask(tasklistId: Int): UUID {
         val taskId = UUID.randomUUID()
+        Timber.v("DatabaseModel - createNewTask ${Thread.currentThread().id}")
         coroutineScope.launch {
             val defaultTitle = appCtx.resources.getString(R.string.task_default_title)
             val defaultDescription = appCtx.resources.getString(R.string.task_default_description)
+            Timber.v("DatabaseModel - createNewTask - coroutine ${Thread.currentThread().id}")
             database.runInTransaction {
+                Timber.v("DatabaseModel - createNewTask - transaction ${Thread.currentThread().id}")
                 val taskIndex = taskDao.getTasklistSize(tasklistId)
                 val taskEntity = TaskEntity(
                     taskId = taskId,

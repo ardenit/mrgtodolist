@@ -4,7 +4,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.mirage.todolist.model.repository.*
-import com.mirage.todolist.ui.todolist.tasks.TasklistType
+import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.LinkedHashMap
@@ -26,45 +26,48 @@ class TaskRecyclerViewModel @Inject constructor(
     private val onRemoveTaskObservable = MutableLiveData<Pair<LiveTask, Int>>()
     private val onFullUpdateObservable = MutableLiveData<Map<UUID, LiveTask>>()
 
-    private var tasklistID: Int = -1
+    private var tasklistId: Int = -1
     /** Slice of actual tasks in this tasklist (including temporarily hidden ones) */
     private var tasksSlice: MutableMap<UUID, LiveTask> = LinkedHashMap()
     private var initialized = false
 
     /**
-     * [tasklistID] - id of tasklist processed by this view model
+     * [tasklistId] - id of tasklist processed by this view model
      */
-    fun init(tasklistID: Int) {
-        if (initialized && this.tasklistID == tasklistID) return
+    fun init(tasklistId: Int) {
+        Timber.v("TaskRecyclerViewModel - starting init with tasklistId = $tasklistId, already initialized = $initialized")
+        if (initialized && this.tasklistId == tasklistId) return
         if (initialized) {
             todoRepository.removeOnNewTaskListener(onNewTaskListener)
             todoRepository.removeOnMoveTaskListener(onMoveTaskListener)
             todoRepository.removeOnFullUpdateTaskListener(onFullUpdateTaskListener)
         }
         initialized = true
-        this.tasklistID = tasklistID
+        this.tasklistId = tasklistId
+        Timber.v("All tasks: ${todoRepository.getAllTasks()}")
         tasksSlice = todoRepository.getAllTasks().filter { (_, task) ->
-            task.tasklistId == this.tasklistID
+            task.tasklistId == this.tasklistId
         }.toMutableMap()
+        Timber.v("Task slice: $tasksSlice")
         onNewTaskListener = { newTask ->
-            if (newTask.tasklistId == this.tasklistID) {
+            if (newTask.tasklistId == this.tasklistId) {
                 tasksSlice[newTask.taskId] = newTask
                 onNewTaskObservable.value = newTask
             }
         }
         onMoveTaskListener = { task, oldTasklistID, newTasklistID, _, _ ->
-            if (oldTasklistID == this.tasklistID) {
+            if (oldTasklistID == this.tasklistId) {
                 tasksSlice.remove(task.taskId)
                 onRemoveTaskObservable.value = Pair(task, task.taskIndex)
             }
-            if (newTasklistID == this.tasklistID) {
+            if (newTasklistID == this.tasklistId) {
                 tasksSlice[task.taskId] = task
                 onNewTaskObservable.value = task
             }
         }
         onFullUpdateTaskListener = { newTasks ->
             tasksSlice = newTasks.filter { (_, task) ->
-                task.tasklistId == this.tasklistID
+                task.tasklistId == this.tasklistId
             }.toMutableMap()
             onFullUpdateObservable.value = tasksSlice.filterValues { it.isVisible }
         }
@@ -77,25 +80,25 @@ class TaskRecyclerViewModel @Inject constructor(
      * Returns the ID of a tasklist associated with this viewmodel
      */
     fun getTasklistID(): Int {
-        return tasklistID
+        return tasklistId
     }
 
     /**
      * Moves task to another tasklist
      */
     fun swipeTaskLeft(taskIndex: Int) {
-        if (tasklistID < 1) return
+        if (tasklistId < 1) return
         val task = getTaskByVisibleIndex(taskIndex) ?: return
-        todoRepository.moveTask(task.taskId, tasklistID - 1)
+        todoRepository.moveTask(task.taskId, tasklistId - 1)
     }
 
     /**
      * Moves task to another tasklist
      */
     fun swipeTaskRight(taskIndex: Int) {
-        if (tasklistID > TasklistType.values().size - 2) return
+        if (tasklistId > TasklistType.values().size - 2) return
         val task = getTaskByVisibleIndex(taskIndex) ?: return
-        todoRepository.moveTask(task.taskId, tasklistID + 1)
+        todoRepository.moveTask(task.taskId, tasklistId + 1)
     }
 
     /**

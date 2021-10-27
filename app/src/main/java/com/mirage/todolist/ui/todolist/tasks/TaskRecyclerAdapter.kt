@@ -16,6 +16,7 @@ import com.mirage.todolist.R
 import com.mirage.todolist.model.repository.LiveTag
 import com.mirage.todolist.model.repository.LiveTask
 import com.mirage.todolist.ui.todolist.tags.TagsView
+import timber.log.Timber
 
 class TasklistRecyclerAdapter(
     private val context: Context,
@@ -66,12 +67,17 @@ class TasklistRecyclerAdapter(
 
     init {
         viewModel.addOnNewTaskListener(lifecycleOwner) {
+            Timber.v("Adapter notified - onNewTask on position ${it.taskIndex}")
             notifyItemInserted(it.taskIndex)
         }
         viewModel.addOnFullUpdateTaskListener(lifecycleOwner) {
+            Timber.v("Adapter notified - onFullUpdate")
             @Suppress("NotifyDataSetChanged")
             notifyDataSetChanged()
         }
+        Timber.v("TaskRecyclerAdapter ${viewModel.getTasklistID()} - visible tasks: ${viewModel.getVisibleTaskCount()}")
+        @Suppress("NotifyDataSetChanged")
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TasklistViewHolder {

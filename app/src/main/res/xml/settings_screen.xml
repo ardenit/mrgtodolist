@@ -4,7 +4,7 @@
 
     <PreferenceCategory
         android:title="@string/settings_title_appearance"
-        android:icon="@drawable/baseline_dark_mode_24">
+        android:icon="@drawable/ic_night_theme">
         <DropDownPreference
             android:key="change_theme"
             android:title="@string/settings_btn_theme"
@@ -15,7 +15,7 @@
 
     <PreferenceCategory
         android:title="@string/settings_title_privacy"
-        android:icon="@drawable/baseline_lock_24">
+        android:icon="@drawable/ic_protection">
         <Preference
             android:key="set_protection"
             android:title="@string/settings_btn_password"
@@ -25,7 +25,7 @@
 
     <PreferenceCategory
         android:title="@string/settings_title_notifications"
-        android:icon="@drawable/baseline_notifications_active_24">
+        android:icon="@drawable/ic_notifications">
         <SwitchPreference
             android:key="notify_on_sync"
             android:title="@string/settings_btn_notifications_sync"/>
@@ -39,7 +39,7 @@
 
     <PreferenceCategory
         android:title="@string/settings_title_synchronization"
-        android:icon="@drawable/baseline_add_to_drive_24">
+        android:icon="@drawable/ic_drive_sync">
         <Preference
             android:key="sync_select_acc"
             android:summary="@string/settings_sync_status_no_sync"

@@ -47,9 +47,9 @@ class TaskRecyclerFragment : Fragment() {
             container,
             false
         )
-        initializeRecycler()
         val tasklistID = arguments?.getInt(ARG_SECTION_NUMBER) ?: 1
         taskRecyclerViewModel.init(tasklistID)
+        initializeRecycler()
         return binding.root
     }
 

@@ -70,7 +70,7 @@
         android:text="@string/task_default_description"
         android:textColor="@android:color/secondary_text_light"
         android:textSize="16sp"
-        app:drawableStartCompat="@drawable/baseline_event_24"
+        app:drawableStartCompat="@drawable/ic_task_datetime"
         app:layout_constraintBottom_toTopOf="@id/task_place"
         app:layout_constraintEnd_toStartOf="@+id/task_edit_btn"
         app:layout_constraintStart_toStartOf="parent" />
@@ -86,7 +86,7 @@
         android:textColor="@android:color/secondary_text_light"
         android:textSize="16sp"
         android:visibility="gone"
-        app:drawableStartCompat="@drawable/baseline_place_24"
+        app:drawableStartCompat="@drawable/ic_location"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/task_edit_btn"
         app:layout_constraintStart_toStartOf="parent" />
@@ -101,7 +101,7 @@
         android:contentDescription="@string/task_edit_btn"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/edit_round_btn"
+        app:srcCompat="@drawable/ic_edit_round_btn"
         tools:ignore="ImageContrastCheck" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

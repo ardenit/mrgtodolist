@@ -1,16 +1,16 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <item name="ic_toolbar_drawer_open" type="drawable">@drawable/baseline_menu_24</item>
+    <item name="ic_toolbar_drawer_open" type="drawable">@drawable/ic_open_menu</item>
     <item name="ic_toolbar_search" type="drawable">@android:drawable/ic_menu_search</item>
 
     <item name="ic_task_time" type="drawable">@android:drawable/ic_menu_my_calendar</item>
-    <item name="ic_task_place" type="drawable">@drawable/baseline_place_24</item>
+    <item name="ic_task_place" type="drawable">@drawable/ic_location</item>
 
-    <item name="btn_todolist_new_task" type="drawable">@drawable/baseline_add_24</item>
-    <item name="ic_nav_archive" type="drawable">@drawable/baseline_auto_stories_24</item>
-    <item name="ic_nav_todo" type="drawable">@drawable/baseline_assignment_late_24</item>
-    <item name="ic_nav_done" type="drawable">@drawable/baseline_task_alt_24</item>
+    <item name="btn_todolist_new_task" type="drawable">@drawable/ic_add</item>
+    <item name="ic_nav_archive" type="drawable">@drawable/ic_archive</item>
+    <item name="ic_nav_todo" type="drawable">@drawable/ic_todolist</item>
+    <item name="ic_nav_done" type="drawable">@drawable/ic_done</item>
 
-    <item name="ic_drawer_tasks" type="drawable">@drawable/baseline_fact_check_24</item>
-    <item name="ic_drawer_tags" type="drawable">@drawable/baseline_local_offer_24</item>
-    <item name="ic_drawer_settings" type="drawable">@drawable/baseline_settings_24</item>
+    <item name="ic_drawer_tasks" type="drawable">@drawable/ic_tasks_screen</item>
+    <item name="ic_drawer_tags" type="drawable">@drawable/ic_tags_screen</item>
+    <item name="ic_drawer_settings" type="drawable">@drawable/ic_settings</item>
 </resources>

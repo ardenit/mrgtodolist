@@ -44,7 +44,7 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters) : Wor
         val channelId = "fadgfdasfasdfasd"
         //2021-09-14 02:40:41.608 554-2981/system_process E/NotificationService: No Channel found for pkg=com.mirage.todolist, channelId=mirage_todo_channel_01, id=-979562117, tag=null, opPkg=com.mirage.todolist, callingUid=10121, userId=0, incomingUserId=0, notificationUid=10121, notification=Notification(channel=mirage_todo_channel_01 shortcut=null contentView=null vibrate=null sound=null defaults=0x0 flags=0x10 color=0x00000000 vis=PRIVATE)
         //val notificationManager = NotificationManagerCompat.from(applicationContext)
-        val bitmap = ContextCompat.getDrawable(applicationContext, R.drawable.baseline_event_24)?.toBitmap()
+        val bitmap = ContextCompat.getDrawable(applicationContext, R.drawable.ic_task_datetime)?.toBitmap()
         val titleNotification = "Title notification $taskName"
         val subtitleNotification = "Subtitle notification $taskTimeText"
         val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -58,7 +58,7 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters) : Wor
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_SINGLE_TOP
             val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, 0)
             builder.setContentTitle(titleNotification)
-                .setSmallIcon(R.drawable.baseline_add_24)
+                .setSmallIcon(R.drawable.ic_add)
                 .setContentText(subtitleNotification)
                 .setDefaults(DEFAULT_ALL)
                 .setAutoCancel(true)
@@ -69,7 +69,7 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters) : Wor
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_SINGLE_TOP
             val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, 0)
             builder.setContentTitle(titleNotification)
-                .setSmallIcon(R.drawable.baseline_add_24)
+                .setSmallIcon(R.drawable.ic_add)
                 .setContentText(subtitleNotification)
                 .setDefaults(DEFAULT_ALL)
                 .setAutoCancel(true)

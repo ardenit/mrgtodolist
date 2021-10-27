@@ -5,22 +5,22 @@
     <Preference
         android:key="protection_none"
         android:title="@string/protection_none"
-        android:icon="@drawable/baseline_lock_open_24"/>
+        android:icon="@drawable/ic_no_protection"/>
     <Preference
         android:key="protection_tap"
         android:title="@string/protection_tap"
-        android:icon="@drawable/baseline_touch_app_24"/>
+        android:icon="@drawable/ic_add_fingerprint"/>
     <Preference
         android:key="protection_graphical"
         android:title="@string/protection_graphical"
-        android:icon="@drawable/baseline_apps_24"/>
+        android:icon="@drawable/ic_graphical_key"/>
     <EditTextPreference
         android:key="protection_password"
         android:title="@string/protection_password"
-        android:icon="@drawable/baseline_password_24"/>
+        android:icon="@drawable/ic_password"/>
     <Preference
         android:key="protection_fingerprint"
         android:title="@string/protection_fingerprint"
-        android:icon="@drawable/baseline_fingerprint_24"/>
+        android:icon="@drawable/ic_fingerprint"/>
 
 </PreferenceScreen>
