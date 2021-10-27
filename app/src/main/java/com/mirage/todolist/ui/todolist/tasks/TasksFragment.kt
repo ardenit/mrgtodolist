@@ -42,7 +42,7 @@ class TasksFragment : Fragment() {
         (requireActivity().application as App).appComponent.inject(this)
         binding = DataBindingUtil.inflate(
             inflater,
-            R.layout.fragment_tags,
+            R.layout.fragment_tasks,
             container,
             false
         )

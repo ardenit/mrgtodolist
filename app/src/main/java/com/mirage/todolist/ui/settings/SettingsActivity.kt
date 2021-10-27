@@ -33,7 +33,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
 
     private lateinit var settingsFragment: SettingsFragment
     private var protectionFragment: ProtectionSettingsFragment? = null
-    private var graphicalKeyFragment: GraphicalKeyFragment? = null
+    private var addGraphicalKeyFragment: AddGraphicalKeyFragment? = null
     private var settingsScreen = SettingsScreen.ROOT
     private lateinit var preferences: SharedPreferences
 
@@ -200,15 +200,15 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
 
     private fun openGraphicalKeyFragment() {
         settingsScreen = SettingsScreen.GRAPHICAL_KEY
-        graphicalKeyFragment = graphicalKeyFragment ?: GraphicalKeyFragment()
-        graphicalKeyFragment!!.setTargetFragment(protectionFragment, 0)
-        graphicalKeyFragment!!.onPatternConfirm = {
+        addGraphicalKeyFragment = addGraphicalKeyFragment ?: AddGraphicalKeyFragment()
+        addGraphicalKeyFragment!!.setTargetFragment(protectionFragment, 0)
+        addGraphicalKeyFragment!!.onPatternConfirm = {
             onBackPressed()
             settingsFragment.updateSummaries()
             showToast(R.string.protection_result_graphical)
         }
         supportFragmentManager.beginTransaction()
-            .replace(R.id.settings, graphicalKeyFragment!!)
+            .replace(R.id.settings, addGraphicalKeyFragment!!)
             .addToBackStack(null)
             .commit()
         supportActionBar?.setTitle(R.string.protection_create_graphical_title)
@@ -229,7 +229,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
                 settingsScreen = SettingsScreen.ROOT
             }
             SettingsScreen.GRAPHICAL_KEY -> {
-                graphicalKeyFragment!!.clear()
+                addGraphicalKeyFragment!!.clear()
                 supportActionBar?.setTitle(R.string.protection_action_bar_title)
                 settingsScreen = SettingsScreen.PROTECTION
             }

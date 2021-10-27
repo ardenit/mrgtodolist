@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/create_pattern_root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/tasklist_background">
+
+        <com.andrognito.patternlockview.PatternLockView
+            android:id="@+id/create_pattern_lock"
+            android:layout_width="256dp"
+            android:layout_height="256dp"
+            android:importantForAccessibility="no"
+            app:correctStateColor="@color/light_orange"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:normalStateColor="@color/light_blue" />
+
+        <Button
+            android:id="@+id/create_pattern_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="@string/protection_create_graphical_btn"
+            android:textAllCaps="false"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/create_pattern_lock" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

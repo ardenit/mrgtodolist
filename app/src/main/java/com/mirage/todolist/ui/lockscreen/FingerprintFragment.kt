@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.mirage.todolist.R
 import com.mirage.todolist.databinding.FragmentLockscreenFingerprintBinding
+import com.mirage.todolist.di.App
 import com.mirage.todolist.util.autoCleared
 import com.mirage.todolist.util.showToast
 import com.mirage.todolist.util.startHintTextColorAnimation
@@ -37,9 +38,10 @@ class FingerprintFragment : Fragment(R.layout.fragment_lockscreen_fingerprint) {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        (requireActivity().application as App).appComponent.inject(this)
         binding = DataBindingUtil.inflate(
             inflater,
-            R.layout.fragment_lockscreen_password,
+            R.layout.fragment_lockscreen_fingerprint,
             container,
             false
         )

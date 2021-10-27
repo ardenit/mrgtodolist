@@ -21,8 +21,9 @@ class LockScreenActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_lock_screen)
         (application as App).appComponent.inject(this)
-        navController = Navigation.findNavController(this, R.id.nav_fragment_no_protection)
+        navController = Navigation.findNavController(this, R.id.nav_lock_screen_host_fragment)
         viewModel.lockScreenType.observe(this) {
             val destination = when (it) {
                 LockScreenType.NO_PROTECTION -> R.id.nav_fragment_no_protection

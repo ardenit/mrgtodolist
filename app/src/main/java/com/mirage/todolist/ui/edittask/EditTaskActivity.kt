@@ -136,17 +136,18 @@ class EditTaskActivity : AppCompatActivity() {
 
     private fun openDateChooserDialog() {
         val dateListener = DatePickerDialog.OnDateSetListener { _, year, month, day ->
-            val newDate = LocalDate.of(year, month, day)
+            val newDate = LocalDate.of(year, month + 1, day)
             newTaskDate = OptionalDate(newDate, true)
             updateTooltips()
         }
+        val startDate = if (newTaskDate.dateSet) newTaskDate.date else LocalDate.now()
         val dialog = DatePickerDialog(
             this,
             R.style.Theme_TodoApp_EditTaskAlertDialog,
             dateListener,
-            newTaskDate.date.year,
-            newTaskDate.date.monthValue,
-            newTaskDate.date.dayOfMonth
+            startDate.year,
+            startDate.monthValue,
+            startDate.dayOfMonth
         )
         dialog.show()
         recolorDialogButtons(dialog)
@@ -158,13 +159,13 @@ class EditTaskActivity : AppCompatActivity() {
             newTaskTime = OptionalTime(newTime, true)
             updateTooltips()
         }
-        val currentTime = Calendar.getInstance()
+        val startTime = if (newTaskTime.timeSet) newTaskTime.time else LocalTime.now()
         val dialog = TimePickerDialog(
             this,
             R.style.Theme_TodoApp_EditTaskAlertDialog,
             timeListener,
-            newTaskTime.time.hour,
-            newTaskTime.time.minute,
+            startTime.hour,
+            startTime.minute,
             true
         )
         dialog.show()

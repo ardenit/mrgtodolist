@@ -5,9 +5,8 @@ import com.mirage.todolist.model.database.DatabaseModel
 import com.mirage.todolist.model.googledrive.GoogleDriveModel
 import com.mirage.todolist.model.repository.TodoRepository
 import com.mirage.todolist.ui.edittask.EditTaskActivity
-import com.mirage.todolist.ui.lockscreen.LockScreenActivity
-import com.mirage.todolist.ui.lockscreen.PasswordFragment
-import com.mirage.todolist.ui.lockscreen.TapFragment
+import com.mirage.todolist.ui.lockscreen.*
+import com.mirage.todolist.ui.settings.AddGraphicalKeyFragment
 import com.mirage.todolist.ui.settings.SettingsActivity
 import com.mirage.todolist.ui.settings.SettingsFragment
 import com.mirage.todolist.ui.todolist.TodolistActivity
@@ -57,9 +56,15 @@ interface AppComponent : AndroidInjector<App> {
 
     fun inject(tapFragment: TapFragment)
 
+    fun inject(graphicalKeyFragment: GraphicalKeyFragment)
+
     fun inject(passwordFragment: PasswordFragment)
 
+    fun inject(fingerprintFragment: FingerprintFragment)
+
     fun inject(tasksRecyclerFragment: TaskRecyclerFragment)
+
+    fun inject(addGraphicalKeyFragment: AddGraphicalKeyFragment)
 
     fun inject(databaseModel: DatabaseModel)
 

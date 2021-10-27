@@ -36,12 +36,12 @@ class LockScreenViewModel @Inject constructor(
     }
 
     fun unlockTodolist() {
-        lockScreenType.value = LockScreenType.UNLOCKED
+        lockScreenType.postValue(LockScreenType.UNLOCKED)
     }
 
     fun tryPattern(patternString: String): Boolean {
         val patternHash = PasswordValidator.getSHA256(patternString)
-        val validHash = getStringPreference(R.string.key_protection_graphical)
+        val validHash = getStringPreference(R.string.key_graphical_key_hash)
         return patternHash == validHash
     }
 

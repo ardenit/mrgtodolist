@@ -20,7 +20,7 @@
             android:key="set_protection"
             android:title="@string/settings_btn_password"
             android:summary="@string/settings_password_no_protection"
-            app:fragment="com.mirage.todolist.view.settings.ProtectionSettingsFragment"/>
+            app:fragment="com.mirage.todolist.ui.settings.ProtectionSettingsFragment"/>
     </PreferenceCategory>
 
     <PreferenceCategory

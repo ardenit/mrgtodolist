@@ -14,7 +14,9 @@ typealias OnRemoveTaskListener = (task: LiveTask, taskIndex: Int) -> Unit
 /**
  * View model of a single tasklist page
  */
-class TaskRecyclerViewModel @Inject constructor(): ViewModel() {
+class TaskRecyclerViewModel @Inject constructor(
+    private var todoRepository: TodoRepository
+): ViewModel() {
 
     private lateinit var onNewTaskListener: OnNewTaskListener
     private lateinit var onMoveTaskListener: OnMoveTaskListener
@@ -28,9 +30,6 @@ class TaskRecyclerViewModel @Inject constructor(): ViewModel() {
     /** Slice of actual tasks in this tasklist (including temporarily hidden ones) */
     private var tasksSlice: MutableMap<UUID, LiveTask> = LinkedHashMap()
     private var initialized = false
-
-    @Inject
-    lateinit var todoRepository: TodoRepository
 
     /**
      * [tasklistID] - id of tasklist processed by this view model
