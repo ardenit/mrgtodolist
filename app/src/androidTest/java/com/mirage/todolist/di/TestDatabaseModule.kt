@@ -15,8 +15,8 @@ class TestDatabaseModule {
 
     @Provides
     @Singleton
-    fun provideDatabase(@ApplicationContext context: Context) = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
-        .build()
+    fun provideDatabase(@ApplicationContext context: Context) =
+        Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
 
     @Provides
     @DatabaseInfo

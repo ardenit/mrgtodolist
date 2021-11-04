@@ -22,17 +22,6 @@ class TaskDaoTest {
     @Inject
     lateinit var taskDao: TaskDao
 
-    private val emails = listOf("", "test@example.com", "prod@company.org")
-    private val tasks = emails.flatMap { email ->
-        (0 until 30).map {
-            TaskEntity(
-                taskId = UUID.randomUUID(),
-                accountName = email,
-                tasklistId = it / 10,
-                taskIndex = it % 10
-            )
-        }
-    }.shuffled()
     private val taskOne = TaskEntity(
         taskId = UUID.randomUUID(),
         accountName = "test@example.com",
@@ -45,6 +34,7 @@ class TaskDaoTest {
         tasklistId = 1,
         taskIndex = 1
     )
+    private val testTasks = listOf(taskOne, taskTwo)
 
     @Before
     fun setup() {
@@ -78,7 +68,7 @@ class TaskDaoTest {
     fun testGetters() {
         with(taskDao) {
             assertThat(getAllTasks()).isEmpty()
-            insertAllTasks(listOf(taskOne, taskTwo))
+            insertAllTasks(testTasks)
             assertThat(getAllTasks()).hasSize(2)
             assertThat(getTaskIndex(taskTwo.taskId)).isEqualTo(1)
             assertThat(getTasklistSize(0)).isEqualTo(0)
@@ -90,7 +80,7 @@ class TaskDaoTest {
     @Test
     fun testTimeModified() {
         with(taskDao) {
-            insertAllTasks(listOf(taskOne, taskTwo))
+            insertAllTasks(testTasks)
             val instant = Clock.systemUTC().instant()
             setTimeModifiedInSlice(0, 0, 2, instant)
             assertThat(getTask(taskOne.taskId).lastModified).isNotEqualTo(instant)
@@ -108,7 +98,7 @@ class TaskDaoTest {
     @Test
     fun testUpdates() {
         with(taskDao) {
-            insertAllTasks(listOf(taskOne, taskTwo))
+            insertAllTasks(testTasks)
             setTaskTitle(taskOne.taskId, "Title")
             assertThat(getTask(taskOne.taskId).title).isEqualTo("Title")
             setTaskDescription(taskTwo.taskId, "Description")

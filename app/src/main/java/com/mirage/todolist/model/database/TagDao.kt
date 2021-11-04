@@ -2,6 +2,7 @@ package com.mirage.todolist.model.database
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
 import java.time.Instant
 import java.util.*
@@ -9,11 +10,17 @@ import java.util.*
 @Dao
 interface TagDao {
 
-    @Insert
+    @Insert(onConflict = REPLACE)
     fun insertTag(tag: TagEntity)
 
     @Query("SELECT count(*) FROM tags WHERE NOT deleted")
     fun getTagsCount(): Int
+
+    @Query("""
+        SELECT * FROM tags
+        WHERE tag_id = :tagId
+    """)
+    fun getTag(tagId: UUID): TagEntity
 
     @Query(value = "SELECT * FROM tags")
     fun getAllTags(): List<TagEntity>
@@ -24,6 +31,13 @@ interface TagDao {
         WHERE tag_id = :tagId
         """)
     fun setTagName(tagId: UUID, name: String)
+
+    @Query("""
+        UPDATE tags
+        SET tag_index = :tagIndex
+        WHERE tag_id = :tagId
+        """)
+    fun setTagIndex(tagId: UUID, tagIndex: Int)
 
     @Query("""
         UPDATE tags
@@ -58,6 +72,6 @@ interface TagDao {
     """)
     fun clear()
 
-    @Insert
+    @Insert(onConflict = REPLACE)
     fun insertAllTags(tags: List<TagEntity>)
 }

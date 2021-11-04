@@ -11,7 +11,10 @@ import java.util.*
 interface VersionDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertMeta(meta: VersionEntity)
+    fun insertVersion(version: VersionEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAllVersions(versions: List<VersionEntity>)
 
     @Query("""
         SELECT *
