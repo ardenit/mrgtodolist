@@ -22,32 +22,6 @@ class TagDaoTest {
     @Inject
     lateinit var tagDao: TagDao
 
-    private val tagOne = TagEntity(
-        tagId = UUID.randomUUID(),
-        accountName = "test@example.com",
-        tagIndex = 0,
-        name = "Tag0",
-        styleIndex = 0,
-        deleted = false
-    )
-    private val tagTwo = TagEntity(
-        tagId = UUID.randomUUID(),
-        accountName = "test@example.com",
-        tagIndex = 1,
-        name = "Tag1",
-        styleIndex = 1,
-        deleted = false
-    )
-    private val deletedTag = TagEntity(
-        tagId = UUID.randomUUID(),
-        accountName = "test@example.com",
-        tagIndex = 1,
-        name = "Tag2",
-        styleIndex = 2,
-        deleted = true
-    )
-    private val testTags = listOf(tagOne, tagTwo, deletedTag)
-
     @Before
     fun setup() {
         (App.instance.appComponent as TestAppComponent).inject(this)
@@ -80,7 +54,7 @@ class TagDaoTest {
     fun testGetters() {
         with(tagDao) {
             assertThat(getAllTags()).isEmpty()
-            insertAllTags(listOf(tagOne, tagTwo))
+            insertAllTags(testTags)
             assertThat(getAllTags()).hasSize(2)
             setTagIndex(tagTwo.tagId, 4)
             assertThat(getTag(tagTwo.tagId).tagIndex).isEqualTo(4)

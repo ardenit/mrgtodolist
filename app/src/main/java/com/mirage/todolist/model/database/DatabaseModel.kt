@@ -2,16 +2,12 @@ package com.mirage.todolist.model.database
 
 import android.content.SharedPreferences
 import android.content.res.Resources
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import com.mirage.todolist.R
 import com.mirage.todolist.di.App
 import com.mirage.todolist.model.repository.TaskPeriod
 import com.mirage.todolist.util.OptionalDate
 import com.mirage.todolist.util.OptionalTime
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.collect
 import timber.log.Timber
 import java.time.Clock
@@ -47,8 +43,6 @@ class DatabaseModel {
     private var onSyncUpdateListener: suspend (DatabaseSnapshot) -> Unit = {}
     @Volatile
     private var liveVersionObserverJob: Job? = null
-    @Volatile
-    private var liveVersionObserver: Observer<UUID>? = null
     @Volatile
     private var currentEmail: String = ""
 
@@ -113,7 +107,7 @@ class DatabaseModel {
             tagDao.insertAllTags(newSnapshot.tags.toList())
             relationDao.removeAllRelations(currentEmail)
             relationDao.insertAllRelations(newSnapshot.relations.toList())
-            val newVersion = newSnapshot.meta.firstOrNull { it.accountName == currentEmail }?.dataVersion ?: UUID.randomUUID()
+            val newVersion = newSnapshot.versions.firstOrNull { it.accountName == currentEmail }?.dataVersion ?: UUID.randomUUID()
             versionDao.setDataVersion(currentEmail,  newVersion, true)
             resultWasSet.set(true)
             result.set(true)

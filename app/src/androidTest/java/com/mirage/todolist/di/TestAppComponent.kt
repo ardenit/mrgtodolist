@@ -6,7 +6,12 @@ import dagger.android.AndroidInjectionModule
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [ApplicationModule::class, ViewModelModule::class, TestDatabaseModule::class, AndroidInjectionModule::class])
+@Component(modules = [
+    TestApplicationModule::class,
+    ViewModelModule::class,
+    TestDatabaseModule::class,
+    AndroidInjectionModule::class
+])
 interface TestAppComponent : AppComponent {
 
     fun inject(test: DatabaseModelTest)

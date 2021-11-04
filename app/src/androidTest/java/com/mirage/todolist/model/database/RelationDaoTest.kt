@@ -26,58 +26,6 @@ class RelationDaoTest {
     @Inject
     lateinit var relationDao: RelationDao
 
-    private val tagOne = TagEntity(
-        tagId = UUID.randomUUID(),
-        accountName = "test@example.com",
-        tagIndex = 0,
-        name = "Tag0",
-        styleIndex = 0,
-        deleted = false
-    )
-    private val tagTwo = TagEntity(
-        tagId = UUID.randomUUID(),
-        accountName = "test@example.com",
-        tagIndex = 1,
-        name = "Tag1",
-        styleIndex = 1,
-        deleted = false
-    )
-    private val deletedTag = TagEntity(
-        tagId = UUID.randomUUID(),
-        accountName = "test@example.com",
-        tagIndex = 1,
-        name = "Tag2",
-        styleIndex = 2,
-        deleted = true
-    )
-    private val taskOne = TaskEntity(
-        taskId = UUID.randomUUID(),
-        accountName = "test@example.com",
-        tasklistId = 1,
-        taskIndex = 0
-    )
-    private val taskTwo = TaskEntity(
-        taskId = UUID.randomUUID(),
-        accountName = "test@example.com",
-        tasklistId = 1,
-        taskIndex = 1
-    )
-    private val testTags = listOf(tagOne, tagTwo, deletedTag)
-    private val testTasks = listOf(taskOne, taskTwo)
-
-    private val relationOne = RelationEntity(
-        taskId = taskOne.taskId,
-        tagId = tagOne.tagId,
-        accountName = taskOne.accountName,
-        deleted = false
-    )
-    private val relationTwo = RelationEntity(
-        taskId = taskTwo.taskId,
-        tagId = tagOne.tagId,
-        accountName = taskTwo.accountName,
-        deleted = false
-    )
-
     @Before
     fun setup() {
         (App.instance.appComponent as TestAppComponent).inject(this)
@@ -87,10 +35,6 @@ class RelationDaoTest {
 
     @After
     fun clear() {
-        taskDao.clear()
-        assertThat(taskDao.getAllTasks()).isEmpty()
-        tagDao.clear()
-        assertThat(tagDao.getAllTags()).isEmpty()
         relationDao.clear()
         assertThat(relationDao.getAllRelations()).isEmpty()
     }
@@ -116,7 +60,7 @@ class RelationDaoTest {
     fun testUpdates() {
         with(relationDao) {
             assertThat(getAllRelations()).isEmpty()
-            insertAllRelations(listOf(relationOne, relationTwo))
+            insertAllRelations(testRelations)
             assertThat(getAllRelations()).hasSize(2)
             val instant = Clock.systemUTC().instant()
             setRelationModifiedTime(taskOne.taskId, tagTwo.tagId, instant)
@@ -130,7 +74,7 @@ class RelationDaoTest {
     fun testDeletion() {
         with(relationDao) {
             assertThat(getAllRelations()).isEmpty()
-            insertAllRelations(listOf(relationOne, relationTwo))
+            insertAllRelations(testRelations)
             assertThat(getAllRelations()).hasSize(2)
             assertThat(checkRelation(taskOne.taskId, tagTwo.tagId)).isEqualTo(0)
             assertThat(checkRelation(taskOne.taskId, tagOne.tagId)).isEqualTo(1)

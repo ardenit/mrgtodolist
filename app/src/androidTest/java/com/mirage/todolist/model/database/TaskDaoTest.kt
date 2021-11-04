@@ -22,20 +22,6 @@ class TaskDaoTest {
     @Inject
     lateinit var taskDao: TaskDao
 
-    private val taskOne = TaskEntity(
-        taskId = UUID.randomUUID(),
-        accountName = "test@example.com",
-        tasklistId = 1,
-        taskIndex = 0
-    )
-    private val taskTwo = TaskEntity(
-        taskId = UUID.randomUUID(),
-        accountName = "test@example.com",
-        tasklistId = 1,
-        taskIndex = 1
-    )
-    private val testTasks = listOf(taskOne, taskTwo)
-
     @Before
     fun setup() {
         (App.instance.appComponent as TestAppComponent).inject(this)

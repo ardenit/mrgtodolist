@@ -24,18 +24,6 @@ class VersionDaoTest {
 
     private val testingScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    private val versionOne = VersionEntity(
-        accountName = "test@example.org",
-        dataVersion = UUID.randomUUID(),
-        mustBeProcessed = false
-    )
-    private val versionTwo = VersionEntity(
-        accountName = "prod@company.org",
-        dataVersion = UUID.randomUUID(),
-        mustBeProcessed = false
-    )
-    private val testVersions = listOf(versionOne, versionTwo)
-
     @Before
     fun setup() {
         (App.instance.appComponent as TestAppComponent).inject(this)

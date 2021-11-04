@@ -21,7 +21,12 @@ import dagger.android.AndroidInjector
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [ApplicationModule::class, ViewModelModule::class, DatabaseModule::class, AndroidInjectionModule::class])
+@Component(modules = [
+    ApplicationModule::class,
+    ViewModelModule::class,
+    DatabaseModule::class,
+    AndroidInjectionModule::class
+])
 interface AppComponent : AndroidInjector<App> {
 
     fun inject(lockScreenActivity: LockScreenActivity)
