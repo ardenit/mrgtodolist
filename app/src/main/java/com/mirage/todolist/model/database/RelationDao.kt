@@ -2,6 +2,7 @@ package com.mirage.todolist.model.database
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
 import java.time.Instant
 import java.util.*
@@ -9,7 +10,7 @@ import java.util.*
 @Dao
 interface RelationDao {
 
-    @Insert
+    @Insert(onConflict = REPLACE)
     fun insertRelation(relation: RelationEntity)
 
     @Query("""
@@ -40,6 +41,13 @@ interface RelationDao {
     """)
     fun setRelationModifiedTime(taskId: UUID, tagId: UUID, lastModified: Instant)
 
+    @Query("""
+        SELECT *
+        FROM relations
+        WHERE task_id = :taskId AND tag_id = :tagId
+    """)
+    fun getRelation(taskId: UUID, tagId: UUID): RelationEntity
+
     @Query("SELECT * FROM relations")
     fun getAllRelations(): List<RelationEntity>
 
@@ -55,6 +63,6 @@ interface RelationDao {
     """)
     fun clear()
 
-    @Insert
+    @Insert(onConflict = REPLACE)
     fun insertAllRelations(relations: List<RelationEntity>)
 }

@@ -30,8 +30,8 @@ import java.util.*
             onDelete = CASCADE
         )],
     indices = [
-        Index(value = arrayOf("task_id"), unique = true),
-        Index(value = arrayOf("tag_id"), unique = true),
+        Index(value = arrayOf("task_id"), unique = false),
+        Index(value = arrayOf("tag_id"), unique = false),
         Index(value = arrayOf("account_name"), unique = false)
     ]
 )

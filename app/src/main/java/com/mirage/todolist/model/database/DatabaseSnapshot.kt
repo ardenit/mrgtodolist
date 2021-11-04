@@ -9,6 +9,6 @@ data class DatabaseSnapshot(
     val relations: List<RelationEntity>,
     val meta: List<VersionEntity>
 ) {
-    fun getDataVersion(email: String) =
+    fun getDataVersion(email: String): UUID =
         meta.firstOrNull { it.accountName == email }?.dataVersion ?: UUID.randomUUID()
 }
