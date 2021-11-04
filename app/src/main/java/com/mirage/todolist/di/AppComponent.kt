@@ -15,6 +15,7 @@ import com.mirage.todolist.ui.todolist.tasks.TaskRecyclerFragment
 import com.mirage.todolist.ui.todolist.tasks.TasksFragment
 import dagger.BindsInstance
 import dagger.Component
+import dagger.Provides
 import dagger.android.AndroidInjectionModule
 import dagger.android.AndroidInjector
 import javax.inject.Singleton
@@ -22,23 +23,6 @@ import javax.inject.Singleton
 @Singleton
 @Component(modules = [ApplicationModule::class, ViewModelModule::class, DatabaseModule::class, AndroidInjectionModule::class])
 interface AppComponent : AndroidInjector<App> {
-
-    @Component.Builder
-    interface Builder {
-
-        @BindsInstance
-        fun withApplication(application: App): Builder
-
-        fun build(): AppComponent
-    }
-
-    @ApplicationContext
-    fun getContext(): Context
-
-    fun getApplication(): App
-
-    @DatabaseInfo
-    fun getDatabaseName(): String
 
     fun inject(lockScreenActivity: LockScreenActivity)
 

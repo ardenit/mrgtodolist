@@ -37,9 +37,6 @@ class DatabaseModel {
     lateinit var relationDao: RelationDao
     @Inject
     lateinit var versionDao: VersionDao
-    @ApplicationContext
-    @Inject
-    lateinit var appCtx: Context
     @Inject
     lateinit var preferences: SharedPreferences
     @Inject
@@ -171,8 +168,8 @@ class DatabaseModel {
         val taskId = UUID.randomUUID()
         Timber.v("DatabaseModel - createNewTask ${Thread.currentThread().id}")
         coroutineScope.launch {
-            val defaultTitle = appCtx.resources.getString(R.string.task_default_title)
-            val defaultDescription = appCtx.resources.getString(R.string.task_default_description)
+            val defaultTitle = resources.getString(R.string.task_default_title)
+            val defaultDescription = resources.getString(R.string.task_default_description)
             Timber.v("DatabaseModel - createNewTask - coroutine ${Thread.currentThread().id}")
             database.runInTransaction {
                 Timber.v("DatabaseModel - createNewTask - transaction ${Thread.currentThread().id}")

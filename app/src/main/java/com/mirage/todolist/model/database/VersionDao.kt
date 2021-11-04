@@ -54,6 +54,12 @@ interface VersionDao {
     """)
     fun getLiveDataVersion(email: String): LiveData<UUID>
 
+    @Query("""
+        DELETE FROM versions
+        WHERE 1
+    """)
+    fun clear()
+
     @Query("SELECT * FROM versions")
     fun getAllVersions(): List<VersionEntity>
 }

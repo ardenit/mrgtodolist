@@ -2,6 +2,7 @@ package com.mirage.todolist.model.database
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
 import com.mirage.todolist.model.repository.TaskPeriod
 import com.mirage.todolist.util.OptionalDate
@@ -57,8 +58,14 @@ interface TaskDao {
     """)
     fun getTasklistId(taskId: UUID): Int
 
-    @Insert
+    @Insert(onConflict = REPLACE)
     fun insertTask(task: TaskEntity)
+
+    @Query("""
+        SELECT * FROM tasks
+        WHERE task_id = :taskId
+    """)
+    fun getTask(taskId: UUID): TaskEntity
 
     @Query(value = "SELECT * FROM tasks")
     fun getAllTasks(): List<TaskEntity>
@@ -111,6 +118,12 @@ interface TaskDao {
     """)
     fun removeAllTasks(email: String)
 
-    @Insert
+    @Query("""
+        DELETE FROM tasks
+        WHERE 1
+    """)
+    fun clear()
+
+    @Insert(onConflict = REPLACE)
     fun insertAllTasks(tasks: List<TaskEntity>)
 }

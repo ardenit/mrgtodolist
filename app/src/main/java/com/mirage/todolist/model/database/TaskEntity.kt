@@ -39,9 +39,9 @@ data class TaskEntity(
     @ColumnInfo(name = "description")
     val description: String = "",
     @ColumnInfo(name = "date")
-    val date: OptionalDate,
+    val date: OptionalDate = OptionalDate.NOT_SET,
     @ColumnInfo(name = "time")
-    val time: OptionalTime,
+    val time: OptionalTime = OptionalTime.NOT_SET,
     @ColumnInfo(name = "period")
     val period: TaskPeriod = TaskPeriod.NOT_REPEATABLE,
     @ColumnInfo(name = "last_modified")

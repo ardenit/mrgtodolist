@@ -29,7 +29,11 @@ import java.util.*
             childColumns = ["tag_id"],
             onDelete = CASCADE
         )],
-    indices = [Index(value = arrayOf("account_name"), unique = false)]
+    indices = [
+        Index(value = arrayOf("task_id"), unique = true),
+        Index(value = arrayOf("tag_id"), unique = true),
+        Index(value = arrayOf("account_name"), unique = false)
+    ]
 )
 data class RelationEntity(
     /** Task's unique ID */

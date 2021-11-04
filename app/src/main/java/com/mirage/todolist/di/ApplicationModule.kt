@@ -1,5 +1,6 @@
 package com.mirage.todolist.di
 
+import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
@@ -17,8 +18,12 @@ class ApplicationModule {
 
     @Provides
     @Singleton
+    fun provideApplication(): App = App.instance
+
+    @Provides
+    @Singleton
     @ApplicationContext
-    fun provideApplicationContext(application: App): Context = application
+    fun provideApplicationContext(application: App): Context = application.applicationContext
 
     @Provides
     @Singleton

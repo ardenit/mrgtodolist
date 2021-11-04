@@ -52,6 +52,12 @@ interface TagDao {
     """)
     fun removeAllTags(email: String)
 
+    @Query("""
+        DELETE FROM tags
+        WHERE 1
+    """)
+    fun clear()
+
     @Insert
     fun insertAllTags(tags: List<TagEntity>)
 }

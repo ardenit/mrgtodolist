@@ -1,6 +1,7 @@
 package com.mirage.todolist.di
 
 import android.app.Application
+import androidx.annotation.VisibleForTesting
 import com.mirage.todolist.BuildConfig
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
@@ -12,22 +13,26 @@ class App : Application(), HasAndroidInjector {
 
     @Inject
     lateinit var androidInjector: DispatchingAndroidInjector<Any>
-    @Inject
+
     lateinit var appComponent: AppComponent
 
     override fun onCreate() {
         super.onCreate()
         instance = this
-        DaggerAppComponent.builder()
-            .withApplication(this)
-            .build()
-            .inject(this)
+        appComponent = DaggerAppComponent.create()
+        appComponent.inject(this)
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }
     }
 
     override fun androidInjector(): AndroidInjector<Any> = androidInjector
+
+    @VisibleForTesting
+    fun setTestComponent(testComponent: AppComponent) {
+        appComponent = testComponent
+        appComponent.inject(this)
+    }
 
     companion object {
         @JvmStatic
