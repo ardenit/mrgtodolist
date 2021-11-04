@@ -52,10 +52,16 @@ interface RelationDao {
     fun getAllRelations(): List<RelationEntity>
 
     @Query("""
-        DELETE FROM relations
-        WHERE account_name = :email
+        SELECT * FROM relations
+        WHERE account_name = :accountName
     """)
-    fun removeAllRelations(email: String)
+    fun getAllRelations(accountName: String): List<RelationEntity>
+
+    @Query("""
+        DELETE FROM relations
+        WHERE account_name = :accountName
+    """)
+    fun removeAllRelations(accountName: String)
 
     @Query("""
         DELETE FROM relations

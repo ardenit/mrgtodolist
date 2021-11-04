@@ -13,8 +13,11 @@ interface TagDao {
     @Insert(onConflict = REPLACE)
     fun insertTag(tag: TagEntity)
 
-    @Query("SELECT count(*) FROM tags WHERE NOT deleted")
-    fun getTagsCount(): Int
+    @Query("""
+        SELECT count(*) FROM tags
+        WHERE account_name = :accountName AND NOT deleted
+        """)
+    fun getTagsCount(accountName: String): Int
 
     @Query("""
         SELECT * FROM tags
@@ -24,6 +27,18 @@ interface TagDao {
 
     @Query(value = "SELECT * FROM tags")
     fun getAllTags(): List<TagEntity>
+
+    @Query("""
+        SELECT * FROM tags
+        WHERE account_name = :accountName
+    """)
+    fun getAllTags(accountName: String): List<TagEntity>
+
+    @Query("""
+        SELECT * FROM tags
+        WHERE account_name = :accountName AND NOT deleted
+    """)
+    fun getActiveTags(accountName: String): List<TagEntity>
 
     @Query("""
         UPDATE tags
@@ -62,9 +77,9 @@ interface TagDao {
 
     @Query("""
         DELETE FROM tags
-        WHERE account_name = :email
+        WHERE account_name = :accountName
     """)
-    fun removeAllTags(email: String)
+    fun removeAllTags(accountName: String)
 
     @Query("""
         DELETE FROM tags

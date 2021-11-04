@@ -18,8 +18,6 @@ import java.time.Clock
 class TagDaoTest {
 
     @Inject
-    lateinit var database: AppDatabase
-    @Inject
     lateinit var tagDao: TagDao
 
     @Before

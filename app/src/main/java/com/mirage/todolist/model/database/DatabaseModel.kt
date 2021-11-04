@@ -119,7 +119,7 @@ class DatabaseModel {
     }
 
     /**
-     * Starts observing the data version of the given account [email]
+     * Starts observing the data version of the given [accountEmail]
      * Should be used every time current synchronization account changes
      */
     fun startObservingAccount(accountEmail: String) {

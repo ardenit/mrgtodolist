@@ -18,8 +18,6 @@ import java.time.Clock
 class RelationDaoTest {
 
     @Inject
-    lateinit var database: AppDatabase
-    @Inject
     lateinit var taskDao: TaskDao
     @Inject
     lateinit var tagDao: TagDao

@@ -21,8 +21,6 @@ import javax.inject.Inject
 class DatabaseModelTest {
 
     @Inject
-    lateinit var database: AppDatabase
-    @Inject
     lateinit var taskDao: TaskDao
     @Inject
     lateinit var tagDao: TagDao
@@ -65,6 +63,15 @@ class DatabaseModelTest {
         assertThat(snapshot.tags).containsExactlyElementsIn(testTags)
         assertThat(snapshot.relations).containsExactlyElementsIn(testRelations)
         assertThat(snapshot.versions).containsExactlyElementsIn(testVersions)
+    }
+
+    @Test
+    fun testTaskOperations() {
+        taskDao.insertAllTasks(testTasks)
+        with(databaseModel) {
+            val taskIdOne = createNewTask(0)
+            val taskIdTwo = createNewTask(1)
+        }
     }
 
     companion object {

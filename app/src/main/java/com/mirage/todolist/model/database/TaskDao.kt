@@ -16,19 +16,22 @@ interface TaskDao {
     @Query("""
         UPDATE tasks
         SET task_index = task_index + :add
-        WHERE tasklist_id = :tasklistId AND task_index >= :startIndex AND task_index < :endIndex
+        WHERE account_name = :accountName AND tasklist_id = :tasklistId AND task_index >= :startIndex AND task_index < :endIndex
     """)
-    fun shiftTaskIndicesInSlice(tasklistId: Int, startIndex: Int, endIndex: Int, add: Int)
+    fun shiftTaskIndicesInSlice(tasklistId: Int, startIndex: Int, endIndex: Int, add: Int, accountName: String)
 
     @Query("""
         UPDATE tasks
         SET last_modified = :lastModified
-        WHERE tasklist_id = :tasklistId AND task_index >= :startIndex AND task_index < :endIndex
+        WHERE account_name = :accountName AND tasklist_id = :tasklistId AND task_index >= :startIndex AND task_index < :endIndex
     """)
-    fun setTimeModifiedInSlice(tasklistId: Int, startIndex: Int, endIndex: Int, lastModified: Instant)
+    fun setTimeModifiedInSlice(tasklistId: Int, startIndex: Int, endIndex: Int, lastModified: Instant, accountName: String)
 
-    @Query("SELECT count(*) FROM tasks WHERE tasklist_id = :tasklistId")
-    fun getTasklistSize(tasklistId: Int): Int
+    @Query("""
+        SELECT count(*) FROM tasks
+        WHERE account_name = :accountName AND tasklist_id = :tasklistId
+        """)
+    fun getTasklistSize(tasklistId: Int, accountName: String): Int
 
     @Query("""
         UPDATE tasks
@@ -69,6 +72,12 @@ interface TaskDao {
 
     @Query(value = "SELECT * FROM tasks")
     fun getAllTasks(): List<TaskEntity>
+
+    @Query("""
+        SELECT * FROM tasks
+        WHERE account_name = :accountName
+    """)
+    fun getAllTasks(accountName: String): List<TaskEntity>
 
     @Query("""
         UPDATE tasks
@@ -114,9 +123,9 @@ interface TaskDao {
 
     @Query("""
         DELETE FROM tasks
-        WHERE account_name = :email
+        WHERE account_name = :accountName
     """)
-    fun removeAllTasks(email: String)
+    fun removeAllTasks(accountName: String)
 
     @Query("""
         DELETE FROM tasks

@@ -18,8 +18,6 @@ import java.util.concurrent.CopyOnWriteArrayList
 class VersionDaoTest {
 
     @Inject
-    lateinit var database: AppDatabase
-    @Inject
     lateinit var versionDao: VersionDao
 
     private val testingScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
