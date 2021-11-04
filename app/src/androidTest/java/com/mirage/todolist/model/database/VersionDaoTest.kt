@@ -1,6 +1,5 @@
 package com.mirage.todolist.model.database
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.mirage.todolist.di.App
@@ -10,11 +9,10 @@ import org.junit.runner.RunWith
 import java.util.*
 import javax.inject.Inject
 import com.google.common.truth.Truth.assertThat
-import com.mirage.todolist.util.getOrAwaitValue
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
 import org.junit.*
-import java.time.Clock
+import java.util.concurrent.CopyOnWriteArrayList
 
 @RunWith(AndroidJUnit4::class)
 class VersionDaoTest {
@@ -23,6 +21,8 @@ class VersionDaoTest {
     lateinit var database: AppDatabase
     @Inject
     lateinit var versionDao: VersionDao
+
+    private val testingScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private val versionOne = VersionEntity(
         accountName = "test@example.org",
@@ -77,25 +77,56 @@ class VersionDaoTest {
     }
 
     @Test
-    fun testLiveVersion() {
+    fun testDataVersionFlow() {
         with(versionDao) {
-            println("TEST STARTED")
-            assertThat(getAllVersions()).isEmpty()
-            val liveVersions = getLiveVersions()
-            var currentValue = runBlocking(Dispatchers.Main) { liveVersions.value }
-            assertThat(currentValue).isNull()
-            insertVersion(versionOne)
-            assertThat(liveVersions.getOrAwaitValue()).isNotEmpty()
-            currentValue = runBlocking(Dispatchers.Main) { liveVersions.value }
-            val foreverObserver = Observer<List<VersionEntity>> {
-                println("foreverObserver $it")
+            val liveVersion = getDataVersionFlow(versionOne.accountName)
+            val collectorEntries: MutableList<UUID> = CopyOnWriteArrayList()
+            val collectorJob = testingScope.launch {
+                liveVersion.collect {
+                    collectorEntries += it
+                }
             }
-            runBlocking(Dispatchers.Main) { liveVersions.observeForever(foreverObserver) }
+            Thread.sleep(20L)
+            insertVersion(versionOne)
+            Thread.sleep(20L)
             insertVersion(versionTwo)
-            val liveVersion = getLiveDataVersion(versionOne.accountName)
-            val currentVersion = runBlocking(Dispatchers.Main) { liveVersion.value }
-            assertThat(currentVersion).isNull()
-            runBlocking(Dispatchers.Main) { liveVersions.removeObserver(foreverObserver) }
+            runBlocking {
+                delay(20L)
+                collectorJob.cancelAndJoin()
+            }
+            val expected = listOf(
+                null,
+                versionOne.dataVersion,
+                versionOne.dataVersion
+            )
+            assertThat(collectorEntries).containsExactlyElementsIn(expected)
+        }
+    }
+
+    @Test
+    fun testAllVersionsFlow() {
+        with(versionDao) {
+            val liveVersions = getAllVersionsFlow()
+            val collectorEntries: MutableList<List<VersionEntity>> = CopyOnWriteArrayList()
+            val collectorJob = testingScope.launch {
+                liveVersions.collect {
+                    collectorEntries += it
+                }
+            }
+            Thread.sleep(20L)
+            insertVersion(versionOne)
+            Thread.sleep(20L)
+            insertVersion(versionTwo)
+            runBlocking {
+                delay(20L)
+                collectorJob.cancelAndJoin()
+            }
+            val expected = listOf(
+                listOf(),
+                listOf(versionOne),
+                listOf(versionOne, versionTwo)
+            )
+            assertThat(collectorEntries).containsExactlyElementsIn(expected)
         }
     }
 

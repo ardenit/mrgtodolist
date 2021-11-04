@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 @Dao
@@ -20,7 +21,7 @@ interface VersionDao {
         SELECT *
         FROM versions
     """)
-    fun getLiveVersions(): LiveData<List<VersionEntity>>
+    fun getAllVersionsFlow(): Flow<List<VersionEntity>>
 
     @Query("""
         SELECT data_version
@@ -55,7 +56,7 @@ interface VersionDao {
         FROM versions
         WHERE account_name = :email
     """)
-    fun getLiveDataVersion(email: String): LiveData<UUID>
+    fun getDataVersionFlow(email: String): Flow<UUID>
 
     @Query("""
         DELETE FROM versions

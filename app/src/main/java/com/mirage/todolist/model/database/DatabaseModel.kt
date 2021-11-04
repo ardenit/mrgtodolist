@@ -1,17 +1,18 @@
 package com.mirage.todolist.model.database
 
-import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import com.mirage.todolist.R
 import com.mirage.todolist.di.App
-import com.mirage.todolist.di.ApplicationContext
 import com.mirage.todolist.model.repository.TaskPeriod
 import com.mirage.todolist.util.OptionalDate
 import com.mirage.todolist.util.OptionalTime
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.cancellable
+import kotlinx.coroutines.flow.collect
 import timber.log.Timber
 import java.time.Clock
 import java.util.*
@@ -45,7 +46,7 @@ class DatabaseModel {
     @Volatile
     private var onSyncUpdateListener: suspend (DatabaseSnapshot) -> Unit = {}
     @Volatile
-    private var liveVersionObservable: LiveData<UUID>? = null
+    private var liveVersionObserverJob: Job? = null
     @Volatile
     private var liveVersionObserver: Observer<UUID>? = null
     @Volatile
@@ -130,36 +131,33 @@ class DatabaseModel {
     fun startObservingAccount(accountEmail: String) {
         coroutineScope.launch {
             currentEmail = accountEmail
-            val liveVersion = versionDao.getLiveDataVersion(accountEmail)
-            val observer = Observer<UUID> {
-                Timber.v("Database version changed")
-                coroutineScope.launch {
-                    database.runInTransaction {
-                        val mustBeProcessed = versionDao.getMustBeProcessed(currentEmail)
-                        if (mustBeProcessed) {
-                            Timber.v("Version was changed after sync, calling listeners")
-                            val newTasks = taskDao.getAllTasks()
-                            val newTags = tagDao.getAllTags()
-                            val newRelations = relationDao.getAllRelations()
-                            val newVersions = versionDao.getAllVersions()
-                            val newSnapshot =
-                                DatabaseSnapshot(newTasks, newTags, newRelations, newVersions)
-                            versionDao.setMustBeProcessed(currentEmail, false)
-                            coroutineScope.launch {
-                                onSyncUpdateListener(newSnapshot)
+            val liveVersion = versionDao.getDataVersionFlow(accountEmail)
+            liveVersionObserverJob?.cancelAndJoin()
+            liveVersionObserverJob = coroutineScope.launch {
+                liveVersion.collect {
+                    Timber.v("Database version changed")
+                    coroutineScope.launch {
+                        database.runInTransaction {
+                            val mustBeProcessed = versionDao.getMustBeProcessed(currentEmail)
+                            if (mustBeProcessed) {
+                                Timber.v("Version was changed after sync, calling listeners")
+                                val newTasks = taskDao.getAllTasks()
+                                val newTags = tagDao.getAllTags()
+                                val newRelations = relationDao.getAllRelations()
+                                val newVersions = versionDao.getAllVersions()
+                                val newSnapshot =
+                                    DatabaseSnapshot(newTasks, newTags, newRelations, newVersions)
+                                versionDao.setMustBeProcessed(currentEmail, false)
+                                coroutineScope.launch {
+                                    onSyncUpdateListener(newSnapshot)
+                                }
+                            } else {
+                                Timber.v("Version was changed by user action, not calling listeners")
                             }
-                        } else {
-                            Timber.v("Version was changed by user action, not calling listeners")
                         }
                     }
                 }
             }
-            liveVersionObserver?.let {
-                liveVersionObservable?.removeObserver(it)
-            }
-            liveVersionObservable = liveVersion
-            liveVersionObserver = observer
-            liveVersion.observeForever(observer)
         }
     }
 
