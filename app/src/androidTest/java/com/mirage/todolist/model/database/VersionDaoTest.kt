@@ -99,12 +99,12 @@ class VersionDaoTest {
                     collectorEntries += it
                 }
             }
-            Thread.sleep(20L)
+            Thread.sleep(40L)
             insertVersion(versionOne)
-            Thread.sleep(20L)
+            Thread.sleep(40L)
             insertVersion(versionTwo)
             runBlocking {
-                delay(20L)
+                delay(40L)
                 collectorJob.cancelAndJoin()
             }
             val expected = listOf(

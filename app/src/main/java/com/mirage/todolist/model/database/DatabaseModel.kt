@@ -165,7 +165,7 @@ class DatabaseModel {
             Timber.v("DatabaseModel - createNewTask - coroutine ${Thread.currentThread().id}")
             database.runInTransaction {
                 Timber.v("DatabaseModel - createNewTask - transaction ${Thread.currentThread().id}")
-                val taskIndex = taskDao.getTasklistSize(tasklistId)
+                val taskIndex = taskDao.getTasklistSize(tasklistId, currentEmail)
                 val taskEntity = TaskEntity(
                     taskId = taskId,
                     accountName = currentEmail,
@@ -188,10 +188,10 @@ class DatabaseModel {
     fun moveTask(taskId: UUID, newTasklistId: Int) = launchTaskTransaction {
         val oldTasklistId = getTasklistId(taskId)
         val oldTaskIndex = getTaskIndex(taskId)
-        val newTaskIndex = getTasklistSize(newTasklistId)
+        val newTaskIndex = getTasklistSize(newTasklistId, currentEmail)
         val instant = Clock.systemUTC().instant()
-        setTimeModifiedInSlice(oldTasklistId, oldTaskIndex + 1, Int.MAX_VALUE, instant)
-        shiftTaskIndicesInSlice(oldTasklistId, oldTaskIndex + 1, Int.MAX_VALUE, -1)
+        setTimeModifiedInSlice(oldTasklistId, oldTaskIndex + 1, Int.MAX_VALUE, instant, currentEmail)
+        shiftTaskIndicesInSlice(oldTasklistId, oldTaskIndex + 1, Int.MAX_VALUE, -1, currentEmail)
         setTaskIndex(taskId, newTaskIndex)
         setTasklistId(taskId, newTasklistId)
         setTaskLastModifiedTime(taskId, instant)
@@ -202,12 +202,12 @@ class DatabaseModel {
         val oldTaskIndex = getTaskIndex(taskId)
         val instant = Clock.systemUTC().instant()
         if (oldTaskIndex < newTaskIndex) {
-            setTimeModifiedInSlice(tasklistId, oldTaskIndex + 1, newTaskIndex + 1, instant)
-            shiftTaskIndicesInSlice(tasklistId, oldTaskIndex + 1, newTaskIndex + 1, -1)
+            setTimeModifiedInSlice(tasklistId, oldTaskIndex + 1, newTaskIndex + 1, instant, currentEmail)
+            shiftTaskIndicesInSlice(tasklistId, oldTaskIndex + 1, newTaskIndex + 1, -1, currentEmail)
             setTaskIndex(taskId, newTaskIndex)
         } else if (oldTaskIndex > newTaskIndex) {
-            setTimeModifiedInSlice(tasklistId, newTaskIndex, oldTaskIndex, instant)
-            shiftTaskIndicesInSlice(tasklistId, newTaskIndex, oldTaskIndex, 1)
+            setTimeModifiedInSlice(tasklistId, newTaskIndex, oldTaskIndex, instant, currentEmail)
+            shiftTaskIndicesInSlice(tasklistId, newTaskIndex, oldTaskIndex, 1, currentEmail)
             setTaskIndex(taskId, newTaskIndex)
         }
         setTaskLastModifiedTime(taskId, instant)
@@ -253,9 +253,10 @@ class DatabaseModel {
     fun createNewTag(): UUID {
         val tagId = UUID.randomUUID()
         launchTagTransaction {
-            val tagIndex = getTagsCount()
+            val tagIndex = getTagsCount(currentEmail)
             val tagEntity = TagEntity(
                 tagId = tagId,
+                accountName = currentEmail,
                 tagIndex = tagIndex,
                 name = "",
                 styleIndex = 0,

@@ -53,12 +53,12 @@ class TagDaoTest {
         with(tagDao) {
             assertThat(getAllTags()).isEmpty()
             insertAllTags(testTags)
-            assertThat(getAllTags()).hasSize(2)
+            assertThat(getAllTags()).hasSize(3)
+            assertThat(getActiveTags(testEmailOne)).hasSize(2)
             setTagIndex(tagTwo.tagId, 4)
             assertThat(getTag(tagTwo.tagId).tagIndex).isEqualTo(4)
             setTagDeleted(tagOne.tagId, true)
             assertThat(getTag(tagOne.tagId).deleted).isTrue()
-            assertThat(getTag(tagTwo.tagId)).isEqualTo(tagTwo)
         }
     }
 
