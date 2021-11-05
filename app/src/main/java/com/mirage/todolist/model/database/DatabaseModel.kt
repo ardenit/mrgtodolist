@@ -22,27 +22,35 @@ import javax.inject.Inject
  * This model encapsulates working with its own thread,
  * so no external thread switching or synchronization is required.
  */
-class DatabaseModel {
+class DatabaseModel() {
 
     @Inject
     lateinit var database: AppDatabase
+
     @Inject
     lateinit var taskDao: TaskDao
+
     @Inject
     lateinit var tagDao: TagDao
+
     @Inject
     lateinit var relationDao: RelationDao
+
     @Inject
     lateinit var versionDao: VersionDao
+
     @Inject
     lateinit var preferences: SharedPreferences
+
     @Inject
     lateinit var resources: Resources
 
     @Volatile
     private var onSyncUpdateListener: suspend (DatabaseSnapshot) -> Unit = {}
+
     @Volatile
     private var liveVersionObserverJob: Job? = null
+
     @Volatile
     private var currentEmail: String = ""
 
@@ -55,7 +63,8 @@ class DatabaseModel {
 
     init {
         App.instance.appComponent.inject(this)
-        val currentEmail = preferences.getString(resources.getString(R.string.key_sync_select_acc), "")
+        val currentEmail =
+            preferences.getString(resources.getString(R.string.key_sync_select_acc), "")
         if (currentEmail.isNullOrBlank()) {
             Timber.v("Synchronization email is empty! No need to observe it.")
         } else {
@@ -72,11 +81,10 @@ class DatabaseModel {
         DatabaseSnapshot(allTasks, allTags, allRelations, allVersions)
     }
 
-    fun getDatabaseSnapshot(snapshotHandler: suspend (DatabaseSnapshot) -> Unit) {
+    fun getDatabaseSnapshot(snapshotHandler: suspend (DatabaseSnapshot) -> Unit): Job =
         coroutineScope.launch {
             snapshotHandler(getDatabaseSnapshot())
         }
-    }
 
     /**
      * Registers a listener to observe full database update events coming from Google Drive sync worker.
@@ -95,7 +103,8 @@ class DatabaseModel {
         val result = AtomicBoolean(true)
         val resultWasSet = AtomicBoolean(false)
         database.runInTransaction {
-            val localVersion = versionDao.getDataVersion(currentEmail).firstOrNull() ?: UUID.randomUUID()
+            val localVersion =
+                versionDao.getDataVersion(currentEmail).firstOrNull() ?: UUID.randomUUID()
             if (localVersion != oldDatabaseVersion) {
                 result.set(false)
                 resultWasSet.set(true)
@@ -107,8 +116,10 @@ class DatabaseModel {
             tagDao.insertAllTags(newSnapshot.tags.toList())
             relationDao.removeAllRelations(currentEmail)
             relationDao.insertAllRelations(newSnapshot.relations.toList())
-            val newVersion = newSnapshot.versions.firstOrNull { it.accountName == currentEmail }?.dataVersion ?: UUID.randomUUID()
-            versionDao.setDataVersion(currentEmail,  newVersion, true)
+            val newVersion =
+                newSnapshot.versions.firstOrNull { it.accountName == currentEmail }?.dataVersion
+                    ?: UUID.randomUUID()
+            versionDao.setDataVersion(currentEmail, newVersion, true)
             resultWasSet.set(true)
             result.set(true)
         }
@@ -122,32 +133,30 @@ class DatabaseModel {
      * Starts observing the data version of the given [accountEmail]
      * Should be used every time current synchronization account changes
      */
-    fun startObservingAccount(accountEmail: String) {
-        coroutineScope.launch {
-            currentEmail = accountEmail
-            val liveVersion = versionDao.getDataVersionFlow(accountEmail)
-            liveVersionObserverJob?.cancelAndJoin()
-            liveVersionObserverJob = coroutineScope.launch {
-                liveVersion.collect {
-                    Timber.v("Database version changed")
-                    coroutineScope.launch {
-                        database.runInTransaction {
-                            val mustBeProcessed = versionDao.getMustBeProcessed(currentEmail)
-                            if (mustBeProcessed) {
-                                Timber.v("Version was changed after sync, calling listeners")
-                                val newTasks = taskDao.getAllTasks()
-                                val newTags = tagDao.getAllTags()
-                                val newRelations = relationDao.getAllRelations()
-                                val newVersions = versionDao.getAllVersions()
-                                val newSnapshot =
-                                    DatabaseSnapshot(newTasks, newTags, newRelations, newVersions)
-                                versionDao.setMustBeProcessed(currentEmail, false)
-                                coroutineScope.launch {
-                                    onSyncUpdateListener(newSnapshot)
-                                }
-                            } else {
-                                Timber.v("Version was changed by user action, not calling listeners")
+    fun startObservingAccount(accountEmail: String): Job = coroutineScope.launch {
+        currentEmail = accountEmail
+        val liveVersion = versionDao.getDataVersionFlow(accountEmail)
+        liveVersionObserverJob?.cancelAndJoin()
+        liveVersionObserverJob = coroutineScope.launch {
+            liveVersion.collect {
+                Timber.v("Database version changed")
+                coroutineScope.launch {
+                    database.runInTransaction {
+                        val mustBeProcessed = versionDao.getMustBeProcessed(currentEmail)
+                        if (mustBeProcessed) {
+                            Timber.v("Version was changed after sync, calling listeners")
+                            val newTasks = taskDao.getAllTasks()
+                            val newTags = tagDao.getAllTags()
+                            val newRelations = relationDao.getAllRelations()
+                            val newVersions = versionDao.getAllVersions()
+                            val newSnapshot =
+                                DatabaseSnapshot(newTasks, newTags, newRelations, newVersions)
+                            versionDao.setMustBeProcessed(currentEmail, false)
+                            coroutineScope.launch {
+                                onSyncUpdateListener(newSnapshot)
                             }
+                        } else {
+                            Timber.v("Version was changed by user action, not calling listeners")
                         }
                     }
                 }
@@ -155,17 +164,19 @@ class DatabaseModel {
         }
     }
 
+
     /** Returns task ID immediately without waiting for DB query to complete */
-    fun createNewTask(tasklistId: Int): UUID {
+    fun createNewTask(tasklistId: Int): Pair<UUID, Job> {
         val taskId = UUID.randomUUID()
         Timber.v("DatabaseModel - createNewTask ${Thread.currentThread().id}")
-        coroutineScope.launch {
+        val job = coroutineScope.launch {
             val defaultTitle = resources.getString(R.string.task_default_title)
             val defaultDescription = resources.getString(R.string.task_default_description)
             Timber.v("DatabaseModel - createNewTask - coroutine ${Thread.currentThread().id}")
             database.runInTransaction {
                 Timber.v("DatabaseModel - createNewTask - transaction ${Thread.currentThread().id}")
                 val taskIndex = taskDao.getTasklistSize(tasklistId, currentEmail)
+                Timber.v("Task index: $taskIndex")
                 val taskEntity = TaskEntity(
                     taskId = taskId,
                     accountName = currentEmail,
@@ -179,31 +190,51 @@ class DatabaseModel {
                     lastModified = Clock.systemUTC().instant()
                 )
                 taskDao.insertTask(taskEntity)
+                Timber.v("Task inserted into DAO")
                 versionDao.updateVersion(currentEmail)
+                Timber.v("Version updated")
             }
         }
-        return taskId
+        return Pair(taskId, job)
     }
 
-    fun moveTask(taskId: UUID, newTasklistId: Int) = launchTaskTransaction {
+    fun moveTask(taskId: UUID, newTasklistId: Int): Job = launchTaskTransaction {
         val oldTasklistId = getTasklistId(taskId)
         val oldTaskIndex = getTaskIndex(taskId)
         val newTaskIndex = getTasklistSize(newTasklistId, currentEmail)
         val instant = Clock.systemUTC().instant()
-        setTimeModifiedInSlice(oldTasklistId, oldTaskIndex + 1, Int.MAX_VALUE, instant, currentEmail)
+        setTimeModifiedInSlice(
+            oldTasklistId,
+            oldTaskIndex + 1,
+            Int.MAX_VALUE,
+            instant,
+            currentEmail
+        )
         shiftTaskIndicesInSlice(oldTasklistId, oldTaskIndex + 1, Int.MAX_VALUE, -1, currentEmail)
         setTaskIndex(taskId, newTaskIndex)
         setTasklistId(taskId, newTasklistId)
         setTaskLastModifiedTime(taskId, instant)
     }
 
-    fun moveTaskInList(taskId: UUID, newTaskIndex: Int) = launchTaskTransaction {
+    fun moveTaskInList(taskId: UUID, newTaskIndex: Int): Job = launchTaskTransaction {
         val tasklistId = getTasklistId(taskId)
         val oldTaskIndex = getTaskIndex(taskId)
         val instant = Clock.systemUTC().instant()
         if (oldTaskIndex < newTaskIndex) {
-            setTimeModifiedInSlice(tasklistId, oldTaskIndex + 1, newTaskIndex + 1, instant, currentEmail)
-            shiftTaskIndicesInSlice(tasklistId, oldTaskIndex + 1, newTaskIndex + 1, -1, currentEmail)
+            setTimeModifiedInSlice(
+                tasklistId,
+                oldTaskIndex + 1,
+                newTaskIndex + 1,
+                instant,
+                currentEmail
+            )
+            shiftTaskIndicesInSlice(
+                tasklistId,
+                oldTaskIndex + 1,
+                newTaskIndex + 1,
+                -1,
+                currentEmail
+            )
             setTaskIndex(taskId, newTaskIndex)
         } else if (oldTaskIndex > newTaskIndex) {
             setTimeModifiedInSlice(tasklistId, newTaskIndex, oldTaskIndex, instant, currentEmail)
@@ -213,24 +244,29 @@ class DatabaseModel {
         setTaskLastModifiedTime(taskId, instant)
     }
 
-    fun setTaskTitle(taskId: UUID, title: String) = modifyTask(taskId) {
+    fun setTaskTitle(taskId: UUID, title: String): Job = modifyTask(taskId) {
         setTaskTitle(taskId, title)
     }
 
-    fun setTaskDescription(taskId: UUID, description: String) = modifyTask(taskId) {
+    fun setTaskDescription(taskId: UUID, description: String): Job = modifyTask(taskId) {
         setTaskDescription(taskId, description)
     }
 
-    fun setTaskTags(taskId: UUID, tagIds: List<UUID>) {
+    fun setTaskTags(taskId: UUID, tagIds: List<UUID>): Job {
         val tagIdsSync = CopyOnWriteArrayList(tagIds)
-        launchTaskTransaction {
+        return launchTaskTransaction {
             tagIdsSync.forEach { tagId ->
                 val relationsCount = relationDao.checkRelation(taskId, tagId)
                 if (relationsCount == 0) {
-                    val relation = RelationEntity(taskId, tagId, currentEmail, false, Clock.systemUTC().instant())
+                    val relation = RelationEntity(
+                        taskId,
+                        tagId,
+                        currentEmail,
+                        false,
+                        Clock.systemUTC().instant()
+                    )
                     relationDao.insertRelation(relation)
-                }
-                else {
+                } else {
                     relationDao.restoreRelation(taskId, tagId)
                     relationDao.setRelationModifiedTime(taskId, tagId, Clock.systemUTC().instant())
                 }
@@ -238,21 +274,21 @@ class DatabaseModel {
         }
     }
 
-    fun setTaskDate(taskId: UUID, taskDate: OptionalDate) = modifyTask(taskId) {
+    fun setTaskDate(taskId: UUID, taskDate: OptionalDate): Job = modifyTask(taskId) {
         taskDao.setTaskDate(taskId, taskDate)
     }
 
-    fun setTaskTime(taskId: UUID, taskTime: OptionalTime) = modifyTask(taskId) {
+    fun setTaskTime(taskId: UUID, taskTime: OptionalTime): Job = modifyTask(taskId) {
         setTaskTime(taskId, taskTime)
     }
 
-    fun setTaskPeriod(taskId: UUID, period: TaskPeriod) = modifyTask(taskId) {
+    fun setTaskPeriod(taskId: UUID, period: TaskPeriod): Job = modifyTask(taskId) {
         setTaskPeriod(taskId, period)
     }
 
-    fun createNewTag(): UUID {
+    fun createNewTag(): Pair<UUID, Job> {
         val tagId = UUID.randomUUID()
-        launchTagTransaction {
+        val job = launchTagTransaction {
             val tagIndex = getTagsCount(currentEmail)
             val tagEntity = TagEntity(
                 tagId = tagId,
@@ -265,45 +301,42 @@ class DatabaseModel {
             )
             insertTag(tagEntity)
         }
-        return tagId
+        return Pair(tagId, job)
     }
 
-    fun setTagName(tagId: UUID, name: String) = modifyTag(tagId) {
+    fun setTagName(tagId: UUID, name: String): Job = modifyTag(tagId) {
         setTagName(tagId, name)
     }
 
-    fun setTagStyleIndex(tagId: UUID, styleIndex: Int) = modifyTag(tagId) {
+    fun setTagStyleIndex(tagId: UUID, styleIndex: Int): Job = modifyTag(tagId) {
         setTagStyleIndex(tagId, styleIndex)
     }
 
-    fun removeTag(tagId: UUID) = modifyTag(tagId) {
+    fun removeTag(tagId: UUID): Job = modifyTag(tagId) {
         setTagDeleted(tagId, true)
     }
 
-    private fun launchTaskTransaction(block: TaskDao.() -> Unit) {
-        coroutineScope.launch {
-            database.runInTransaction {
-                taskDao.block()
-                versionDao.updateVersion(currentEmail)
-            }
+    private fun launchTaskTransaction(block: TaskDao.() -> Unit): Job = coroutineScope.launch {
+        database.runInTransaction {
+            taskDao.block()
+            versionDao.updateVersion(currentEmail)
         }
     }
 
-    private fun launchTagTransaction(block: TagDao.() -> Unit) {
-        coroutineScope.launch {
-            database.runInTransaction {
-                tagDao.block()
-                versionDao.updateVersion(currentEmail)
-            }
+    private fun launchTagTransaction(block: TagDao.() -> Unit): Job = coroutineScope.launch {
+        database.runInTransaction {
+            tagDao.block()
+            versionDao.updateVersion(currentEmail)
         }
     }
 
-    private fun modifyTask(taskId: UUID, block: TaskDao.(UUID) -> Unit) = launchTaskTransaction {
-        block(taskId)
-        setTaskLastModifiedTime(taskId, Clock.systemUTC().instant())
-    }
+    private fun modifyTask(taskId: UUID, block: TaskDao.(UUID) -> Unit): Job =
+        launchTaskTransaction {
+            block(taskId)
+            setTaskLastModifiedTime(taskId, Clock.systemUTC().instant())
+        }
 
-    private fun modifyTag(tagId: UUID, block: TagDao.(UUID) -> Unit) = launchTagTransaction {
+    private fun modifyTag(tagId: UUID, block: TagDao.(UUID) -> Unit): Job = launchTagTransaction {
         block(tagId)
         setTagLastModifiedTime(tagId, Clock.systemUTC().instant())
     }

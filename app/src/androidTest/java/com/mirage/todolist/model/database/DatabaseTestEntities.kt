@@ -2,8 +2,8 @@ package com.mirage.todolist.model.database
 
 import java.util.*
 
-val testEmailOne = "test@example.com"
-val testEmailTwo = "prod@company.org"
+const val testEmailOne = "test@example.com"
+const val testEmailTwo = "prod@company.org"
 
 val taskOne = TaskEntity(
     taskId = UUID.randomUUID(),

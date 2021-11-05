@@ -87,7 +87,7 @@ class TodoRepository {
     fun createNewTask(tasklistId: Int): LiveTask {
         Timber.v("Creating new task in tasklist $tasklistId")
         val taskIndex = tasklistSizes[tasklistId] ?: 0
-        val taskId = databaseModel.createNewTask(tasklistId)
+        val (taskId, _) = databaseModel.createNewTask(tasklistId)
         val task = MutableLiveTask(
             taskId = taskId,
             tasklistId = tasklistId,
@@ -284,7 +284,7 @@ class TodoRepository {
      */
     fun createNewTag(): LiveTag {
         val tagIndex = localTags.size
-        val tagID = databaseModel.createNewTag()
+        val (tagID, _) = databaseModel.createNewTag()
         val tag = MutableLiveTag(tagID, tagIndex, "", 0)
         localTags[tagID] = tag
         return tag
