@@ -6,10 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
-import com.mirage.todolist.BuildConfig
 import com.mirage.todolist.R
 import com.mirage.todolist.di.App
-import timber.log.Timber
 import javax.inject.Inject
 
 class LockScreenActivity : AppCompatActivity() {

@@ -10,7 +10,6 @@ import com.google.gson.JsonSyntaxException
 import com.mirage.todolist.R
 import com.mirage.todolist.model.database.AccountSnapshot
 import com.mirage.todolist.model.database.DatabaseModel
-import com.mirage.todolist.model.database.DatabaseSnapshot
 import com.mirage.todolist.model.database.VersionEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async

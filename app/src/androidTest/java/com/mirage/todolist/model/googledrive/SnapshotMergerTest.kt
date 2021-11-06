@@ -1,20 +1,17 @@
 package com.mirage.todolist.model.googledrive
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import com.mirage.todolist.di.App
 import com.mirage.todolist.di.DaggerTestAppComponent
 import com.mirage.todolist.di.TestAppComponent
 import com.mirage.todolist.model.database.*
-import org.junit.After
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 import timber.log.Timber
 import java.time.Clock
-import java.time.LocalTime
 import java.util.*
 import javax.inject.Inject
 

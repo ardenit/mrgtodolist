@@ -5,16 +5,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.preference.PreferenceManager
-import com.andrognito.patternlockview.PatternLockView
 import com.andrognito.patternlockview.utils.PatternLockUtils
 import com.mirage.todolist.R
 import com.mirage.todolist.databinding.FragmentAddGraphicalKeyBinding
-import com.mirage.todolist.databinding.FragmentTasklistBinding
 import com.mirage.todolist.di.App
 import com.mirage.todolist.util.PasswordValidator
 import com.mirage.todolist.util.autoCleared

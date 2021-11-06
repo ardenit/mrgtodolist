@@ -1,18 +1,20 @@
 package com.mirage.todolist.model.database
 
-import androidx.lifecycle.Observer
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.common.truth.Truth.assertThat
 import com.mirage.todolist.di.App
 import com.mirage.todolist.di.DaggerTestAppComponent
 import com.mirage.todolist.di.TestAppComponent
-import org.junit.runner.RunWith
-import java.util.*
-import javax.inject.Inject
-import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
-import org.junit.*
+import org.junit.After
+import org.junit.Before
+import org.junit.BeforeClass
+import org.junit.Test
+import org.junit.runner.RunWith
+import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
+import javax.inject.Inject
 
 @RunWith(AndroidJUnit4::class)
 class VersionDaoTest {

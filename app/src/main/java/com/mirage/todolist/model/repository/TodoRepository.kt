@@ -8,7 +8,6 @@ import com.mirage.todolist.di.App
 import com.mirage.todolist.di.ApplicationContext
 import com.mirage.todolist.model.database.AccountSnapshot
 import com.mirage.todolist.model.database.DatabaseModel
-import com.mirage.todolist.model.database.DatabaseSnapshot
 import com.mirage.todolist.model.googledrive.GoogleDriveConnectExceptionHandler
 import com.mirage.todolist.model.googledrive.GoogleDriveModel
 import com.mirage.todolist.model.workers.scheduleAllDatetimeNotifications
