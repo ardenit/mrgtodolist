@@ -5,7 +5,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
 import androidx.preference.PreferenceManager
+import androidx.room.PrimaryKey
 import com.mirage.todolist.model.database.DatabaseModel
+import com.mirage.todolist.model.googledrive.GoogleDriveFactory
 import com.mirage.todolist.model.googledrive.GoogleDriveModel
 import com.mirage.todolist.model.googledrive.SnapshotMerger
 import com.mirage.todolist.model.repository.TodoRepository
@@ -38,6 +40,11 @@ class ApplicationModule {
     @Provides
     @Singleton
     fun provideSnapshotMerger(): SnapshotMerger = SnapshotMerger()
+
+    @Provides
+    @Singleton
+    fun provideGoogleDriveFactory(@ApplicationContext context: Context): GoogleDriveFactory =
+        GoogleDriveFactory(context)
 
     @Provides
     @Singleton

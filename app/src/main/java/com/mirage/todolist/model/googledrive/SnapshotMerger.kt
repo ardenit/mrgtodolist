@@ -1,6 +1,6 @@
 package com.mirage.todolist.model.googledrive
 
-import com.mirage.todolist.model.database.DatabaseSnapshot
+import com.mirage.todolist.model.database.AccountSnapshot
 import com.mirage.todolist.model.database.VersionEntity
 import java.util.*
 
@@ -12,34 +12,31 @@ class SnapshotMerger {
      * Returned snapshot only stores entities bound to given [email], so database should not be overridden completely.
      * If merge is not required, resulted version will be the same as the version of an up-to-date snapshot.
      */
-    fun mergeSnapshots(email: String, databaseSnapshot: DatabaseSnapshot, gDriveSnapshot: DatabaseSnapshot): DatabaseSnapshot {
-        val databaseVersion = databaseSnapshot.getDataVersion(email)
-        val gDriveVersion = gDriveSnapshot.getDataVersion(email)
-        if (databaseVersion == gDriveVersion) return databaseSnapshot
-        val tagsSlice = (databaseSnapshot.tags + gDriveSnapshot.tags)
-            .filter { it.accountName == email }
+    fun mergeSnapshots(localSnapshot: AccountSnapshot, remoteSnapshot: AccountSnapshot): AccountSnapshot {
+        val localVersion = localSnapshot.version.dataVersion
+        val remoteVersion = remoteSnapshot.version.dataVersion
+        if (localVersion == remoteVersion) return localSnapshot
+        val tagsSlice = (localSnapshot.tags + remoteSnapshot.tags)
             .groupBy { it.tagId }
             .mapNotNull { (_, tags) -> tags.maxByOrNull { it.lastModified } }
-        val tasksSlice = (databaseSnapshot.tasks + gDriveSnapshot.tasks)
-            .filter { it.accountName == email }
+        val tasksSlice = (localSnapshot.tasks + remoteSnapshot.tasks)
             .groupBy { it.taskId }
             .mapNotNull { (_, tasks) -> tasks.maxByOrNull { it.lastModified } }
-        val relationsSlice = (databaseSnapshot.relations + gDriveSnapshot.relations)
-            .filter { it.accountName == email }
+        val relationsSlice = (localSnapshot.relations + remoteSnapshot.relations)
             .groupBy { Pair(it.tagId, it.taskId) }
             .mapNotNull { (_, relations) -> relations.maxByOrNull { it.lastModified } }
         val newVersion = when {
-            (tagsSlice.toSet() == gDriveSnapshot.tags.toSet() &&
-                    tasksSlice.toSet() == gDriveSnapshot.tasks.toSet() &&
-                    relationsSlice.toSet() == gDriveSnapshot.relations.toSet()
-                    ) -> gDriveSnapshot.getDataVersion(email)
-            (tagsSlice.toSet() == databaseSnapshot.tags.toSet() &&
-                    tasksSlice.toSet() == databaseSnapshot.tasks.toSet() &&
-                    relationsSlice.toSet() == databaseSnapshot.relations.toSet()
-                    ) -> databaseSnapshot.getDataVersion(email)
+            (tagsSlice.toSet() == remoteSnapshot.tags.toSet() &&
+                    tasksSlice.toSet() == remoteSnapshot.tasks.toSet() &&
+                    relationsSlice.toSet() == remoteSnapshot.relations.toSet()
+                    ) -> remoteSnapshot.version.dataVersion
+            (tagsSlice.toSet() == localSnapshot.tags.toSet() &&
+                    tasksSlice.toSet() == localSnapshot.tasks.toSet() &&
+                    relationsSlice.toSet() == localSnapshot.relations.toSet()
+                    ) -> localSnapshot.version.dataVersion
             else -> UUID.randomUUID()
         }
-        val versions = listOf(VersionEntity(email, newVersion, true))
-        return DatabaseSnapshot(tasksSlice, tagsSlice, relationsSlice, versions)
+        val version = VersionEntity(localSnapshot.accountName, newVersion, true)
+        return AccountSnapshot(tasksSlice, tagsSlice, relationsSlice, version, localSnapshot.accountName)
     }
 }

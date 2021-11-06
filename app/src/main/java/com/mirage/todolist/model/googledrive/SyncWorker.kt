@@ -8,8 +8,10 @@ import androidx.work.WorkerParameters
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import com.mirage.todolist.R
+import com.mirage.todolist.model.database.AccountSnapshot
 import com.mirage.todolist.model.database.DatabaseModel
 import com.mirage.todolist.model.database.DatabaseSnapshot
+import com.mirage.todolist.model.database.VersionEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -50,22 +52,22 @@ class SyncWorker(context: Context, workerParams: WorkerParameters) : Worker(cont
         val syncStartTime = System.currentTimeMillis()
         val (databaseData, driveData) = runBlocking(Dispatchers.IO) {
             val driveDataAsync = async {
-                loadDataFromGDrive()
+                loadDataFromGDrive(email)
             }
             val databaseDataAsync = async {
-                databaseModel.getDatabaseSnapshot()
+                databaseModel.getAccountSnapshot()
             }
             Pair(databaseDataAsync.await(), driveDataAsync.await())
         }
-        val databaseVersion = databaseData.getDataVersion(email)
-        val mergedSnapshot = snapshotMerger.mergeSnapshots(email, databaseData, driveData)
+        val databaseVersion = databaseData.version.dataVersion
+        val mergedSnapshot = snapshotMerger.mergeSnapshots(databaseData, driveData)
         val syncEndTime = System.currentTimeMillis()
         // If sync took too long, abort and retry later
         if (syncEndTime - syncStartTime > SYNC_TIMEOUT_TIME_MILLIS) {
             Timber.e("Sync took too long, retrying later")
             return Result.retry()
         }
-        writeDataToGDrive(email, mergedSnapshot)
+        writeDataToGDrive(mergedSnapshot)
         databaseModel.updateDatabaseAfterSync(mergedSnapshot, databaseVersion)
         val databaseWriteSuccessful = databaseModel.updateDatabaseAfterSync(mergedSnapshot, databaseVersion)
         return if (databaseWriteSuccessful) Result.success() else Result.retry()
@@ -96,16 +98,21 @@ class SyncWorker(context: Context, workerParams: WorkerParameters) : Worker(cont
         return true
     }
 
-    private fun loadDataFromGDrive(): DatabaseSnapshot {
+    private fun loadDataFromGDrive(email: String): AccountSnapshot {
         var dataFileId = googleDriveModel.getFileId(DATAFILE_NAME)
         if (dataFileId == null) {
             dataFileId = googleDriveModel.createFile(DATAFILE_NAME)
         }
         val dataFile = googleDriveModel.downloadFile(dataFileId)
         val dataFileData = try {
-            gson.fromJson(dataFile.decodeToString(), DatabaseSnapshot::class.java)
+            gson.fromJson(dataFile.decodeToString(), AccountSnapshot::class.java)
         } catch (ex: JsonSyntaxException) {
-            DatabaseSnapshot(emptyList(), emptyList(), emptyList(), emptyList())
+            val versionEntity = VersionEntity(
+                accountName = email,
+                dataVersion = UUID.randomUUID(),
+                mustBeProcessed = false
+            )
+            AccountSnapshot(emptyList(), emptyList(), emptyList(), versionEntity, email)
         }
         return dataFileData
     }
@@ -120,8 +127,8 @@ class SyncWorker(context: Context, workerParams: WorkerParameters) : Worker(cont
         return lockFileData
     }
 
-    private fun writeDataToGDrive(email: String, newSnapshot: DatabaseSnapshot) {
-        val newVersion = newSnapshot.getDataVersion(email)
+    private fun writeDataToGDrive(newSnapshot: AccountSnapshot) {
+        val newVersion = newSnapshot.version.dataVersion
         val newLockFileData = LockFileData(-1L, identity, newVersion)
         val newData = gson.toJson(newSnapshot).encodeToByteArray()
         val newLock = gson.toJson(newLockFileData).encodeToByteArray()

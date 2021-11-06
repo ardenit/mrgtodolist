@@ -25,9 +25,8 @@ import javax.inject.Inject
  */
 class GoogleDriveModel {
 
-    @ApplicationContext
     @Inject
-    lateinit var context: Context
+    lateinit var driveFactory: GoogleDriveFactory
     @Volatile
     private lateinit var gDrive: Drive
     private val job = SupervisorJob()
@@ -45,13 +44,7 @@ class GoogleDriveModel {
      */
     fun connectBlocking(email: String): Boolean {
         Timber.v("Connecting to Google Drive using email $email")
-        gDrive = Drive.Builder(
-            NetHttpTransport(),
-            GsonFactory(),
-            GoogleAccountCredential.usingOAuth2(
-                context, listOf(DriveScopes.DRIVE_FILE, DriveScopes.DRIVE_APPDATA)
-            ).setSelectedAccountName(email)
-        ).setApplicationName(GDRIVE_APP_NAME).build()
+        gDrive = driveFactory.createDrive(email)
         val successful = try {
             gDrive.files().get("root").setFields("title").execute()
             true
@@ -76,13 +69,7 @@ class GoogleDriveModel {
     fun connectAsync(email: String, exceptionHandler: GoogleDriveConnectExceptionHandler) {
         Timber.v("Connecting to Google Drive using email $email")
         coroutineScope.launch(Dispatchers.IO) {
-            gDrive = Drive.Builder(
-                NetHttpTransport(),
-                GsonFactory(),
-                GoogleAccountCredential.usingOAuth2(
-                    context, listOf(DriveScopes.DRIVE_FILE, DriveScopes.DRIVE_APPDATA)
-                ).setSelectedAccountName(email)
-            ).setApplicationName(GDRIVE_APP_NAME).build()
+            gDrive = driveFactory.createDrive(email)
             withContext(Dispatchers.Main) {
                 try {
                     withContext(Dispatchers.IO) {
@@ -141,10 +128,5 @@ class GoogleDriveModel {
         gDrive.Files()
             .update(fileId, null, InputStreamContent("application/json", inputStream))
             .execute()
-    }
-
-    companion object {
-        const val OAUTH_CLIENT_KEY = BuildConfig.OAUTH_CLIENT_ID
-        private const val GDRIVE_APP_NAME = "com.mirage.todolist"
     }
 }

@@ -6,6 +6,7 @@ import android.content.res.Resources
 import com.mirage.todolist.R
 import com.mirage.todolist.di.App
 import com.mirage.todolist.di.ApplicationContext
+import com.mirage.todolist.model.database.AccountSnapshot
 import com.mirage.todolist.model.database.DatabaseModel
 import com.mirage.todolist.model.database.DatabaseSnapshot
 import com.mirage.todolist.model.googledrive.GoogleDriveConnectExceptionHandler
@@ -68,7 +69,7 @@ class TodoRepository {
         databaseModel.setOnSyncUpdateListener {
             reloadData(it)
         }
-        databaseModel.getDatabaseSnapshot {
+        databaseModel.getAccountSnapshot {
             reloadData(it)
         }
     }
@@ -368,7 +369,7 @@ class TodoRepository {
         onFullUpdateTagListeners -= listener
     }
 
-    private suspend fun reloadData(dbSnapshot: DatabaseSnapshot) {
+    private suspend fun reloadData(dbSnapshot: AccountSnapshot) {
         val newLocalTasks = LinkedHashMap<UUID, MutableLiveTask>()
         val newLocalTags = LinkedHashMap<UUID, MutableLiveTag>()
         dbSnapshot.tags.forEach { tagEntity ->

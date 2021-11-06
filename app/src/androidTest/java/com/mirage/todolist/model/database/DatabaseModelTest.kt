@@ -185,6 +185,29 @@ class DatabaseModelTest {
         }
     }
 
+    @Test
+    fun testCreateRelations() = runBlocking {
+        taskDao.insertAllTasks(testTasks)
+        tagDao.insertAllTags(testTags)
+        with(databaseModel) {
+            assertThat(relationDao.getAllRelations()).isEmpty()
+            setTaskTags(taskTwo.taskId, testTags.map { it.tagId }).join()
+            assertThat(relationDao.getAllRelations()).hasSize(3)
+            assertThat(relationDao.getAllRelations(testEmailOne)).hasSize(3)
+            assertThat(relationDao.getAllRelations().all { !it.deleted }).isTrue()
+            setTaskTags(taskTwo.taskId, listOf(tagOne.tagId)).join()
+            assertThat(relationDao.getAllRelations()).hasSize(3)
+            assertThat(relationDao.getAllRelations(testEmailOne)).hasSize(3)
+            assertThat(relationDao.getActiveRelationsByTask(taskTwo.taskId, testEmailOne)).hasSize(1)
+            assertThat(relationDao.getAllRelations().count { it.deleted }).isEqualTo(2)
+            setTaskTags(taskTwo.taskId, listOf(tagOne.tagId, tagTwo.tagId)).join()
+            assertThat(relationDao.getAllRelations()).hasSize(3)
+            assertThat(relationDao.getAllRelations(testEmailOne)).hasSize(3)
+            assertThat(relationDao.getActiveRelationsByTask(taskTwo.taskId, testEmailOne)).hasSize(2)
+            assertThat(relationDao.getAllRelations().count { it.deleted }).isEqualTo(1)
+        }
+    }
+
     companion object {
         @BeforeClass
         @JvmStatic

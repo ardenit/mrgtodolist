@@ -42,8 +42,13 @@ interface RelationDao {
     fun setRelationModifiedTime(taskId: UUID, tagId: UUID, lastModified: Instant)
 
     @Query("""
-        SELECT *
-        FROM relations
+        SELECT * FROM relations
+        WHERE task_id = :taskId AND account_name = :accountName AND NOT deleted
+    """)
+    fun getActiveRelationsByTask(taskId: UUID, accountName: String): List<RelationEntity>
+
+    @Query("""
+        SELECT * FROM relations
         WHERE task_id = :taskId AND tag_id = :tagId
     """)
     fun getRelation(taskId: UUID, tagId: UUID): RelationEntity

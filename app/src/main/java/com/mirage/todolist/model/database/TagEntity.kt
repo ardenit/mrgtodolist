@@ -21,11 +21,11 @@ data class TagEntity(
     @ColumnInfo(name = "tag_index")
     val tagIndex: Int,
     @ColumnInfo(name = "name")
-    val name: String,
+    val name: String = "",
     @ColumnInfo(name = "style_index")
-    val styleIndex: Int,
+    val styleIndex: Int = 0,
     @ColumnInfo(name = "deleted")
-    val deleted: Boolean,
+    val deleted: Boolean = false,
     @ColumnInfo(name = "last_modified")
     val lastModified: Instant = Clock.systemUTC().instant()
 )

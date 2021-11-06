@@ -21,8 +21,9 @@ import javax.inject.Inject
  * Class for interacting with Room database
  * This model encapsulates working with its own thread,
  * so no external thread switching or synchronization is required.
+ * Most methods don't wait for the query to finish, instead returning a [Job] that can be joined if needed.
  */
-class DatabaseModel() {
+class DatabaseModel {
 
     @Inject
     lateinit var database: AppDatabase
@@ -46,7 +47,7 @@ class DatabaseModel() {
     lateinit var resources: Resources
 
     @Volatile
-    private var onSyncUpdateListener: suspend (DatabaseSnapshot) -> Unit = {}
+    private var onSyncUpdateListener: suspend (AccountSnapshot) -> Unit = {}
 
     @Volatile
     private var liveVersionObserverJob: Job? = null
@@ -81,16 +82,31 @@ class DatabaseModel() {
         DatabaseSnapshot(allTasks, allTags, allRelations, allVersions)
     }
 
+    suspend fun getAccountSnapshot(): AccountSnapshot = withContext(coroutineContext) {
+        val allTasks = taskDao.getAllTasks(currentEmail)
+        val allTags = tagDao.getAllTags(currentEmail)
+        val allRelations = relationDao.getAllRelations(currentEmail)
+        val version = versionDao.getAllVersions()
+            .firstOrNull { it.accountName == currentEmail }
+            ?: VersionEntity(currentEmail, UUID.randomUUID(), false)
+        AccountSnapshot(allTasks, allTags, allRelations, version, currentEmail)
+    }
+
     fun getDatabaseSnapshot(snapshotHandler: suspend (DatabaseSnapshot) -> Unit): Job =
         coroutineScope.launch {
             snapshotHandler(getDatabaseSnapshot())
         }
 
+    fun getAccountSnapshot(snapshotHandler: suspend (AccountSnapshot) -> Unit): Job =
+        coroutineScope.launch {
+            snapshotHandler(getAccountSnapshot())
+        }
+
     /**
-     * Registers a listener to observe full database update events coming from Google Drive sync worker.
+     * Registers a listener to observe account data update events coming from Google Drive sync worker.
      * [onSyncUpdate] will be called on the database thread dispatcher
      */
-    fun setOnSyncUpdateListener(onSyncUpdate: suspend (DatabaseSnapshot) -> Unit) {
+    fun setOnSyncUpdateListener(onSyncUpdate: suspend (AccountSnapshot) -> Unit) {
         onSyncUpdateListener = onSyncUpdate
     }
 
@@ -99,7 +115,7 @@ class DatabaseModel() {
      * @return true if database was successfully updated, false if sync must be retried later
      * (e.g. if user updates the tasklist, sync was done with outdated local database snapshot and must be redone)
      */
-    fun updateDatabaseAfterSync(newSnapshot: DatabaseSnapshot, oldDatabaseVersion: UUID): Boolean {
+    fun updateDatabaseAfterSync(newSnapshot: AccountSnapshot, oldDatabaseVersion: UUID): Boolean {
         val result = AtomicBoolean(true)
         val resultWasSet = AtomicBoolean(false)
         database.runInTransaction {
@@ -116,9 +132,7 @@ class DatabaseModel() {
             tagDao.insertAllTags(newSnapshot.tags.toList())
             relationDao.removeAllRelations(currentEmail)
             relationDao.insertAllRelations(newSnapshot.relations.toList())
-            val newVersion =
-                newSnapshot.versions.firstOrNull { it.accountName == currentEmail }?.dataVersion
-                    ?: UUID.randomUUID()
+            val newVersion = newSnapshot.version.dataVersion
             versionDao.setDataVersion(currentEmail, newVersion, true)
             resultWasSet.set(true)
             result.set(true)
@@ -145,12 +159,13 @@ class DatabaseModel() {
                         val mustBeProcessed = versionDao.getMustBeProcessed(currentEmail)
                         if (mustBeProcessed) {
                             Timber.v("Version was changed after sync, calling listeners")
-                            val newTasks = taskDao.getAllTasks()
-                            val newTags = tagDao.getAllTags()
-                            val newRelations = relationDao.getAllRelations()
-                            val newVersions = versionDao.getAllVersions()
-                            val newSnapshot =
-                                DatabaseSnapshot(newTasks, newTags, newRelations, newVersions)
+                            val newTasks = taskDao.getAllTasks(currentEmail)
+                            val newTags = tagDao.getAllTags(currentEmail)
+                            val newRelations = relationDao.getAllRelations(currentEmail)
+                            val version = versionDao.getAllVersions()
+                                .firstOrNull { it.accountName == currentEmail }
+                                ?: VersionEntity(currentEmail, UUID.randomUUID(), false)
+                            val newSnapshot = AccountSnapshot(newTasks, newTags, newRelations, version, currentEmail)
                             versionDao.setMustBeProcessed(currentEmail, false)
                             coroutineScope.launch {
                                 onSyncUpdateListener(newSnapshot)
@@ -163,7 +178,6 @@ class DatabaseModel() {
             }
         }
     }
-
 
     /** Returns task ID immediately without waiting for DB query to complete */
     fun createNewTask(tasklistId: Int): Pair<UUID, Job> {
@@ -255,21 +269,23 @@ class DatabaseModel() {
     fun setTaskTags(taskId: UUID, tagIds: List<UUID>): Job {
         val tagIdsSync = CopyOnWriteArrayList(tagIds)
         return launchTaskTransaction {
-            tagIdsSync.forEach { tagId ->
-                val relationsCount = relationDao.checkRelation(taskId, tagId)
-                if (relationsCount == 0) {
-                    val relation = RelationEntity(
-                        taskId,
-                        tagId,
-                        currentEmail,
-                        false,
-                        Clock.systemUTC().instant()
-                    )
-                    relationDao.insertRelation(relation)
-                } else {
-                    relationDao.restoreRelation(taskId, tagId)
-                    relationDao.setRelationModifiedTime(taskId, tagId, Clock.systemUTC().instant())
-                }
+            val existingRelations = relationDao.getActiveRelationsByTask(taskId, currentEmail).map { it.tagId }
+            val relationsToAdd = tagIdsSync - existingRelations
+            val relationsToRemove = existingRelations - tagIdsSync
+            val instant = Clock.systemUTC().instant()
+            val newRelations = relationsToAdd.map {
+                RelationEntity(
+                    taskId = taskId,
+                    tagId = it,
+                    accountName = currentEmail,
+                    deleted = false,
+                    lastModified = instant
+                )
+            }
+            relationDao.insertAllRelations(newRelations)
+            relationsToRemove.forEach {
+                relationDao.deleteRelation(taskId, it)
+                relationDao.setRelationModifiedTime(taskId, it, instant)
             }
         }
     }
