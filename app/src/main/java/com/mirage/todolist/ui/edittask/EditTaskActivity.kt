@@ -2,6 +2,7 @@ package com.mirage.todolist.ui.edittask
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -14,6 +15,7 @@ import com.mirage.todolist.R
 import com.mirage.todolist.databinding.ActivityEditTaskBinding
 import com.mirage.todolist.di.App
 import com.mirage.todolist.model.repository.*
+import com.mirage.todolist.ui.location.LocationActivity
 import com.mirage.todolist.util.OptionalDate
 import com.mirage.todolist.util.OptionalTime
 import com.mirage.todolist.util.showToast
@@ -86,6 +88,9 @@ class EditTaskActivity : AppCompatActivity() {
                 openNewTagDialog()
             }
         }
+        binding.editTaskLocationAdd.setOnClickListener {
+            openLocationChooserDialog()
+        }
         binding.editTaskDateBtn.setOnClickListener {
             openDateChooserDialog()
         }
@@ -96,6 +101,12 @@ class EditTaskActivity : AppCompatActivity() {
             openPeriodChooserDialog()
         }
         updateTooltips()
+    }
+
+    private fun openLocationChooserDialog() {
+        //TODO
+        val intent = Intent(this, LocationActivity::class.java)
+        startActivity(intent)
     }
 
     private fun openNewTagDialog() {

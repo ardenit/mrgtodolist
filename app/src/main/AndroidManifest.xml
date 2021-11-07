@@ -15,6 +15,9 @@
         android:roundIcon="@drawable/mirage_todo_app_icon_filled"
         android:supportsRtl="true"
         android:theme="@style/Theme.TodoApp">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${GOOGLE_MAPS_API_KEY}" />
         <activity
             android:name=".ui.lockscreen.LockScreenActivity"
             android:icon="@drawable/mirage_todo_app_icon_filled"
@@ -50,6 +53,14 @@
             android:roundIcon="@drawable/mirage_todo_app_icon_filled"
             android:label="@string/settings_activity_title"
             android:theme="@style/Theme.TodoApp.SettingsActivity"
+            android:exported="false">
+        </activity>
+        <activity
+            android:name=".ui.location.LocationActivity"
+            android:icon="@drawable/mirage_todo_app_icon_filled"
+            android:roundIcon="@drawable/mirage_todo_app_icon_filled"
+            android:label="@string/title_activity_maps"
+            android:theme="@style/Theme.TodoApp.LocationActivity"
             android:exported="false">
         </activity>
     </application>

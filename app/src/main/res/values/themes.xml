@@ -48,6 +48,10 @@
         <item name="android:actionBarStyle">@style/Theme.TodoApp.SettingsActionBar</item>
     </style>
 
+    <style name="Theme.TodoApp.LocationActivity" parent="Theme.TodoApp">
+        <item name="windowActionBar">true</item>
+    </style>
+
     <style name="Theme.TodoApp.SettingsAlertDialog" parent="Theme.MaterialComponents.DayNight.Dialog.Alert.Bridge">
         <item name="colorAccent">@color/light_orange</item>
     </style>

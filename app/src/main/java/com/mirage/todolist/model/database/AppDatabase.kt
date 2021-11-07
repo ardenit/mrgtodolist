@@ -6,7 +6,7 @@ import androidx.room.TypeConverters
 
 @Database(
     entities = [TaskEntity::class, TagEntity::class, RelationEntity::class, VersionEntity::class],
-    version = 1
+    version = 2
 )
 @TypeConverters(
     UUIDConverter::class, DateConverter::class, TimeConverter::class, InstantConverter::class, TaskPeriodConverter::class
