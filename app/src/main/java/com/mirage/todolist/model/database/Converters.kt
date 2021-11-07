@@ -1,8 +1,10 @@
 package com.mirage.todolist.model.database
 
 import androidx.room.TypeConverter
+import com.google.gson.Gson
 import com.mirage.todolist.model.repository.TaskPeriod
 import com.mirage.todolist.util.OptionalDate
+import com.mirage.todolist.util.OptionalTaskLocation
 import com.mirage.todolist.util.OptionalTime
 import java.time.Instant
 import java.time.LocalDate
@@ -15,6 +17,19 @@ class UUIDConverter {
 
     @TypeConverter
     fun toUUID(string: String): UUID = UUID.fromString(string)
+}
+
+class LocationConverter {
+
+    private val gson = Gson()
+
+    @TypeConverter
+    fun fromLocation(location: OptionalTaskLocation): String =
+        gson.toJson(location)
+
+    @TypeConverter
+    fun toLocation(string: String): OptionalTaskLocation =
+        gson.fromJson(string, OptionalTaskLocation::class.java)
 }
 
 class DateConverter {

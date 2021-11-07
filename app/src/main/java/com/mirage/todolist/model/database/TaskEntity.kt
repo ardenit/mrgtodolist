@@ -1,11 +1,9 @@
 package com.mirage.todolist.model.database
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.Index
-import androidx.room.PrimaryKey
+import androidx.room.*
 import com.mirage.todolist.model.repository.TaskPeriod
 import com.mirage.todolist.util.OptionalDate
+import com.mirage.todolist.util.OptionalTaskLocation
 import com.mirage.todolist.util.OptionalTime
 import java.time.Clock
 import java.time.Instant
@@ -38,6 +36,8 @@ data class TaskEntity(
     val title: String = "",
     @ColumnInfo(name = "description")
     val description: String = "",
+    @ColumnInfo(name = "location")
+    val location: OptionalTaskLocation = OptionalTaskLocation.NOT_SET,
     @ColumnInfo(name = "date")
     val date: OptionalDate = OptionalDate.NOT_SET,
     @ColumnInfo(name = "time")

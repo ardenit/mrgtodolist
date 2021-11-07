@@ -6,6 +6,7 @@ import com.mirage.todolist.R
 import com.mirage.todolist.di.App
 import com.mirage.todolist.model.repository.TaskPeriod
 import com.mirage.todolist.util.OptionalDate
+import com.mirage.todolist.util.OptionalTaskLocation
 import com.mirage.todolist.util.OptionalTime
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
@@ -198,6 +199,7 @@ class DatabaseModel {
                     taskIndex = taskIndex,
                     title = defaultTitle,
                     description = defaultDescription,
+                    location = OptionalTaskLocation.NOT_SET,
                     date = OptionalDate.NOT_SET,
                     time = OptionalTime.NOT_SET,
                     period = TaskPeriod.NOT_REPEATABLE,
@@ -288,6 +290,10 @@ class DatabaseModel {
                 relationDao.setRelationModifiedTime(taskId, it, instant)
             }
         }
+    }
+
+    fun setTaskLocation(taskId: UUID, taskLocation: OptionalTaskLocation): Job = modifyTask(taskId) {
+        taskDao.setTaskLocation(taskId, taskLocation)
     }
 
     fun setTaskDate(taskId: UUID, taskDate: OptionalDate): Job = modifyTask(taskId) {

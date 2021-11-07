@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
 import com.mirage.todolist.model.repository.TaskPeriod
 import com.mirage.todolist.util.OptionalDate
+import com.mirage.todolist.util.OptionalTaskLocation
 import com.mirage.todolist.util.OptionalTime
 import java.time.Instant
 import java.util.*
@@ -92,6 +93,13 @@ interface TaskDao {
         WHERE task_id = :taskId
         """)
     fun setTaskDescription(taskId: UUID, description: String)
+
+    @Query("""
+        UPDATE tasks
+        SET location = :location
+        WHERE task_id = :taskId
+        """)
+    fun setTaskLocation(taskId: UUID, location: OptionalTaskLocation)
 
     @Query("""
         UPDATE tasks

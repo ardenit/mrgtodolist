@@ -104,6 +104,9 @@ class TasklistRecyclerAdapter(
         holder.taskEditBtn.setOnClickListener {
             onTaskEditListener(task)
         }
+        task.location.observe(lifecycleOwner) {
+            updateLocationText(task, holder)
+        }
         task.date.observe(lifecycleOwner) {
             updateDatetimeText(task, holder)
         }
@@ -112,6 +115,16 @@ class TasklistRecyclerAdapter(
         }
         task.period.observe(lifecycleOwner) {
             updateDatetimeText(task, holder)
+        }
+    }
+
+    private fun updateLocationText(task: LiveTask, holder: TasklistViewHolder) {
+        val location = task.location.value ?: return
+        if (location.locationSet) {
+            holder.taskPlaceView.text = location.address
+            holder.taskPlaceView.visibility = View.VISIBLE
+        } else {
+            holder.taskPlaceView.visibility = View.GONE
         }
     }
 
@@ -128,8 +141,7 @@ class TasklistRecyclerAdapter(
         }
         if (datetimeText.isEmpty()) {
             holder.taskDatetimeView.visibility = View.GONE
-        }
-        else {
+        } else {
             datetimeText += "(${context.resources.getString(period.nameRes)})"
             holder.taskDatetimeView.text = datetimeText
             holder.taskDatetimeView.visibility = View.VISIBLE

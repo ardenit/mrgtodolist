@@ -37,7 +37,7 @@ class TodolistViewModel @Inject constructor(
         title: String?,
         description: String?
     ) {
-        todoRepository.modifyTask(taskID, title, description, null, null, null, null)
+        todoRepository.modifyTask(taskID, title, description, null, null, null, null, null)
     }
 
     /**

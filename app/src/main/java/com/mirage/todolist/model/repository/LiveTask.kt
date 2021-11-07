@@ -2,6 +2,7 @@ package com.mirage.todolist.model.repository
 
 import androidx.lifecycle.LiveData
 import com.mirage.todolist.util.OptionalDate
+import com.mirage.todolist.util.OptionalTaskLocation
 import com.mirage.todolist.util.OptionalTime
 import java.util.*
 
@@ -19,6 +20,8 @@ interface LiveTask {
     val title: LiveData<String>
     /** Description of the task. Recycler items should observe this data and react to it */
     val description: LiveData<String>
+    /** Location of the task using Google Maps API */
+    val location: LiveData<OptionalTaskLocation>
     /** Date, time and period of the task. Null if not set. */
     val date: LiveData<OptionalDate>
     val time: LiveData<OptionalTime>

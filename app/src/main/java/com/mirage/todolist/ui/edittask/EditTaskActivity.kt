@@ -3,20 +3,26 @@ package com.mirage.todolist.ui.edittask
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Intent
+import android.opengl.Visibility
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.mirage.todolist.R
 import com.mirage.todolist.databinding.ActivityEditTaskBinding
 import com.mirage.todolist.di.App
 import com.mirage.todolist.model.repository.*
 import com.mirage.todolist.ui.location.LocationActivity
 import com.mirage.todolist.util.OptionalDate
+import com.mirage.todolist.util.OptionalTaskLocation
 import com.mirage.todolist.util.OptionalTime
 import com.mirage.todolist.util.showToast
 import java.time.LocalDate
@@ -32,6 +38,7 @@ class EditTaskActivity : AppCompatActivity() {
     private var initialTask: LiveTask? = null
     private var tasklistID: Int = 1
     private var newTagsList: MutableList<LiveTag> = arrayListOf()
+    private var newTaskLocation: OptionalTaskLocation = OptionalTaskLocation.NOT_SET
     private var newTaskDate: OptionalDate = OptionalDate.NOT_SET
     private var newTaskTime: OptionalTime = OptionalTime.NOT_SET
     private var newTaskPeriod: TaskPeriod = TaskPeriod.NOT_REPEATABLE
@@ -40,6 +47,15 @@ class EditTaskActivity : AppCompatActivity() {
 
     private var _binding: ActivityEditTaskBinding? = null
     private val binding get() = _binding!!
+
+    /**
+     * Activity result launcher for Google Maps location selection screen
+     */
+    private val locationResultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        onLocationResult(result)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,6 +84,7 @@ class EditTaskActivity : AppCompatActivity() {
             binding.editTaskTitleInput.setText(task.title.value)
             binding.editTaskDescriptionInput.setText(task.description.value)
             newTagsList = task.tags.value?.toMutableList() ?: arrayListOf()
+            newTaskLocation = task.location.value ?: OptionalTaskLocation.NOT_SET
             newTaskDate = task.date.value ?: OptionalDate.NOT_SET
             newTaskTime = task.time.value ?: OptionalTime.NOT_SET
             newTaskPeriod = task.period.value ?: TaskPeriod.NOT_REPEATABLE
@@ -91,6 +108,10 @@ class EditTaskActivity : AppCompatActivity() {
         binding.editTaskLocationAdd.setOnClickListener {
             openLocationChooserDialog()
         }
+        binding.editTaskLocationRemove.setOnClickListener {
+            newTaskLocation = OptionalTaskLocation.NOT_SET
+            updateTooltips()
+        }
         binding.editTaskDateBtn.setOnClickListener {
             openDateChooserDialog()
         }
@@ -104,9 +125,24 @@ class EditTaskActivity : AppCompatActivity() {
     }
 
     private fun openLocationChooserDialog() {
-        //TODO
         val intent = Intent(this, LocationActivity::class.java)
-        startActivity(intent)
+        intent.putExtra(LocationActivity.KEY_MARKER_LATITUDE, newTaskLocation.latitude)
+        intent.putExtra(LocationActivity.KEY_MARKER_LONGITUDE, newTaskLocation.longitude)
+        intent.putExtra(LocationActivity.KEY_MARKER_PLACE_NAME, newTaskLocation.address)
+        locationResultLauncher.launch(intent)
+    }
+
+    private fun onLocationResult(result: ActivityResult) {
+        val extras = result.data?.extras ?: return
+        val latitude = extras.getDouble(LocationActivity.KEY_RESULT_MARKER_LATITUDE)
+        val longitude = extras.getDouble(LocationActivity.KEY_RESULT_MARKER_LONGITUDE)
+        val address = extras.getString(LocationActivity.KEY_RESULT_MARKER_PLACE_NAME, "")
+        newTaskLocation = if (address.isNotEmpty()) {
+            OptionalTaskLocation(latitude, longitude, address, true)
+        } else {
+            OptionalTaskLocation.NOT_SET
+        }
+        updateTooltips()
     }
 
     private fun openNewTagDialog() {
@@ -126,6 +162,17 @@ class EditTaskActivity : AppCompatActivity() {
     }
 
     private fun updateTooltips() {
+        if (newTaskLocation.locationSet) {
+            binding.editTaskLocationText.text = newTaskLocation.address
+            binding.editTaskLocationText.visibility = View.VISIBLE
+            binding.editTaskLocationAdd.visibility = View.GONE
+            binding.editTaskLocationRemove.visibility = View.VISIBLE
+        } else {
+            binding.editTaskLocationText.text = ""
+            binding.editTaskLocationText.visibility = View.GONE
+            binding.editTaskLocationAdd.visibility = View.VISIBLE
+            binding.editTaskLocationRemove.visibility = View.GONE
+        }
         val dateText = if (newTaskDate.dateSet) {
             "${twoDigits(newTaskDate.date.dayOfMonth)}.${twoDigits(newTaskDate.date.monthValue + 1)}.${newTaskDate.date.year}"
         } else {
@@ -205,6 +252,7 @@ class EditTaskActivity : AppCompatActivity() {
             title = newTitle,
             description = newDescription,
             tags = newTagsList,
+            location = newTaskLocation,
             date = newTaskDate,
             time = newTaskTime,
             period = newTaskPeriod
@@ -260,11 +308,11 @@ class EditTaskActivity : AppCompatActivity() {
         val newTitle = binding.editTaskTitleInput.text.toString()
         val newDescription = binding.editTaskDescriptionInput.text.toString()
         val task = initialTask ?: todoRepository.createNewTask(tasklistID)
-        //TODO other changes
         if (
             newTitle != task.title.value ||
             newDescription != task.description.value ||
             newTagsList != task.tags.value ||
+            newTaskLocation != task.location.value ||
             newTaskDate != task.date.value ||
             newTaskTime != task.time.value ||
             newTaskPeriod != task.period.value

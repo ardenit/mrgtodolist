@@ -12,6 +12,7 @@ import com.mirage.todolist.model.googledrive.GoogleDriveConnectExceptionHandler
 import com.mirage.todolist.model.googledrive.GoogleDriveModel
 import com.mirage.todolist.model.workers.scheduleAllDatetimeNotifications
 import com.mirage.todolist.util.OptionalDate
+import com.mirage.todolist.util.OptionalTaskLocation
 import com.mirage.todolist.util.OptionalTime
 import kotlinx.coroutines.*
 import timber.log.Timber
@@ -94,6 +95,7 @@ class TodoRepository {
             taskIndex = taskIndex,
             title = appCtx.resources.getString(R.string.task_default_title),
             description = appCtx.resources.getString(R.string.task_default_description),
+            location = OptionalTaskLocation.NOT_SET,
             date = OptionalDate.NOT_SET,
             time = OptionalTime.NOT_SET,
             period = TaskPeriod.NOT_REPEATABLE,
@@ -117,6 +119,7 @@ class TodoRepository {
         title: String?,
         description: String?,
         tags: List<LiveTag>?,
+        location: OptionalTaskLocation?,
         date: OptionalDate?,
         time: OptionalTime?,
         period: TaskPeriod?
@@ -134,6 +137,10 @@ class TodoRepository {
         if (tags != null && tags != task.tags.value) {
             task.tags.value = tags
             databaseModel.setTaskTags(task.taskId, tags.map { it.tagId })
+        }
+        if (location != null && location != task.location.value) {
+            task.location.value = location
+            databaseModel.setTaskLocation(task.taskId, location)
         }
         if (date != null && date != task.date.value) {
             task.date.value = date
@@ -397,6 +404,7 @@ class TodoRepository {
                 taskIndex = taskEntity.taskIndex,
                 title = taskEntity.title,
                 description = taskEntity.description,
+                location = taskEntity.location,
                 date = taskEntity.date,
                 time = taskEntity.time,
                 period = taskEntity.period,
