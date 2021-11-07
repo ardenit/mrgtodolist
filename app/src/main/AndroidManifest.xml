@@ -59,7 +59,7 @@
             android:name=".ui.location.LocationActivity"
             android:icon="@drawable/mirage_todo_app_icon_filled"
             android:roundIcon="@drawable/mirage_todo_app_icon_filled"
-            android:label="@string/title_activity_maps"
+            android:label="@string/location_activity_title"
             android:theme="@style/Theme.TodoApp.LocationActivity"
             android:exported="false">
         </activity>
