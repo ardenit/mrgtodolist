@@ -112,7 +112,7 @@ class TodoRepository {
     /**
      * Starts or restarts SyncWorker that performs synchronization with Google Drive using given email.
      */
-    fun startSyncWorker(syncEmail: String) {
+    private fun startSyncWorker(syncEmail: String) {
         Timber.v("Starting SyncWorker with email $syncEmail")
         val request = OneTimeWorkRequest.Builder(SyncWorker::class.java).build()
         workManager.beginUniqueWork(

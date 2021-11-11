@@ -21,6 +21,7 @@ import com.mirage.todolist.di.App
 import com.mirage.todolist.model.googledrive.GoogleDriveConnectExceptionHandler
 import com.mirage.todolist.model.repository.TodoRepository
 import com.mirage.todolist.util.showToast
+import timber.log.Timber
 import javax.inject.Inject
 
 enum class SettingsScreen {
@@ -54,27 +55,33 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
     private val gDriveConnectExceptionHandler = object : GoogleDriveConnectExceptionHandler {
 
         override suspend fun onSuccessfulConnect() {
-            println("GDRIVE_CONNECT_SUCCESSFUL")
-            Toast.makeText(this@SettingsActivity, "OK", Toast.LENGTH_SHORT).show()
-            preferences.edit().putString(resources.getString(R.string.key_sync_select_acc), pendingEmail ?: "").apply()
-            settingsFragment.updateSummaries()
+            val newEmail = pendingEmail ?: ""
+            pendingEmail = null
+            Timber.v("GDRIVE_CONNECT_SUCCESSFUL")
+            Toast.makeText(this@SettingsActivity, R.string.settings_sync_successful, Toast.LENGTH_SHORT).show()
+            preferences.edit().putString(resources.getString(R.string.key_sync_select_acc), newEmail).apply()
+            settingsFragment.setSyncConfiguredSummary()
+            todoRepository.startSync(newEmail)
         }
 
         override suspend fun onUserRecoverableFailure(ex: UserRecoverableAuthIOException) {
-            println("USER_RECOVERABLE")
+            Timber.v("USER_RECOVERABLE")
+            settingsFragment.setSyncConfiguredSummary()
             gDriveUserInterveneResultLauncher.launch(ex.intent)
         }
 
         override suspend fun onGoogleAuthFailure(ex: GoogleAuthIOException) {
-            println("GOOGLE_AUTH_FAIL")
-            println(ex.message)
-            Toast.makeText(this@SettingsActivity, "GOOGLE_AUTH_FAILURE SEE LOGS", Toast.LENGTH_SHORT).show()
+            Timber.v("GOOGLE_AUTH_FAIL")
+            Timber.e(ex)
+            settingsFragment.setSyncConfiguredSummary()
+            Toast.makeText(this@SettingsActivity, R.string.settings_sync_failed, Toast.LENGTH_SHORT).show()
         }
 
         override suspend fun onUnspecifiedFailure(ex: Exception) {
-            println("UNSPECIFIED_GDRIVE_CONNECT_FAILURE")
-            println(ex.message)
-            Toast.makeText(this@SettingsActivity, "UNSPECIFIED_GDRIVE_CONNECT_FAILURE SEE LOGS", Toast.LENGTH_SHORT).show()
+            Timber.v("UNSPECIFIED_GDRIVE_CONNECT_FAILURE")
+            Timber.e(ex)
+            settingsFragment.setSyncConfiguredSummary()
+            Toast.makeText(this@SettingsActivity, R.string.settings_sync_failed, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -134,11 +141,12 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
     }
 
     private fun onResultFromAccPicker(result: ActivityResult) {
-        if (result.resultCode == Activity.RESULT_OK) {
-            val extras = result.data?.extras
-            val authAccount = extras?.getString("authAccount")
+        val extras = result.data?.extras
+        val authAccount = extras?.getString("authAccount")
+        if (result.resultCode == Activity.RESULT_OK && authAccount != null) {
             pendingEmail = authAccount
-            //TODO todoRepository.setGDriveAccountEmail(authAccount, gDriveConnectExceptionHandler)
+            settingsFragment.setSyncConnectionSummary(authAccount)
+            todoRepository.tryChangeGoogleAccount(authAccount, gDriveConnectExceptionHandler)
         }
         else {
             Toast.makeText(this, R.string.gdrive_sync_cancelled_toast, Toast.LENGTH_SHORT).show()
@@ -147,7 +155,9 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
 
     private fun onResultFromGDriveUserIntervene(result: ActivityResult) {
         if (result.resultCode == Activity.RESULT_OK) {
-            //TODO todoRepository.setGDriveAccountEmail(todoRepository.getGDriveAccountEmail(), gDriveConnectExceptionHandler)
+            pendingEmail?.let {
+                todoRepository.tryChangeGoogleAccount(it, gDriveConnectExceptionHandler)
+            } ?: settingsFragment.setSyncConfiguredSummary()
         }
         else {
             Toast.makeText(this, R.string.gdrive_sync_cancelled_toast, Toast.LENGTH_SHORT).show()

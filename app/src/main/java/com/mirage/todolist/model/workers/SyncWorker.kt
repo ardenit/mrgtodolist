@@ -19,7 +19,7 @@ import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import java.util.*
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
+import kotlin.Exception
 import kotlin.math.abs
 
 class SyncWorker(
@@ -40,14 +40,17 @@ class SyncWorker(
     override fun doWork(): Result {
         val emailKey = resources.getString(R.string.key_sync_select_acc)
         val email = sharedPreferences.getString(emailKey, "")
+        Timber.v("Performing sync work with email $email")
         if (email.isNullOrBlank()) return Result.success()
         val connectionCompleted = googleDriveModel.connectBlocking(email)
         if (!connectionCompleted) {
             Timber.v("Connection to Google Drive from SyncWorker failed")
             return Result.retry()
         }
+        Timber.v("Locking Google Drive....")
         val lockSuccessful = tryLockGDrive()
         if (!lockSuccessful) return Result.retry()
+        Timber.v("Google Drive lock successfully taken")
         val syncStartTime = System.currentTimeMillis()
         val (databaseData, driveData) = runBlocking(Dispatchers.IO) {
             val driveDataAsync = async {
@@ -58,7 +61,9 @@ class SyncWorker(
             }
             Pair(databaseDataAsync.await(), driveDataAsync.await())
         }
+        Timber.v("Database data: $databaseData")
         val databaseVersion = databaseData.version.dataVersion
+        Timber.v("Database version: ${databaseData.version}")
         val mergedSnapshot = snapshotMerger.mergeSnapshots(databaseData, driveData)
         val syncEndTime = System.currentTimeMillis()
         // If sync took too long, abort and retry later
@@ -73,7 +78,13 @@ class SyncWorker(
         return if (databaseWriteSuccessful) {
             Timber.v("Sync has been performed successfully, scheduling repeated sync")
             val request =
-                PeriodicWorkRequest.Builder(SyncWorker::class.java, 15, TimeUnit.MINUTES).build()
+                PeriodicWorkRequest.Builder(
+                    SyncWorker::class.java,
+                    15,
+                    TimeUnit.MINUTES,
+                    5,
+                    TimeUnit.MINUTES
+                ).build()
             workManager.enqueueUniquePeriodicWork(
                 UNIQUE_WORK_NAME,
                 ExistingPeriodicWorkPolicy.REPLACE,
@@ -117,8 +128,8 @@ class SyncWorker(
         }
         val dataFile = googleDriveModel.downloadFile(dataFileId)
         val dataFileData = try {
-            gson.fromJson(dataFile.decodeToString(), AccountSnapshot::class.java)
-        } catch (ex: JsonSyntaxException) {
+            gson.fromJson(dataFile.decodeToString(), AccountSnapshot::class.java).apply { version.dataVersion }
+        } catch (ex: Exception) {
             val versionEntity = VersionEntity(
                 accountName = email,
                 dataVersion = UUID.randomUUID(),
@@ -126,6 +137,7 @@ class SyncWorker(
             )
             AccountSnapshot(emptyList(), emptyList(), emptyList(), versionEntity, email)
         }
+        Timber.v("Downloaded snapshot: $dataFileData")
         return dataFileData
     }
 

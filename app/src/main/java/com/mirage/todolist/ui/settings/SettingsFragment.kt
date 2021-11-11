@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.preference.*
 import com.mirage.todolist.R
 import com.mirage.todolist.di.App
@@ -31,6 +32,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         setPreferencesFromResource(R.xml.settings_screen, rootKey)
         initializePreferences()
         updateSummaries()
+        setSyncConfiguredSummary()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -48,13 +50,20 @@ class SettingsFragment : PreferenceFragmentCompat() {
             else -> R.string.settings_password_no_protection
         }
         setProtectionPreference.setSummary(protectionSummaryRes)
-        /* TODO val email = todoRepository.getGDriveAccountEmail()
-        if (email == null) {
+    }
+
+    fun setSyncConnectionSummary(pendingEmail: String) {
+        val summary = resources.getString(R.string.settings_sync_with_drive_connecting, pendingEmail)
+        syncSelectAccPreference.summary = summary
+    }
+
+    fun setSyncConfiguredSummary() {
+        val currentEmail = preferences.getString(resources.getString(R.string.key_sync_select_acc), "")
+        if (currentEmail.isNullOrBlank()) {
             syncSelectAccPreference.setSummary(R.string.settings_sync_status_no_sync)
+        } else {
+            syncSelectAccPreference.summary = currentEmail
         }
-        else {
-            syncSelectAccPreference.summary = email
-        }*/
     }
 
     private fun initializePreferences() {

@@ -100,6 +100,9 @@
     <string name="settings_btn_notifications_sync">Notify about task synchronization</string>
     <string name="settings_btn_notifications_datetime">Notify about future tasks</string>
     <string name="settings_btn_sync_with_google_drive">Sync with Google Drive</string>
+    <string name="settings_sync_with_drive_connecting">Connecting to %1$s....</string>
+    <string name="settings_sync_failed">Synchronization failed</string>
+    <string name="settings_sync_successful">Synchronization configured successfully</string>
 
     <string name="settings_password_no_protection">No protection</string>
     <string name="settings_password_tap_to_unlock">Tap to unlock</string>

@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.annotation.VisibleForTesting
 import androidx.work.Configuration
 import androidx.work.WorkManager
+import androidx.work.WorkManagerInitializer
 import com.mirage.todolist.BuildConfig
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
@@ -11,7 +12,7 @@ import dagger.android.HasAndroidInjector
 import timber.log.Timber
 import javax.inject.Inject
 
-class App : Application(), HasAndroidInjector {
+class App : Application(), HasAndroidInjector, Configuration.Provider {
 
     @Inject
     lateinit var androidInjector: DispatchingAndroidInjector<Any>
@@ -25,16 +26,15 @@ class App : Application(), HasAndroidInjector {
         instance = this
         appComponent = DaggerAppComponent.create()
         appComponent.inject(this)
-        WorkManager.initialize(
-            this,
-            Configuration.Builder().setWorkerFactory(workerFactory).build()
-        )
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }
     }
 
     override fun androidInjector(): AndroidInjector<Any> = androidInjector
+
+    override fun getWorkManagerConfiguration(): Configuration =
+        Configuration.Builder().setWorkerFactory(workerFactory).build()
 
     @VisibleForTesting
     fun setTestComponent(testComponent: AppComponent) {

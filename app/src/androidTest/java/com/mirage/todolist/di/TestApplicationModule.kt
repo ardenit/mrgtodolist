@@ -3,6 +3,8 @@ package com.mirage.todolist.di
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
+import androidx.work.WorkManager
+import com.google.gson.Gson
 import com.mirage.todolist.R
 import com.mirage.todolist.model.database.DatabaseModel
 import com.mirage.todolist.model.database.testEmailOne
@@ -46,6 +48,15 @@ class TestApplicationModule {
         Mockito.`when`(it.getString(eq(R.string.task_default_description)))
             .thenReturn("Description")
     }
+
+    @Provides
+    @Singleton
+    fun provideWorkManager(@ApplicationContext context: Context): WorkManager =
+        WorkManager.getInstance(context)
+
+    @Provides
+    @Singleton
+    fun provideGson() = Gson()
 
     @Provides
     @Singleton

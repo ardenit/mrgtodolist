@@ -6,6 +6,7 @@ import android.content.res.Resources
 import androidx.preference.PreferenceManager
 import androidx.work.Configuration
 import androidx.work.WorkManager
+import com.google.gson.Gson
 import com.mirage.todolist.model.database.DatabaseModel
 import com.mirage.todolist.model.googledrive.GoogleDriveModel
 import com.mirage.todolist.model.googledrive.SnapshotMerger
@@ -43,11 +44,15 @@ class ApplicationModule {
 
     @Provides
     @Singleton
-    fun provideSnapshotMerger(): SnapshotMerger = SnapshotMerger()
+    fun provideGson() = Gson()
 
     @Provides
     @Singleton
-    fun provideGoogleDriveModel(): GoogleDriveModel = GoogleDriveModel()
+    fun provideSnapshotMerger() = SnapshotMerger()
+
+    @Provides
+    @Singleton
+    fun provideGoogleDriveModel() = GoogleDriveModel()
 
     @Provides
     @Singleton
