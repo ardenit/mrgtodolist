@@ -1,38 +1,38 @@
-package com.mirage.todolist.model.googledrive
+package com.mirage.todolist.model.workers
 
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
-import androidx.work.Worker
-import androidx.work.WorkerParameters
+import androidx.work.*
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import com.mirage.todolist.R
 import com.mirage.todolist.model.database.AccountSnapshot
 import com.mirage.todolist.model.database.DatabaseModel
 import com.mirage.todolist.model.database.VersionEntity
+import com.mirage.todolist.model.googledrive.GoogleDriveModel
+import com.mirage.todolist.model.googledrive.LockFileData
+import com.mirage.todolist.model.googledrive.SnapshotMerger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import java.util.*
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.abs
 
-class SyncWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
-
-    @Inject
-    lateinit var googleDriveModel: GoogleDriveModel
-    @Inject
-    lateinit var databaseModel: DatabaseModel
-    @Inject
-    lateinit var gson: Gson
-    @Inject
-    lateinit var sharedPreferences: SharedPreferences
-    @Inject
-    lateinit var resources: Resources
-    @Inject
-    lateinit var snapshotMerger: SnapshotMerger
+class SyncWorker(
+    context: Context,
+    workerParams: WorkerParameters,
+    private val googleDriveModel: GoogleDriveModel,
+    private val databaseModel: DatabaseModel,
+    private val gson: Gson,
+    private val sharedPreferences: SharedPreferences,
+    private val resources: Resources,
+    private val snapshotMerger: SnapshotMerger,
+    private val workManager: WorkManager
+) : Worker(context, workerParams) {
 
     /** Worker's identity used to acquire a lock file in Google Drive */
     private val identity = UUID.randomUUID()
@@ -68,8 +68,21 @@ class SyncWorker(context: Context, workerParams: WorkerParameters) : Worker(cont
         }
         writeDataToGDrive(mergedSnapshot)
         databaseModel.updateDatabaseAfterSync(mergedSnapshot, databaseVersion)
-        val databaseWriteSuccessful = databaseModel.updateDatabaseAfterSync(mergedSnapshot, databaseVersion)
-        return if (databaseWriteSuccessful) Result.success() else Result.retry()
+        val databaseWriteSuccessful =
+            databaseModel.updateDatabaseAfterSync(mergedSnapshot, databaseVersion)
+        return if (databaseWriteSuccessful) {
+            Timber.v("Sync has been performed successfully, scheduling repeated sync")
+            val request =
+                PeriodicWorkRequest.Builder(SyncWorker::class.java, 15, TimeUnit.MINUTES).build()
+            workManager.enqueueUniquePeriodicWork(
+                UNIQUE_WORK_NAME,
+                ExistingPeriodicWorkPolicy.REPLACE,
+                request
+            )
+            Result.success()
+        } else {
+            Result.retry()
+        }
     }
 
     /**
@@ -143,5 +156,6 @@ class SyncWorker(context: Context, workerParams: WorkerParameters) : Worker(cont
         private const val MAX_LOCK_TIME_MILLIS = 60 * 1000L
         private const val LOCK_CONFIRM_WAIT_TIME_MILLIS = 5 * 1000L
         private const val SYNC_TIMEOUT_TIME_MILLIS = 40 * 1000L
+        const val UNIQUE_WORK_NAME = "com-mirage-todolist-sync-work"
     }
 }

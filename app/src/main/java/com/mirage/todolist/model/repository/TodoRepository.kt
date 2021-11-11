@@ -3,6 +3,10 @@ package com.mirage.todolist.model.repository
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.mirage.todolist.R
 import com.mirage.todolist.di.App
 import com.mirage.todolist.di.ApplicationContext
@@ -10,6 +14,7 @@ import com.mirage.todolist.model.database.AccountSnapshot
 import com.mirage.todolist.model.database.DatabaseModel
 import com.mirage.todolist.model.googledrive.GoogleDriveConnectExceptionHandler
 import com.mirage.todolist.model.googledrive.GoogleDriveModel
+import com.mirage.todolist.model.workers.SyncWorker
 import com.mirage.todolist.model.workers.scheduleAllDatetimeNotifications
 import com.mirage.todolist.util.OptionalDate
 import com.mirage.todolist.util.OptionalTaskLocation
@@ -41,16 +46,21 @@ class TodoRepository {
     @Inject
     lateinit var resources: Resources
     @Inject
+    lateinit var workManager: WorkManager
+    @Inject
     lateinit var databaseModel: DatabaseModel
     @Inject
     lateinit var googleDriveModel: GoogleDriveModel
+
     @Volatile
     private var currentEmail: String = ""
 
     /** Local in-memory cache for tasks bound to the current Google account */
     private var localTasks: MutableMap<UUID, MutableLiveTask> = LinkedHashMap()
+
     /** Cache for sizes of each tasklist used to speed up some requests */
     private val tasklistSizes: MutableMap<Int, Int> = LinkedHashMap()
+
     /** Local in-memory cache for tags bound to the current Google account */
     private var localTags: MutableMap<UUID, MutableLiveTag> = LinkedHashMap()
 
@@ -64,7 +74,8 @@ class TodoRepository {
 
     init {
         App.instance.appComponent.inject(this)
-        currentEmail = preferences.getString(resources.getString(R.string.key_sync_select_acc), "") ?: ""
+        currentEmail =
+            preferences.getString(resources.getString(R.string.key_sync_select_acc), "") ?: ""
         Timber.v("TodoRepository init with email $currentEmail")
         databaseModel.setOnSyncUpdateListener {
             reloadData(it)
@@ -72,14 +83,43 @@ class TodoRepository {
         databaseModel.getAccountSnapshot {
             reloadData(it)
         }
+        startSync(currentEmail)
     }
 
     /**
-     * Changes the email used for Google Drive synchronization.
+     * Tries to connect to the email used for Google Drive synchronization.
      * Should be invoked when user selects a new account.
      */
-    fun setGDriveAccountEmail(newEmail: String, exHandler: GoogleDriveConnectExceptionHandler) {
+    fun tryChangeGoogleAccount(newEmail: String, exHandler: GoogleDriveConnectExceptionHandler) {
+        Timber.v("Trying to connect to $newEmail")
         googleDriveModel.connectAsync(newEmail, exHandler)
+    }
+
+    /**
+     * Completely changes current Google account and schedules a worker to perform Drive sync.
+     * Updates in-memory task cache immediately with new tasks and triggers onFullUpdate listeners.
+     */
+    fun startSync(newEmail: String) {
+        Timber.v("Changing current account to $newEmail")
+        currentEmail = newEmail
+        databaseModel.startObservingAccount(newEmail)
+        databaseModel.getAccountSnapshot {
+            reloadData(it)
+        }
+        startSyncWorker(newEmail)
+    }
+
+    /**
+     * Starts or restarts SyncWorker that performs synchronization with Google Drive using given email.
+     */
+    fun startSyncWorker(syncEmail: String) {
+        Timber.v("Starting SyncWorker with email $syncEmail")
+        val request = OneTimeWorkRequest.Builder(SyncWorker::class.java).build()
+        workManager.beginUniqueWork(
+            SyncWorker.UNIQUE_WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            request
+        ).enqueue()
     }
 
     /**
@@ -214,8 +254,7 @@ class TodoRepository {
                 .filter { it.tasklistId == tasklistID }
                 .filter { it.taskIndex in (oldTaskIndex + 1)..newTaskIndex }
                 .forEach { it.taskIndex = it.taskIndex - 1 }
-        }
-        else {
+        } else {
             localTasks.values.asSequence()
                 .filter { it.tasklistId == tasklistID }
                 .filter { it.taskIndex in newTaskIndex until oldTaskIndex }
@@ -250,7 +289,8 @@ class TodoRepository {
         localTasks.values.forEach { task ->
             val title = task.title.value ?: ""
             val description = task.description.value ?: ""
-            val matchesTaskName = searchTask.isBlank() || (searchTask in title) || (searchTask in description)
+            val matchesTaskName =
+                searchTask.isBlank() || (searchTask in title) || (searchTask in description)
             val tags = task.tags.value ?: listOf()
             val matchesTagName = searchTag.isEmpty() || tags.any { tag ->
                 tag.name.value == searchTag

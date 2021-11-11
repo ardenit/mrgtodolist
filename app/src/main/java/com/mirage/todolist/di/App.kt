@@ -2,6 +2,8 @@ package com.mirage.todolist.di
 
 import android.app.Application
 import androidx.annotation.VisibleForTesting
+import androidx.work.Configuration
+import androidx.work.WorkManager
 import com.mirage.todolist.BuildConfig
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
@@ -13,6 +15,8 @@ class App : Application(), HasAndroidInjector {
 
     @Inject
     lateinit var androidInjector: DispatchingAndroidInjector<Any>
+    @Inject
+    lateinit var workerFactory: WorkerFactory
 
     lateinit var appComponent: AppComponent
 
@@ -21,6 +25,10 @@ class App : Application(), HasAndroidInjector {
         instance = this
         appComponent = DaggerAppComponent.create()
         appComponent.inject(this)
+        WorkManager.initialize(
+            this,
+            Configuration.Builder().setWorkerFactory(workerFactory).build()
+        )
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }

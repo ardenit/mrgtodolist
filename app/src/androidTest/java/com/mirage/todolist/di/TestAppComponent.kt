@@ -10,6 +10,7 @@ import javax.inject.Singleton
 @Component(modules = [
     TestApplicationModule::class,
     ViewModelModule::class,
+    WorkerModule::class,
     TestDatabaseModule::class,
     AndroidInjectionModule::class
 ])

@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
 import androidx.preference.PreferenceManager
+import androidx.work.Configuration
+import androidx.work.WorkManager
 import com.mirage.todolist.model.database.DatabaseModel
 import com.mirage.todolist.model.googledrive.GoogleDriveModel
 import com.mirage.todolist.model.googledrive.SnapshotMerger
@@ -33,6 +35,11 @@ class ApplicationModule {
     @Singleton
     fun provideResources(@ApplicationContext context: Context): Resources =
         context.resources
+
+    @Provides
+    @Singleton
+    fun provideWorkManager(@ApplicationContext context: Context): WorkManager =
+        WorkManager.getInstance(context)
 
     @Provides
     @Singleton

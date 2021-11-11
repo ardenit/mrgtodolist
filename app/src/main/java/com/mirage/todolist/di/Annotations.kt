@@ -1,6 +1,7 @@
 package com.mirage.todolist.di
 
 import androidx.lifecycle.ViewModel
+import androidx.work.ListenableWorker
 import dagger.MapKey
 import javax.inject.Qualifier
 import kotlin.reflect.KClass
@@ -13,6 +14,11 @@ import kotlin.reflect.KClass
 @Retention(AnnotationRetention.RUNTIME)
 @MapKey
 annotation class ViewModelKey(val value: KClass<out ViewModel>)
+
+@MapKey
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class WorkerKey(val value: KClass<out ListenableWorker>)
 
 @Qualifier
 @Retention(AnnotationRetention.RUNTIME)
