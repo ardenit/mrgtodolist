@@ -1,5 +1,6 @@
 package com.mirage.todolist.ui.lockscreen
 
+import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.content.res.Resources
 import androidx.appcompat.app.AppCompatDelegate
@@ -21,7 +22,6 @@ import javax.inject.Inject
 
 class LockScreenViewModel @Inject constructor(
     private val application: App,
-    private val todoRepository: TodoRepository,
     override val preferences: SharedPreferences,
     override val resources: Resources
 ) : ViewModel(), PreferenceHolder {
@@ -32,7 +32,6 @@ class LockScreenViewModel @Inject constructor(
         Timber.v("LockScreenViewModel - init")
         processThemePreference()
         processNotificationPreference()
-        processProtectionPreference()
     }
 
     fun unlockTodolist() {
@@ -67,7 +66,6 @@ class LockScreenViewModel @Inject constructor(
     }
 
     private fun processNotificationPreference() {
-        //TODO Notifications
         when (getStringPreference(R.string.key_notify_on_datetime, R.string.value_notify_never)) {
             resources.getString(R.string.value_notify_never) -> {
                 setStringPreference(R.string.key_notify_on_datetime, R.string.value_notify_never)
@@ -82,7 +80,8 @@ class LockScreenViewModel @Inject constructor(
         }
     }
 
-    private fun processProtectionPreference() {
+    @SuppressLint("MissingPermission")
+    fun processProtectionPreference() {
         val protectionType = getStringPreference(R.string.key_set_protection, R.string.value_protection_none)
         lockScreenType.value = when (protectionType) {
             resources.getString(R.string.value_protection_none) -> {

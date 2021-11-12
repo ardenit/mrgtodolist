@@ -174,7 +174,7 @@ class EditTaskActivity : AppCompatActivity() {
             binding.editTaskLocationRemove.visibility = View.GONE
         }
         val dateText = if (newTaskDate.dateSet) {
-            "${twoDigits(newTaskDate.date.dayOfMonth)}.${twoDigits(newTaskDate.date.monthValue + 1)}.${newTaskDate.date.year}"
+            "${twoDigits(newTaskDate.date.dayOfMonth)}.${twoDigits(newTaskDate.date.monthValue)}.${newTaskDate.date.year}"
         } else {
             resources.getString(R.string.edit_task_date_not_set)
         }
@@ -194,7 +194,7 @@ class EditTaskActivity : AppCompatActivity() {
 
     private fun openDateChooserDialog() {
         val dateListener = DatePickerDialog.OnDateSetListener { _, year, month, day ->
-            val newDate = LocalDate.of(year, month + 1, day)
+            val newDate = LocalDate.of(year, month, day)
             newTaskDate = OptionalDate(newDate, true)
             updateTooltips()
         }

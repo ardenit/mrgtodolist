@@ -87,9 +87,7 @@ class DatabaseModel {
         val allTasks = taskDao.getAllTasks(currentEmail)
         val allTags = tagDao.getAllTags(currentEmail)
         val allRelations = relationDao.getAllRelations(currentEmail)
-        val version = versionDao.getAllVersions()
-            .firstOrNull { it.accountName == currentEmail }
-            ?: VersionEntity(currentEmail, UUID.randomUUID(), false)
+        val version = getOrCreateVersion()
         AccountSnapshot(allTasks, allTags, allRelations, version, currentEmail)
     }
 
@@ -119,14 +117,21 @@ class DatabaseModel {
     fun updateDatabaseAfterSync(newSnapshot: AccountSnapshot, oldDatabaseVersion: UUID): Boolean {
         val result = AtomicBoolean(true)
         val resultWasSet = AtomicBoolean(false)
+        Timber.v("Updating database after sync")
+        Timber.v("Old version: $oldDatabaseVersion")
+        Timber.v("Current email: $currentEmail")
         database.runInTransaction {
-            val localVersion =
-                versionDao.getDataVersion(currentEmail).firstOrNull() ?: UUID.randomUUID()
+            Timber.v("Data versions: ${versionDao.getAllVersions()}")
+            Timber.v("Full snapshot: ${runBlocking{getAccountSnapshot()}}")
+            val localVersion = getOrCreateVersion().dataVersion
+            Timber.v("Local version: $localVersion")
             if (localVersion != oldDatabaseVersion) {
+                Timber.v("Different versions! Sync retry required.")
                 result.set(false)
                 resultWasSet.set(true)
                 return@runInTransaction
             }
+            Timber.v("Versions are the same. Performing database write.")
             taskDao.removeAllTasks(currentEmail)
             taskDao.insertAllTasks(newSnapshot.tasks.toList())
             tagDao.removeAllTags(currentEmail)
@@ -163,9 +168,7 @@ class DatabaseModel {
                             val newTasks = taskDao.getAllTasks(currentEmail)
                             val newTags = tagDao.getAllTags(currentEmail)
                             val newRelations = relationDao.getAllRelations(currentEmail)
-                            val version = versionDao.getAllVersions()
-                                .firstOrNull { it.accountName == currentEmail }
-                                ?: VersionEntity(currentEmail, UUID.randomUUID(), false)
+                            val version = getOrCreateVersion()
                             val newSnapshot = AccountSnapshot(newTasks, newTags, newRelations, version, currentEmail)
                             versionDao.setMustBeProcessed(currentEmail, false)
                             coroutineScope.launch {
@@ -337,6 +340,15 @@ class DatabaseModel {
     fun removeTag(tagId: UUID): Job = modifyTag(tagId) {
         setTagDeleted(tagId, true)
     }
+
+    private fun getOrCreateVersion(): VersionEntity =
+        versionDao.getAllVersions()
+            .firstOrNull { it.accountName == currentEmail }
+            ?: run {
+                val newVersion = VersionEntity(currentEmail, UUID.randomUUID(), false)
+                versionDao.insertVersion(newVersion)
+                newVersion
+            }
 
     private fun launchTaskTransaction(block: TaskDao.() -> Unit): Job = coroutineScope.launch {
         database.runInTransaction {

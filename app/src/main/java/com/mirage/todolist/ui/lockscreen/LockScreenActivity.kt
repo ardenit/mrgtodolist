@@ -35,4 +35,9 @@ class LockScreenActivity : AppCompatActivity() {
             navController.navigate(destination)
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.processProtectionPreference()
+    }
 }

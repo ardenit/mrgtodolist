@@ -16,6 +16,7 @@ import androidx.work.WorkerParameters
 import com.mirage.todolist.R
 import com.mirage.todolist.model.repository.TaskPeriod
 import com.mirage.todolist.ui.lockscreen.LockScreenActivity
+import timber.log.Timber
 
 /**
  * Worker for creating push notifications about future tasks
@@ -40,38 +41,36 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters) : Wor
         taskName: String,
         taskTimeText: String
     ) {
-        println("SENDING NOTIFICATION FOR TASK $taskName AT TIME $taskTimeText ID $id")
-        val channelId = "fadgfdasfasdfasd"
-        //2021-09-14 02:40:41.608 554-2981/system_process E/NotificationService: No Channel found for pkg=com.mirage.todolist, channelId=mirage_todo_channel_01, id=-979562117, tag=null, opPkg=com.mirage.todolist, callingUid=10121, userId=0, incomingUserId=0, notificationUid=10121, notification=Notification(channel=mirage_todo_channel_01 shortcut=null contentView=null vibrate=null sound=null defaults=0x0 flags=0x10 color=0x00000000 vis=PRIVATE)
-        //val notificationManager = NotificationManagerCompat.from(applicationContext)
-        val bitmap = ContextCompat.getDrawable(applicationContext, R.drawable.ic_task_datetime)?.toBitmap()
+        Timber.v("SENDING NOTIFICATION FOR TASK $taskName AT TIME $taskTimeText ID $id")
         val titleNotification = "Title notification $taskName"
         val subtitleNotification = "Subtitle notification $taskTimeText"
         val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val builder: NotificationCompat.Builder
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val importance = NotificationManager.IMPORTANCE_HIGH
-            val channel = NotificationChannel(channelId, titleNotification, importance)
+            val channel = NotificationChannel(NOTIFICATION_CHANNEL, titleNotification, importance)
             notificationManager.createNotificationChannel(channel)
-            builder = NotificationCompat.Builder(applicationContext, channelId)
+            builder = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL)
             val intent = Intent(applicationContext, LockScreenActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_SINGLE_TOP
             val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, 0)
             builder.setContentTitle(titleNotification)
-                .setSmallIcon(R.drawable.ic_add)
+                .setSmallIcon(R.drawable.ic_notifications)
                 .setContentText(subtitleNotification)
                 .setDefaults(DEFAULT_ALL)
+                .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
         }
         else {
-            builder = NotificationCompat.Builder(applicationContext, channelId)
+            builder = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL)
             val intent = Intent(applicationContext, LockScreenActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_SINGLE_TOP
             val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, 0)
             builder.setContentTitle(titleNotification)
-                .setSmallIcon(R.drawable.ic_add)
+                .setSmallIcon(R.drawable.ic_notifications)
                 .setContentText(subtitleNotification)
                 .setDefaults(DEFAULT_ALL)
+                .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
         }
         val notification = builder.build()
@@ -79,7 +78,6 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters) : Wor
     }
 
     companion object {
-
         const val DATETIME_NOTIFICATION_WORKER_TAG = "mirage_todo_datetime_notification"
 
         const val NOTIFICATION_ID = "mirage_todo_notification_id"

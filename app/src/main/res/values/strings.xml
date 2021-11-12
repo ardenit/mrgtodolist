@@ -147,6 +147,8 @@
     <string name="settings_sync_status_ok">Synchronization enabled with account </string>
     <string name="settings_sync_choose_account_btn">Select synchronization account</string>
 
+    <string name="sync_progress_notification_title">Synchronization with Google Drive....</string>
+
     <string name="gdrive_acc_picker_title">Select your Google Drive account</string>
     <string name="gdrive_sync_cancelled_toast">Google Drive synchronization cancelled. Try again</string>
 

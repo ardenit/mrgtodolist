@@ -3,6 +3,8 @@ package com.mirage.todolist.model.workers
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.work.*
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
@@ -48,6 +50,7 @@ class SyncWorker(
             return Result.retry()
         }
         Timber.v("Locking Google Drive....")
+        showSyncProgressNotification()
         val lockSuccessful = tryLockGDrive()
         if (!lockSuccessful) return Result.retry()
         Timber.v("Google Drive lock successfully taken")
@@ -69,12 +72,13 @@ class SyncWorker(
         // If sync took too long, abort and retry later
         if (syncEndTime - syncStartTime > SYNC_TIMEOUT_TIME_MILLIS) {
             Timber.e("Sync took too long, retrying later")
+            hideSyncProgressNotification()
             return Result.retry()
         }
         writeDataToGDrive(mergedSnapshot)
-        databaseModel.updateDatabaseAfterSync(mergedSnapshot, databaseVersion)
         val databaseWriteSuccessful =
             databaseModel.updateDatabaseAfterSync(mergedSnapshot, databaseVersion)
+        hideSyncProgressNotification()
         return if (databaseWriteSuccessful) {
             Timber.v("Sync has been performed successfully, scheduling repeated sync")
             val request =
@@ -162,12 +166,31 @@ class SyncWorker(
         googleDriveModel.updateFile(lockFileId, newLock)
     }
 
+    private fun showSyncProgressNotification() {
+        Timber.v("Showing sync progress notification")
+        val builder = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL)
+            .setContentTitle(resources.getString(R.string.settings_sync_with_drive_connecting))
+            .setContentText("")
+            .setSmallIcon(R.drawable.ic_drive_sync)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .setAutoCancel(false)
+            .setProgress(0, 0, true)
+        NotificationManagerCompat.from(applicationContext).notify(NOTIFICATION_ID, builder.build())
+    }
+
+    private fun hideSyncProgressNotification() {
+        Timber.v("Hiding sync progress notification")
+        NotificationManagerCompat.from(applicationContext).cancel(NOTIFICATION_ID)
+    }
+
     companion object {
         private const val LOCKFILE_NAME = "com-mirage-todolist-lockfile.json"
         private const val DATAFILE_NAME = "com-mirage-todolist-datafile.json"
         private const val MAX_LOCK_TIME_MILLIS = 60 * 1000L
         private const val LOCK_CONFIRM_WAIT_TIME_MILLIS = 5 * 1000L
         private const val SYNC_TIMEOUT_TIME_MILLIS = 40 * 1000L
+        private const val NOTIFICATION_CHANNEL = "mirage_todo_channel_sync"
+        private const val NOTIFICATION_ID = 101
         const val UNIQUE_WORK_NAME = "com-mirage-todolist-sync-work"
     }
 }

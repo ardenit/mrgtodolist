@@ -35,7 +35,7 @@ class LocationConverter {
 class DateConverter {
     @TypeConverter
     fun fromDate(date: OptionalDate): String =
-        if (date.dateSet) date.toString() else "null"
+        if (date.dateSet) date.date.toString() else "null"
 
     @TypeConverter
     fun toDate(string: String): OptionalDate =
@@ -46,7 +46,7 @@ class DateConverter {
 class TimeConverter {
     @TypeConverter
     fun fromTime(time: OptionalTime): String =
-        if (time.timeSet) time.toString() else "null"
+        if (time.timeSet) time.time.toString() else "null"
 
     @TypeConverter
     fun toTime(string: String): OptionalTime =
