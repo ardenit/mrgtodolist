@@ -460,6 +460,10 @@ class TodoRepository {
             localTasks.putAll(newLocalTasksSync)
             localTags.clear()
             localTags.putAll(newLocalTagsSync)
+            tasklistSizes.clear()
+            localTasks.values.forEach {
+                tasklistSizes[it.tasklistId] = (tasklistSizes[it.tasklistId] ?: 0) + 1
+            }
             onFullUpdateTagListeners.forEach { it.invoke(localTags) }
             onFullUpdateTaskListeners.forEach { it.invoke(localTasks) }
             updateNotifications()

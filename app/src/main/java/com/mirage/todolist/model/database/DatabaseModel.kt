@@ -28,31 +28,23 @@ class DatabaseModel {
 
     @Inject
     lateinit var database: AppDatabase
-
     @Inject
     lateinit var taskDao: TaskDao
-
     @Inject
     lateinit var tagDao: TagDao
-
     @Inject
     lateinit var relationDao: RelationDao
-
     @Inject
     lateinit var versionDao: VersionDao
-
     @Inject
     lateinit var preferences: SharedPreferences
-
     @Inject
     lateinit var resources: Resources
 
     @Volatile
     private var onSyncUpdateListener: suspend (AccountSnapshot) -> Unit = {}
-
     @Volatile
     private var liveVersionObserverJob: Job? = null
-
     @Volatile
     private var currentEmail: String = ""
 
