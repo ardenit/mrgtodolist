@@ -143,6 +143,9 @@
     <string name="lockscreen_fingerprint_dialog_description">Touch the fingerprint reader on your device to continue</string>
     <string name="lockscreen_fingerprint_dialog_cancel">Cancel</string>
 
+    <string name="notification_datetime_title">Mirage TODO</string>
+    <string name="notification_datetime_description">Task %1$s should be done at %2$s!</string>
+
     <string name="settings_sync_status_no_sync">Synchronization not configured</string>
     <string name="settings_sync_status_ok">Synchronization enabled with account </string>
     <string name="settings_sync_choose_account_btn">Select synchronization account</string>

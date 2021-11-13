@@ -4,7 +4,6 @@ import com.mirage.todolist.model.database.AccountSnapshot
 import com.mirage.todolist.model.database.TagEntity
 import com.mirage.todolist.model.database.TaskEntity
 import com.mirage.todolist.model.database.VersionEntity
-import okhttp3.internal.toImmutableList
 import java.util.*
 
 class SnapshotMerger {

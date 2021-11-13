@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
 import androidx.preference.PreferenceManager
-import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.google.gson.Gson
 import com.mirage.todolist.model.database.DatabaseModel

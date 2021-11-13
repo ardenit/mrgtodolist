@@ -1,3 +1,4 @@
+@file:Suppress("DEPRECATION")
 package com.mirage.todolist.util
 
 import androidx.fragment.app.Fragment
@@ -17,6 +18,7 @@ class AutoClearedValue<T : Any>(val fragment: Fragment) : ReadWriteProperty<Frag
 
     init {
         fragment.lifecycle.addObserver(object : LifecycleObserver {
+            @Suppress("unused")
             @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
             fun onDestroy() {
                 _value = null

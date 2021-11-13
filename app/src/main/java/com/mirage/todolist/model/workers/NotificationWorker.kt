@@ -1,5 +1,6 @@
 package com.mirage.todolist.model.workers
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -40,8 +41,8 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters) : Wor
         taskTimeText: String
     ) {
         Timber.v("SENDING NOTIFICATION FOR TASK $taskName AT TIME $taskTimeText ID $id")
-        val titleNotification = "Title notification $taskName"
-        val subtitleNotification = "Subtitle notification $taskTimeText"
+        val titleNotification = applicationContext.resources.getString(R.string.notification_datetime_title)
+        val subtitleNotification = applicationContext.resources.getString(R.string.notification_datetime_description, taskName, taskTimeText)
         val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val builder: NotificationCompat.Builder
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -51,6 +52,7 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters) : Wor
             builder = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL)
             val intent = Intent(applicationContext, LockScreenActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_SINGLE_TOP
+            @SuppressLint("UnspecifiedImmutableFlag")
             val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, 0)
             builder.setContentTitle(titleNotification)
                 .setSmallIcon(R.drawable.ic_notifications)
@@ -63,6 +65,7 @@ class NotificationWorker(context: Context, workerParams: WorkerParameters) : Wor
             builder = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL)
             val intent = Intent(applicationContext, LockScreenActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_SINGLE_TOP
+            @SuppressLint("UnspecifiedImmutableFlag")
             val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, 0)
             builder.setContentTitle(titleNotification)
                 .setSmallIcon(R.drawable.ic_notifications)

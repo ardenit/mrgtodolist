@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Lifecycle
 import androidx.preference.*
 import com.mirage.todolist.R
 import com.mirage.todolist.di.App

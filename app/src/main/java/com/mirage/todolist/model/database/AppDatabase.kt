@@ -6,7 +6,8 @@ import androidx.room.TypeConverters
 
 @Database(
     entities = [TaskEntity::class, TagEntity::class, RelationEntity::class, VersionEntity::class],
-    version = 1
+    version = 1,
+    exportSchema = false
 )
 @TypeConverters(
     UUIDConverter::class,

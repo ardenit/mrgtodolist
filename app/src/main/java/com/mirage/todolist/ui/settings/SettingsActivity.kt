@@ -1,5 +1,7 @@
+@file:Suppress("DEPRECATION")
 package com.mirage.todolist.ui.settings
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -190,6 +192,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
         }
     }
 
+    @SuppressLint("MissingPermission")
     private fun processFingerprintOption() {
         val fingerprintManager = FingerprintManagerCompat.from(this)
         if (!fingerprintManager.isHardwareDetected) {

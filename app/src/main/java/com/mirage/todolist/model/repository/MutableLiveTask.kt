@@ -1,6 +1,5 @@
 package com.mirage.todolist.model.repository
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.mirage.todolist.util.OptionalDate
 import com.mirage.todolist.util.OptionalTaskLocation

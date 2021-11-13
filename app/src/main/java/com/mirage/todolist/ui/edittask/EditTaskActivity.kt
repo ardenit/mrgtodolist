@@ -3,7 +3,6 @@ package com.mirage.todolist.ui.edittask
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Intent
-import android.opengl.Visibility
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -15,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.mirage.todolist.R
 import com.mirage.todolist.databinding.ActivityEditTaskBinding
 import com.mirage.todolist.di.App
@@ -204,7 +202,7 @@ class EditTaskActivity : AppCompatActivity() {
             R.style.Theme_TodoApp_EditTaskAlertDialog,
             dateListener,
             startDate.year,
-            startDate.monthValue,
+            startDate.monthValue - 1,
             startDate.dayOfMonth
         )
         dialog.show()
@@ -212,7 +210,7 @@ class EditTaskActivity : AppCompatActivity() {
     }
 
     private fun openTimeChooserDialog() {
-        val timeListener = TimePickerDialog.OnTimeSetListener { datePicker, hour, minute ->
+        val timeListener = TimePickerDialog.OnTimeSetListener { _, hour, minute ->
             val newTime = LocalTime.of(hour, minute)
             newTaskTime = OptionalTime(newTime, true)
             updateTooltips()

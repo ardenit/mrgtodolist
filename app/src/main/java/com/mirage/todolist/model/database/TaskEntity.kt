@@ -1,6 +1,9 @@
 package com.mirage.todolist.model.database
 
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
 import com.mirage.todolist.model.repository.TaskPeriod
 import com.mirage.todolist.util.OptionalDate
 import com.mirage.todolist.util.OptionalTaskLocation

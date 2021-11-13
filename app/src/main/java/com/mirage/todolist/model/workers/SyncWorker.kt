@@ -21,7 +21,6 @@ import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.Exception
 import kotlin.math.abs
 
 class SyncWorker(

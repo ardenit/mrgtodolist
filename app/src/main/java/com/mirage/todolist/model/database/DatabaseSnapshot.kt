@@ -1,7 +1,5 @@
 package com.mirage.todolist.model.database
 
-import java.util.*
-
 /**
  * Snapshot of a database that contains all stored data.
  */

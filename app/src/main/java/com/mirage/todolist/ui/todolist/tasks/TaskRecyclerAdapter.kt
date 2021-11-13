@@ -28,13 +28,11 @@ class TasklistRecyclerAdapter(
 
     inner class TasklistViewHolder(itemView: View, tasklistType: TasklistType) : RecyclerView.ViewHolder(itemView) {
 
-        val rootLayout: ConstraintLayout = itemView.findViewById(R.id.task_item_layout)
         val taskTitleView: TextView = itemView.findViewById(R.id.task_title)
         val taskDescriptionView: TextView = itemView.findViewById(R.id.task_description)
         val taskDatetimeView: TextView = itemView.findViewById(R.id.task_datetime)
         val taskPlaceView: TextView = itemView.findViewById(R.id.task_place)
         val taskTags: TagsView = itemView.findViewById(R.id.task_tags)
-        //TODO Start drag and swipe manually on click to layout to prevent dragging after btn press
         val taskEditBtn: ImageButton = itemView.findViewById(R.id.task_edit_btn)
         val background: GradientDrawable = itemView.background.current as GradientDrawable
 

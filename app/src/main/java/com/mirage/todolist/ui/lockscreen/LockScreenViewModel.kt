@@ -1,3 +1,4 @@
+@file:Suppress("DEPRECATION")
 package com.mirage.todolist.ui.lockscreen
 
 import android.annotation.SuppressLint
@@ -10,7 +11,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mirage.todolist.R
 import com.mirage.todolist.di.App
-import com.mirage.todolist.model.repository.TodoRepository
 import com.mirage.todolist.util.PasswordValidator
 import com.mirage.todolist.util.PreferenceHolder
 import com.mirage.todolist.util.getStringPreference

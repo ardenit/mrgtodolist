@@ -3,8 +3,6 @@ package com.mirage.todolist.di
 import android.app.Application
 import androidx.annotation.VisibleForTesting
 import androidx.work.Configuration
-import androidx.work.WorkManager
-import androidx.work.WorkManagerInitializer
 import com.mirage.todolist.BuildConfig
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector

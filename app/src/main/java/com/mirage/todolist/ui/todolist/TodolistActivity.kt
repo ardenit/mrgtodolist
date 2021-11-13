@@ -1,25 +1,18 @@
 package com.mirage.todolist.ui.todolist
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.FrameLayout
-import android.widget.Toast
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.get
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.navigation.NavigationView
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAuthIOException
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.mirage.todolist.R
 import com.mirage.todolist.di.App
-import com.mirage.todolist.model.googledrive.GoogleDriveConnectExceptionHandler
 import com.mirage.todolist.model.repository.LiveTask
 import com.mirage.todolist.ui.edittask.EditTaskActivity
 import com.mirage.todolist.ui.settings.SettingsActivity
@@ -42,40 +35,6 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
     private lateinit var contentContainer: FrameLayout
     private lateinit var tasksFragment: TasksFragment
     private lateinit var tagsFragment: TagsFragment
-
-    /**
-     * Activity result launcher for Google Drive [UserRecoverableAuthIOException] user intervene screen
-     */
-    private val gDriveUserInterveneResultLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        onResultFromGDriveUserIntervene(result)
-    }
-
-    private val gDriveConnectExceptionHandler = object : GoogleDriveConnectExceptionHandler {
-
-        override suspend fun onSuccessfulConnect() {
-            println("GDRIVE_CONNECT_SUCCESSFUL")
-            Toast.makeText(this@TodolistActivity, "OK", Toast.LENGTH_SHORT).show()
-        }
-
-        override suspend fun onUserRecoverableFailure(ex: UserRecoverableAuthIOException) {
-            println("USER_RECOVERABLE")
-            gDriveUserInterveneResultLauncher.launch(ex.intent)
-        }
-
-        override suspend fun onGoogleAuthFailure(ex: GoogleAuthIOException) {
-            println("GOOGLE_AUTH_FAIL")
-            println(ex.message)
-            Toast.makeText(this@TodolistActivity, "GOOGLE_AUTH_FAILURE SEE LOGS", Toast.LENGTH_SHORT).show()
-        }
-
-        override suspend fun onUnspecifiedFailure(ex: Exception) {
-            println("UNSPECIFIED_GDRIVE_CONNECT_FAILURE")
-            println(ex.message)
-            Toast.makeText(this@TodolistActivity, "UNSPECIFIED_GDRIVE_CONNECT_FAILURE SEE LOGS", Toast.LENGTH_SHORT).show()
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -166,15 +125,6 @@ class TodolistActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
             .show(tagsFragment)
             .commit()
         drawerLayout.close()
-    }
-
-    private fun onResultFromGDriveUserIntervene(result: ActivityResult) {
-        if (result.resultCode == Activity.RESULT_OK) {
-            //todoRepository.setGDriveAccountEmail(todoRepository.getGDriveAccountEmail(), gDriveConnectExceptionHandler)
-        }
-        else {
-            Toast.makeText(this, R.string.gdrive_sync_cancelled_toast, Toast.LENGTH_SHORT).show()
-        }
     }
 
     private fun openSettings() {
