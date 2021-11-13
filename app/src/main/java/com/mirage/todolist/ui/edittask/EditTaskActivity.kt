@@ -259,6 +259,21 @@ class EditTaskActivity : AppCompatActivity() {
         super.onBackPressed()
     }
 
+    private fun removeTask() {
+        val alertDialog = AlertDialog.Builder(ContextThemeWrapper(this, R.style.Theme_TodoApp_EditTaskAlertDialog))
+            .setTitle(R.string.edit_task_remove_confirm_title)
+            .setMessage(R.string.edit_task_remove_confirm_description)
+            .setPositiveButton(R.string.edit_task_remove_confirm_yes_btn) { _, _ ->
+                todoRepository.removeTask(initialTask?.taskId ?: UUID.randomUUID())
+                showToast(R.string.edit_task_remove_toast)
+                super.onBackPressed()
+            }
+            .setNeutralButton(R.string.edit_task_remove_confirm_cancel_btn) { _, _ -> }
+            .create()
+        alertDialog.show()
+        recolorDialogButtons(alertDialog)
+    }
+
     private fun openBackConfirmDialog() {
         val alertDialog = AlertDialog.Builder(ContextThemeWrapper(this, R.style.Theme_TodoApp_EditTaskAlertDialog))
             .setTitle(R.string.edit_task_back_confirm_title)
@@ -328,11 +343,10 @@ class EditTaskActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            onBackPressed()
-        }
-        else if (item.itemId == R.id.edit_task_toolbar_save) {
-            saveTask()
+        when (item.itemId) {
+            android.R.id.home -> onBackPressed()
+            R.id.edit_task_toolbar_save -> saveTask()
+            R.id.edit_task_toolbar_remove -> removeTask()
         }
         return super.onOptionsItemSelected(item)
     }

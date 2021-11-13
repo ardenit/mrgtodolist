@@ -26,9 +26,6 @@
     <PreferenceCategory
         android:title="@string/settings_title_notifications"
         android:icon="@drawable/ic_notifications">
-        <SwitchPreference
-            android:key="notify_on_sync"
-            android:title="@string/settings_btn_notifications_sync"/>
         <ListPreference
             android:key="notify_on_datetime"
             android:title="@string/settings_btn_notifications_datetime"

@@ -15,7 +15,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private lateinit var changeThemePreference: DropDownPreference
     private lateinit var setProtectionPreference: Preference
-    private lateinit var notifyOnSyncPreference: SwitchPreference
     private lateinit var notifyOnDatetimePreference: ListPreference
     private lateinit var syncSelectAccPreference: Preference
 
@@ -69,7 +68,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
         preferences = preferenceManager.sharedPreferences
         changeThemePreference = findPreference(getString(R.string.key_change_theme))!!
         setProtectionPreference = findPreference(getString(R.string.key_set_protection))!!
-        notifyOnSyncPreference = findPreference(getString(R.string.key_notify_on_sync))!!
         notifyOnDatetimePreference = findPreference(getString(R.string.key_notify_on_datetime))!!
         syncSelectAccPreference = findPreference(getString(R.string.key_sync_select_acc))!!
         changeThemePreference.setOnPreferenceChangeListener { _, newValue ->

@@ -55,52 +55,59 @@
         android:text="@string/task_default_description"
         android:textColor="@android:color/secondary_text_light"
         android:textSize="14sp"
-        app:layout_constraintBottom_toTopOf="@+id/task_datetime"
+        app:layout_constraintBottom_toTopOf="@+id/task_data_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/task_item_header" />
 
-    <TextView
-        android:id="@+id/task_datetime"
-        android:layout_width="0dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/task_data_layout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="@string/task_default_description"
-        android:textColor="@android:color/secondary_text_light"
-        android:textSize="16sp"
-        app:drawableStartCompat="@drawable/ic_task_datetime"
-        app:layout_constraintBottom_toTopOf="@id/task_place"
-        app:layout_constraintEnd_toStartOf="@+id/task_edit_btn"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/task_place"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="@string/task_default_description"
-        android:textColor="@android:color/secondary_text_light"
-        android:textSize="16sp"
-        app:drawableStartCompat="@drawable/ic_location"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/task_edit_btn"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <ImageButton
-        android:id="@+id/task_edit_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="#00000000"
-        android:contentDescription="@string/task_edit_btn"
+        app:layout_constraintTop_toBottomOf="@id/task_description"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_edit_round_btn"
-        tools:ignore="ImageContrastCheck" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        >
+        <TextView
+            android:id="@+id/task_datetime"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/task_default_description"
+            android:textColor="@android:color/secondary_text_light"
+            android:textSize="16sp"
+            app:drawableStartCompat="@drawable/ic_task_datetime"
+            app:layout_constraintBottom_toTopOf="@id/task_place"
+            app:layout_constraintEnd_toStartOf="@+id/task_edit_btn"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/task_place"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/task_default_description"
+            android:textColor="@android:color/secondary_text_light"
+            android:textSize="16sp"
+            app:drawableStartCompat="@drawable/ic_location"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/task_edit_btn"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageButton
+            android:id="@+id/task_edit_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#00000000"
+            android:contentDescription="@string/task_edit_btn"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/ic_edit_round_btn"
+            tools:ignore="ImageContrastCheck" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

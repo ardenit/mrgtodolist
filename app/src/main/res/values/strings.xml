@@ -30,6 +30,7 @@
     <string name="edit_task_toolbar_edit">Edit task</string>
     <string name="edit_task_toolbar_create">New task</string>
     <string name="edit_task_toolbar_save_btn">Save task</string>
+    <string name="edit_task_toolbar_remove_btn">Remove task</string>
     <string name="edit_task_title_title">Title</string>
     <string name="edit_task_title_hint">Enter task title</string>
     <string name="edit_task_description_title">Description</string>
@@ -47,6 +48,11 @@
     <string name="edit_task_period_title">Period</string>
 
     <string name="edit_task_saved_toast">Task successfully saved</string>
+    <string name="edit_task_remove_toast">Task has been removed</string>
+    <string name="edit_task_remove_confirm_title">Removing task</string>
+    <string name="edit_task_remove_confirm_description">Do you want to remove this task?</string>
+    <string name="edit_task_remove_confirm_yes_btn">Remove</string>
+    <string name="edit_task_remove_confirm_cancel_btn">Cancel</string>
     <string name="edit_task_back_confirm_title">Unsaved changes</string>
     <string name="edit_task_back_confirm_description">There are unsaved changes to the task. Do you want to save them?</string>
     <string name="edit_task_back_save_btn">Save task</string>

@@ -2,9 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/edit_task_toolbar_remove"
+        android:title="@string/edit_task_toolbar_remove_btn"
+        android:icon="@drawable/ic_delete"
+        app:showAsAction="ifRoom|collapseActionView" />
+    <item
         android:id="@+id/edit_task_toolbar_save"
         android:title="@string/edit_task_toolbar_save_btn"
         android:icon="@drawable/ic_confirm"
-        app:showAsAction="always|collapseActionView"
-        />
+        app:showAsAction="always|collapseActionView" />
 </menu>
