@@ -11,6 +11,7 @@
         android:ems="10"
         android:hint="@string/tags_create_hint"
         android:inputType="textPersonName"
-        android:textSize="24sp" />
+        android:textSize="24sp"
+        android:importantForAutofill="no" />
 
 </FrameLayout>

@@ -83,11 +83,6 @@ class DatabaseModel {
         AccountSnapshot(allTasks, allTags, allRelations, version, currentEmail)
     }
 
-    fun getDatabaseSnapshot(snapshotHandler: suspend (DatabaseSnapshot) -> Unit): Job =
-        coroutineScope.launch {
-            snapshotHandler(getDatabaseSnapshot())
-        }
-
     fun getAccountSnapshot(snapshotHandler: suspend (AccountSnapshot) -> Unit): Job =
         coroutineScope.launch {
             snapshotHandler(getAccountSnapshot())

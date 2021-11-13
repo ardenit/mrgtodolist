@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.annotation.ColorInt
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
@@ -67,6 +66,10 @@ class TasklistRecyclerAdapter(
         viewModel.addOnNewTaskListener(lifecycleOwner) {
             Timber.v("Adapter notified - onNewTask on position ${it.taskIndex}")
             notifyItemInserted(it.taskIndex)
+        }
+        viewModel.addOnRemoveTaskListener(lifecycleOwner) { _, index ->
+            Timber.v("Adapter notified - onRemoveTask on position $index")
+            notifyItemRemoved(index)
         }
         viewModel.addOnFullUpdateTaskListener(lifecycleOwner) {
             Timber.v("Adapter notified - onFullUpdate")

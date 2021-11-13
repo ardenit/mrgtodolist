@@ -508,7 +508,7 @@ class TodoRepository {
     }
 
     companion object {
-        private const val HIDDEN_TASKLIST_ID = -1
+        const val HIDDEN_TASKLIST_ID = -1
         private const val MIN_SYNC_INTERVAL = 20 * 1000L
     }
 }

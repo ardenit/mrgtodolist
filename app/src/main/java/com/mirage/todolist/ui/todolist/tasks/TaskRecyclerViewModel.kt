@@ -119,11 +119,6 @@ class TaskRecyclerViewModel @Inject constructor(
         }
     }
 
-    /** Starts searching for tasks with given tag */
-    fun searchForTag(tag: LiveTag) {
-        todoRepository.searchTasks("[${tag.name.value}]")
-    }
-
     /**
      * Registers a listener for task creation event in this tasklist
      */
@@ -136,7 +131,9 @@ class TaskRecyclerViewModel @Inject constructor(
      */
     fun addOnRemoveTaskListener(owner: LifecycleOwner, listener: OnRemoveTaskListener) {
         onRemoveTaskObservable.observe(owner) { (task, index) ->
-            listener(task, index)
+            if (task.tasklistId == TodoRepository.HIDDEN_TASKLIST_ID) {
+                listener(task, index)
+            }
         }
     }
 
@@ -146,13 +143,6 @@ class TaskRecyclerViewModel @Inject constructor(
      */
     fun addOnFullUpdateTaskListener(owner: LifecycleOwner, listener: OnFullUpdateTaskListener) {
         onFullUpdateObservable.observe(owner, listener)
-    }
-
-    /**
-     * Returns a [LiveTask] with a given [taskId], or null if there is no task with this ID
-     */
-    fun getTask(taskId: UUID): LiveTask? {
-        return tasksSlice[taskId]
     }
 
     /**
