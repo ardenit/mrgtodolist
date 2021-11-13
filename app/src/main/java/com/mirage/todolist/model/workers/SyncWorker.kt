@@ -40,6 +40,7 @@ class SyncWorker(
     private val identity = UUID.randomUUID()
 
     override fun doWork(): Result {
+        val isActiveSync = inputData.getBoolean(DATA_KEY_ACTIVE, true)
         val emailKey = resources.getString(R.string.key_sync_select_acc)
         val email = sharedPreferences.getString(emailKey, "")
         Timber.v("Performing sync work with email $email")
@@ -47,12 +48,12 @@ class SyncWorker(
         val connectionCompleted = googleDriveModel.connectBlocking(email)
         if (!connectionCompleted) {
             Timber.v("Connection to Google Drive from SyncWorker failed")
-            return Result.retry()
+            return if (isActiveSync) Result.failure() else Result.retry()
         }
         Timber.v("Locking Google Drive....")
         showSyncProgressNotification()
         val lockSuccessful = tryLockGDrive()
-        if (!lockSuccessful) return Result.retry()
+        if (!lockSuccessful) return if (isActiveSync) Result.failure() else Result.retry()
         Timber.v("Google Drive lock successfully taken")
         val syncStartTime = System.currentTimeMillis()
         val (databaseData, driveData) = runBlocking(Dispatchers.IO) {
@@ -73,30 +74,34 @@ class SyncWorker(
         if (syncEndTime - syncStartTime > SYNC_TIMEOUT_TIME_MILLIS) {
             Timber.e("Sync took too long, retrying later")
             hideSyncProgressNotification()
-            return Result.retry()
+            return if (isActiveSync) Result.failure() else Result.retry()
         }
         writeDataToGDrive(mergedSnapshot)
         val databaseWriteSuccessful =
             databaseModel.updateDatabaseAfterSync(mergedSnapshot, databaseVersion)
         hideSyncProgressNotification()
         return if (databaseWriteSuccessful) {
-            Timber.v("Sync has been performed successfully, scheduling repeated sync")
-            val request =
-                PeriodicWorkRequest.Builder(
-                    SyncWorker::class.java,
-                    15,
-                    TimeUnit.MINUTES,
-                    5,
-                    TimeUnit.MINUTES
-                ).build()
-            workManager.enqueueUniquePeriodicWork(
-                UNIQUE_WORK_NAME,
-                ExistingPeriodicWorkPolicy.REPLACE,
-                request
-            )
+            Timber.v("Sync has been performed successfully")
+            if (!isActiveSync) {
+                Timber.v("Scheduling repeated sync")
+                val data = Data.Builder().putBoolean(DATA_KEY_ACTIVE, false).build()
+                val request =
+                    PeriodicWorkRequest.Builder(
+                        SyncWorker::class.java,
+                        15,
+                        TimeUnit.MINUTES,
+                        5,
+                        TimeUnit.MINUTES
+                    ).setInputData(data).build()
+                workManager.enqueueUniquePeriodicWork(
+                    PERIODIC_SYNC_WORK_NAME,
+                    ExistingPeriodicWorkPolicy.REPLACE,
+                    request
+                )
+            }
             Result.success()
         } else {
-            Result.retry()
+            if (isActiveSync) Result.failure() else Result.retry()
         }
     }
 
@@ -111,17 +116,24 @@ class SyncWorker(
         }
         val lockFileData = readLockFile(lockFileId)
         val currentTime = System.currentTimeMillis()
+        Timber.v("Remote lock file data: $lockFileData")
+        Timber.v("Current time: $currentTime")
+        Timber.v("Lock acquisition time: ${currentTime - lockFileData.lockStartMillis}")
         if (abs(lockFileData.lockStartMillis - currentTime) < MAX_LOCK_TIME_MILLIS) {
+            Timber.v("Lock is still active, cancelling synchronization")
             return false
         }
+        Timber.v("Taking the lock....")
         val newLockFileData = LockFileData(currentTime, identity, lockFileData.dataVersion)
         googleDriveModel.updateFile(lockFileId, gson.toJson(newLockFileData).encodeToByteArray())
         // Waiting a bit and reading the file again to prevent concurrent lock acquisition
         Thread.sleep(LOCK_CONFIRM_WAIT_TIME_MILLIS)
         val updatedLockFileData = readLockFile(lockFileId)
         if (updatedLockFileData.lockOwner != identity) {
+            Timber.v("Lock was taken by another sync worker, cancelling synchronization")
             return false
         }
+        Timber.v("Lock successfully taken")
         return true
     }
 
@@ -191,6 +203,8 @@ class SyncWorker(
         private const val SYNC_TIMEOUT_TIME_MILLIS = 40 * 1000L
         private const val NOTIFICATION_CHANNEL = "mirage_todo_channel_sync"
         private const val NOTIFICATION_ID = 101
-        const val UNIQUE_WORK_NAME = "com-mirage-todolist-sync-work"
+        const val DATA_KEY_ACTIVE = "sync_active"
+        const val PERIODIC_SYNC_WORK_NAME = "com_mirage_todolist_periodic_sync_work"
+        const val ACTIVE_SYNC_WORK_NAME = "com_mirage_todolist_active_sync_work"
     }
 }

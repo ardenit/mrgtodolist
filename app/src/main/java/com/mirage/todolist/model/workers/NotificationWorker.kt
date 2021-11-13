@@ -9,8 +9,6 @@ import android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.DEFAULT_ALL
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toBitmap
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.mirage.todolist.R

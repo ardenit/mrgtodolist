@@ -3,9 +3,9 @@ package com.mirage.todolist.model.repository
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
+import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
-import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.mirage.todolist.R
 import com.mirage.todolist.di.App
@@ -21,6 +21,7 @@ import com.mirage.todolist.util.OptionalTaskLocation
 import com.mirage.todolist.util.OptionalTime
 import kotlinx.coroutines.*
 import timber.log.Timber
+import java.lang.Math.random
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
@@ -54,6 +55,8 @@ class TodoRepository {
 
     @Volatile
     private var currentEmail: String = ""
+    private var lastSyncStartTimeMillis: Long = 0L
+    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     /** Local in-memory cache for tasks bound to the current Google account */
     private var localTasks: MutableMap<UUID, MutableLiveTask> = LinkedHashMap()
@@ -84,6 +87,12 @@ class TodoRepository {
             reloadData(it)
         }
         startSync(currentEmail)
+        coroutineScope.launch {
+            while (isActive) {
+                delay((MIN_SYNC_INTERVAL * (1 + 2 * random())).toLong())
+                startSyncIfNeeded()
+            }
+        }
     }
 
     /**
@@ -114,12 +123,28 @@ class TodoRepository {
      */
     private fun startSyncWorker(syncEmail: String) {
         Timber.v("Starting SyncWorker with email $syncEmail")
-        val request = OneTimeWorkRequest.Builder(SyncWorker::class.java).build()
+        val data = Data.Builder().putBoolean(SyncWorker.DATA_KEY_ACTIVE, false).build()
+        val request = OneTimeWorkRequest.Builder(SyncWorker::class.java).setInputData(data).build()
         workManager.beginUniqueWork(
-            SyncWorker.UNIQUE_WORK_NAME,
+            SyncWorker.PERIODIC_SYNC_WORK_NAME,
             ExistingWorkPolicy.REPLACE,
             request
         ).enqueue()
+    }
+
+    private fun startSyncIfNeeded() {
+        val currentTime = System.currentTimeMillis()
+        if (currentTime >= lastSyncStartTimeMillis + MIN_SYNC_INTERVAL) {
+            lastSyncStartTimeMillis = currentTime
+            Timber.v("Starting upload sync with email $currentEmail")
+            val data = Data.Builder().putBoolean(SyncWorker.DATA_KEY_ACTIVE, true).build()
+            val request = OneTimeWorkRequest.Builder(SyncWorker::class.java).setInputData(data).build()
+            workManager.beginUniqueWork(
+                SyncWorker.ACTIVE_SYNC_WORK_NAME,
+                ExistingWorkPolicy.KEEP,
+                request
+            ).enqueue()
+        }
     }
 
     /**
@@ -146,6 +171,7 @@ class TodoRepository {
         localTasks[taskId] = task
         onNewTaskListeners.forEach { it.invoke(task) }
         updateNotifications()
+        startSyncIfNeeded()
         return task
     }
 
@@ -195,6 +221,7 @@ class TodoRepository {
             databaseModel.setTaskPeriod(task.taskId, period)
         }
         updateNotifications()
+        startSyncIfNeeded()
     }
 
     /**
@@ -205,6 +232,7 @@ class TodoRepository {
     fun removeTask(taskID: UUID) {
         moveTask(taskID, HIDDEN_TASKLIST_ID)
         updateNotifications()
+        startSyncIfNeeded()
     }
 
     /**
@@ -236,6 +264,7 @@ class TodoRepository {
             listener(task, oldTasklistID, newTasklistID, oldTaskIndex, newTaskIndex)
         }
         updateNotifications()
+        startSyncIfNeeded()
     }
 
     /**
@@ -262,6 +291,7 @@ class TodoRepository {
         }
         task.taskIndex = newTaskIndex
         databaseModel.moveTaskInList(task.taskId, newTaskIndex)
+        startSyncIfNeeded()
     }
 
     /**
@@ -334,6 +364,7 @@ class TodoRepository {
         val (tagID, _) = databaseModel.createNewTag()
         val tag = MutableLiveTag(tagID, tagIndex, "", 0)
         localTags[tagID] = tag
+        startSyncIfNeeded()
         return tag
     }
 
@@ -356,6 +387,7 @@ class TodoRepository {
             tag.styleIndex.value = styleIndex
             databaseModel.setTagStyleIndex(tag.tagId, styleIndex)
         }
+        startSyncIfNeeded()
     }
 
     /**
@@ -377,6 +409,7 @@ class TodoRepository {
             }
         }
         databaseModel.removeTag(tag.tagId)
+        startSyncIfNeeded()
     }
 
     fun getAllTasks(): Map<UUID, LiveTask> = localTasks
@@ -476,5 +509,6 @@ class TodoRepository {
 
     companion object {
         private const val HIDDEN_TASKLIST_ID = -1
+        private const val MIN_SYNC_INTERVAL = 20 * 1000L
     }
 }
