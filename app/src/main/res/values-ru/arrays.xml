@@ -1,0 +1,67 @@
+<resources>
+
+    <array name="tag_background_colors">
+        <item>@color/tag_background_green</item>
+        <item>@color/tag_background_blue</item>
+    </array>
+
+    <string-array name="change_theme_entries">
+        <item>Светлая</item>
+        <item>Темная</item>
+        <item>Как в системе</item>
+    </string-array>
+
+    <string-array name="change_theme_entry_values">
+        <item>@string/value_theme_light</item>
+        <item>@string/value_theme_dark</item>
+        <item>@string/value_theme_system</item>
+    </string-array>
+
+    <string-array name="set_protection_entries">
+        <item>@string/settings_password_no_protection</item>
+        <item>@string/settings_password_tap_to_unlock</item>
+        <item>@string/settings_password_graphical_key</item>
+        <item>@string/settings_password_password</item>
+        <item>@string/settings_password_fingerprint</item>
+    </string-array>
+
+    <string-array name="set_protection_entry_values">
+        <item>@string/value_protection_none</item>
+        <item>@string/value_protection_tap</item>
+        <item>@string/value_protection_graphical</item>
+        <item>@string/value_protection_password</item>
+        <item>@string/value_protection_fingerprint</item>
+    </string-array>
+
+    <string-array name="notify_datetime_entries">
+        <item>Никогда</item>
+        <item>За 5 минут</item>
+        <item>За 10 минут</item>
+        <item>За 30 минут</item>
+        <item>За 1 час</item>
+    </string-array>
+
+    <string-array name="notify_datetime_entry_values">
+        <item>@string/value_notify_never</item>
+        <item>@string/value_notify_5_min</item>
+        <item>@string/value_notify_10_min</item>
+        <item>@string/value_notify_30_min</item>
+        <item>@string/value_notify_1_hour</item>
+    </string-array>
+
+    <string-array name="tag_edit_options">
+        <item>@string/tags_rename_tag_option</item>
+        <item>@string/tags_recolor_tag_option</item>
+        <item>@string/tags_search_tag_option</item>
+        <item>@string/tags_delete_tag_option</item>
+        <item>@string/tags_cancel_option</item>
+    </string-array>
+
+    <string-array name="task_periods">
+        <item>@string/task_period_not_repeatable</item>
+        <item>@string/task_period_daily</item>
+        <item>@string/task_period_weekly</item>
+        <item>@string/task_period_monthly</item>
+        <item>@string/task_period_yearly</item>
+    </string-array>
+</resources>

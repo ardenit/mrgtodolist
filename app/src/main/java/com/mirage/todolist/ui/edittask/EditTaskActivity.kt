@@ -43,6 +43,9 @@ class EditTaskActivity : AppCompatActivity() {
     /** Flag to prevent multiple clicks on "Save" button */
     private var savePressed: Boolean = false
 
+    private val defaultTaskTitle by lazy { resources.getString(R.string.task_default_title) }
+    private val defaultTaskDescription by lazy { resources.getString(R.string.task_default_description) }
+
     private var _binding: ActivityEditTaskBinding? = null
     private val binding get() = _binding!!
 
@@ -79,8 +82,12 @@ class EditTaskActivity : AppCompatActivity() {
     private fun initTaskEditor() {
         val task = initialTask
         if (task != null) {
-            binding.editTaskTitleInput.setText(task.title.value)
-            binding.editTaskDescriptionInput.setText(task.description.value)
+            task.title.value?.let {
+                if (it != defaultTaskTitle) binding.editTaskTitleInput.setText(it)
+            }
+            task.description.value?.let {
+                if (it != defaultTaskDescription) binding.editTaskDescriptionInput.setText(it)
+            }
             newTagsList = task.tags.value?.toMutableList() ?: arrayListOf()
             newTaskLocation = task.location.value ?: OptionalTaskLocation.NOT_SET
             newTaskDate = task.date.value ?: OptionalDate.NOT_SET
@@ -247,8 +254,8 @@ class EditTaskActivity : AppCompatActivity() {
         val task = initialTask ?: todoRepository.createNewTask(tasklistID)
         todoRepository.modifyTask(
             taskID = task.taskId,
-            title = newTitle,
-            description = newDescription,
+            title = if (newTitle.isBlank()) defaultTaskTitle else newTitle,
+            description = if (newDescription.isBlank()) defaultTaskDescription else newDescription,
             tags = newTagsList,
             location = newTaskLocation,
             date = newTaskDate,

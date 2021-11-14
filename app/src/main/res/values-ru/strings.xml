@@ -1,0 +1,166 @@
+<resources>
+    <string name="app_name">Mirage TODO</string>
+    <string name="navigation_drawer_open">Открыть панель навигации</string>
+    <string name="navigation_drawer_close">Скрыть панель навигации</string>
+    <string name="nav_header_title">Mirage TODO</string>
+    <string name="nav_header_desc">Навигация</string>
+    <string name="action_settings">Настройки</string>
+
+    <string name="location_activity_title">Выберите место для задачи</string>
+    <string name="default_info_title">Место по умолчанию</string>
+    <string name="default_info_snippet">Отсутствует разрешение на получение местонахождения</string>
+    <string name="location_save_location">Сохранить</string>
+    <string name="pick_place">Выберите место</string>
+    <string name="location_current_title">Выбранное место</string>
+    <string name="location_select_toast">Коснитесь карты, чтобы выбрать место</string>
+
+    <string name="task_default_title">Задача</string>
+    <string name="task_default_description">Описание отсутствует</string>
+    <string name="task_edit_btn">Редактировать задачу</string>
+
+    <string name="toolbar_title_archive">Архив</string>
+    <string name="toolbar_title_todo">Текущие задачи</string>
+    <string name="toolbar_title_done">Выполнено</string>
+
+    <string name="footer_new_task_btn">Новая задача</string>
+    <string name="footer_archive_btn">Архив</string>
+    <string name="footer_todo_btn">Список</string>
+    <string name="footer_done_btn">Выполнено</string>
+
+    <string name="edit_task_toolbar_edit">Редактировать задачу</string>
+    <string name="edit_task_toolbar_create">Новая задача</string>
+    <string name="edit_task_toolbar_save_btn">Сохранить задачу</string>
+    <string name="edit_task_toolbar_remove_btn">Удалить задачу</string>
+    <string name="edit_task_title_title">Название</string>
+    <string name="edit_task_title_hint">Введите название задачи</string>
+    <string name="edit_task_description_title">Описание</string>
+    <string name="edit_task_description_hint">Введите описание задачи</string>
+    <string name="edit_task_tags_title">Теги</string>
+    <string name="edit_task_tags_btn">Добавить новый тег</string>
+    <string name="edit_task_full_tags_toast">Все теги уже использованы</string>
+    <string name="edit_task_location_title">Место</string>
+    <string name="edit_task_location_set_btn">Добавить место</string>
+    <string name="edit_task_location_remove_btn">Удалить место</string>
+    <string name="edit_task_date_title">Дата</string>
+    <string name="edit_task_date_not_set">Дата не установлена</string>
+    <string name="edit_task_time_title">Время</string>
+    <string name="edit_task_time_not_set">Время не установлено</string>
+    <string name="edit_task_period_title">Период повторения</string>
+
+    <string name="edit_task_saved_toast">Задача успешно сохранена</string>
+    <string name="edit_task_remove_toast">Задача удалена</string>
+    <string name="edit_task_remove_confirm_title">Удаление задачи</string>
+    <string name="edit_task_remove_confirm_description">Вы хотите удалить эту задачу?</string>
+    <string name="edit_task_remove_confirm_yes_btn">Удалить</string>
+    <string name="edit_task_remove_confirm_cancel_btn">Отмена</string>
+    <string name="edit_task_back_confirm_title">Несохраненные изменения</string>
+    <string name="edit_task_back_confirm_description">Для этой задачи остались несохраненные изменения. Вы хотите сохранить их?</string>
+    <string name="edit_task_back_save_btn">Сохранить</string>
+    <string name="edit_task_back_cancel_btn">Отмена</string>
+    <string name="edit_task_back_discard_btn">Сбросить изменения</string>
+
+    <string name="task_period_not_repeatable">Одноразово</string>
+    <string name="task_period_daily">Ежедневно</string>
+    <string name="task_period_weekly">Еженедельно</string>
+    <string name="task_period_monthly">Ежемесячно</string>
+    <string name="task_period_yearly">Ежегодно</string>
+
+    <string name="tags_new_tag_btn">Новый тег</string>
+    <string name="tags_title">Теги</string>
+    <string name="tags_rename_tag_option">Переименовать</string>
+    <string name="tags_recolor_tag_option">Изменить цвет</string>
+    <string name="tags_delete_tag_option">Удалить тег</string>
+    <string name="tags_search_tag_option">Поиск по задачам</string>
+    <string name="tags_create_tag_option">Создать тег</string>
+    <string name="tags_cancel_option">Отмена</string>
+
+    <string name="tags_create_title">Создание тега</string>
+    <string name="tags_create_hint">Введите название тега</string>
+    <string name="tags_rename_title">Переименовать тег</string>
+    <string name="tags_rename_hint">Введите новое название</string>
+    <string name="tags_recolor_title">Изменить цвет</string>
+    <string name="tags_delete_title">Удалить тег</string>
+    <string name="tags_delete_subtitle">Вы хотите удалить этот тег?</string>
+    <string name="tags_delete_yes">Удалить</string>
+    <string name="tags_delete_cancel">Отмена</string>
+
+    <string name="tags_color_blue">Синий</string>
+    <string name="tags_color_green">Зеленый</string>
+    <string name="tags_color_orange">Оранжевый</string>
+    <string name="tags_color_red">Красный</string>
+    <string name="tags_color_grey">Серый</string>
+    <string name="tags_color_purple">Фиолетовый</string>
+
+    <string name="drawer_btn_tasks">Задачи</string>
+    <string name="drawer_btn_tags">Теги</string>
+    <string name="drawer_btn_settings">Настройки</string>
+
+    <string name="settings_activity_title">Настройки</string>
+    <string name="settings_title_appearance">Внешний вид</string>
+    <string name="settings_title_privacy">Безопасность</string>
+    <string name="settings_title_notifications">Уведомления</string>
+    <string name="settings_title_synchronization">Синхронизация</string>
+
+    <string name="settings_btn_theme">Сменить тему</string>
+    <string name="settings_btn_password">Установить защиту</string>
+    <string name="settings_btn_notifications_datetime">Уведомлять о задачах</string>
+    <string name="settings_btn_sync_with_google_drive">Синхронизация с Google Диском</string>
+    <string name="settings_sync_with_drive_connecting">Подключение к аккаунту %1$s....</string>
+    <string name="settings_sync_failed">Синхронизация не удалась</string>
+    <string name="settings_sync_successful">Синхронизация успешно настроена</string>
+
+    <string name="settings_password_no_protection">Без защиты</string>
+    <string name="settings_password_tap_to_unlock">Разблокировка касанием</string>
+    <string name="settings_password_graphical_key">Графический ключ</string>
+    <string name="settings_password_password">Пароль</string>
+    <string name="settings_password_fingerprint">Отпечаток пальца</string>
+
+    <string name="protection_action_bar_title">Защита на экране блокировки</string>
+    <string name="protection_none">Отключить защиту</string>
+    <string name="protection_tap">Разблокировка касанием</string>
+    <string name="protection_graphical">Добавить графический ключ</string>
+    <string name="protection_password">Добавить пароль</string>
+    <string name="protection_fingerprint">Разблокировка отпечатком пальца</string>
+    <string name="protection_password_empty"/>
+    <string name="protection_password_invalid">Пароль должен содержать минимум 4 символа и состоять только из букв или символов _-!@#$</string>
+    <string name="protection_create_graphical_btn">Сохранить ключ</string>
+    <string name="protection_create_graphical_title">Добавить графический ключ</string>
+    <string name="protection_create_graphical_empty">Графический ключ пустой</string>
+    <string name="protection_create_graphical_simple">Графический ключ слишком простой</string>
+    <string name="protection_create_fingerprint_not_supported">@string/fingerprint_error_hw_not_present</string>
+    <string name="protection_create_fingerprint_none">@string/fingerprint_error_no_fingerprints</string>
+
+    <string name="protection_result_none">Защита отключена</string>
+    <string name="protection_result_tap">Разблокировка касанием активирована</string>
+    <string name="protection_result_graphical">Графический ключ успешно добавлен</string>
+    <string name="protection_result_password">Пароль успешно добавлен</string>
+    <string name="protection_result_fingerprint">Разблокировка отпечатком пальца активирована</string>
+
+    <string name="lockscreen_tap_to_unlock">Коснитесь экрана, чтобы продолжить</string>
+    <string name="lockscreen_enter_graphical">Введите графический ключ</string>
+    <string name="lockscreen_enter_password">Введите пароль</string>
+    <string name="lockscreen_use_fingerprint">Требуется отпечаток пальца</string>
+    <string name="lockscreen_use_fingerprint_subtitle">Коснитесь экрана, чтобы начать проверку отпечатка</string>
+    <string name="lockscreen_password_hint">Пароль</string>
+    <string name="lockscreen_password_btn">Ввести</string>
+    <string name="lockscreen_password_wrong">Неверный пароль</string>
+    <string name="lockscreen_fingerprint_dialog_title">Используйте отпечаток пальца</string>
+    <string name="lockscreen_fingerprint_dialog_description">Коснитесь считывателя отпечатка пальцев на телефоне, чтобы продолжить</string>
+    <string name="lockscreen_fingerprint_dialog_cancel">Отмена</string>
+
+    <string name="notification_datetime_title">Mirage TODO</string>
+    <string name="notification_datetime_description">Задача %1$s должна быть выполнена в %2$s!</string>
+
+    <string name="settings_sync_status_no_sync">Синхронизация не настроена</string>
+    <string name="settings_sync_status_ok">Синхронизация с аккаунтом </string>
+    <string name="settings_sync_choose_account_btn">Выберите аккаунт для синхронизации</string>
+
+    <string name="sync_progress_notification_title">Синхронизация с Google Диском....</string>
+
+    <string name="gdrive_acc_picker_title">Выберите Google аккаунт для синхронизации</string>
+    <string name="gdrive_sync_cancelled_toast">Синхронизация с Google Диском отменена. Попробуйте снова</string>
+
+    <string name="settings_author">Автор: </string>
+    <string name="settings_version">Версия: </string>
+
+</resources>
