@@ -55,8 +55,9 @@ class GoogleDriveModel {
             gDrive.files().get("root").setFields("title").execute()
             true
         } catch (ex: GoogleJsonResponseException) {
-            Timber.e(ex)
-            ex.statusCode == 404
+            (ex.statusCode == 404).also {
+                if (!it) Timber.e(ex)
+            }
         } catch (ex: Exception) {
             Timber.e(ex)
             false

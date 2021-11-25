@@ -17,6 +17,7 @@ import androidx.databinding.DataBindingUtil
 import com.mirage.todolist.R
 import com.mirage.todolist.databinding.ActivityEditTaskBinding
 import com.mirage.todolist.di.App
+import com.mirage.todolist.model.database.TaskEntity
 import com.mirage.todolist.model.repository.*
 import com.mirage.todolist.ui.location.LocationActivity
 import com.mirage.todolist.util.OptionalDate
@@ -327,20 +328,35 @@ class EditTaskActivity : AppCompatActivity() {
     override fun onBackPressed() {
         val newTitle = binding.editTaskTitleInput.text.toString()
         val newDescription = binding.editTaskDescriptionInput.text.toString()
-        val task = initialTask ?: todoRepository.createNewTask(tasklistID)
-        if (
-            newTitle != task.title.value ||
-            newDescription != task.description.value ||
-            newTagsList != task.tags.value ||
-            newTaskLocation != task.location.value ||
-            newTaskDate != task.date.value ||
-            newTaskTime != task.time.value ||
-            newTaskPeriod != task.period.value
-        ) {
-            openBackConfirmDialog()
-        }
-        else {
-            super.onBackPressed()
+        val task = initialTask
+        if (task == null) {
+            if (
+                newTitle.isNotBlank() ||
+                newDescription.isNotBlank() ||
+                newTagsList.isNotEmpty() ||
+                newTaskLocation.locationSet ||
+                newTaskDate.dateSet ||
+                newTaskTime.timeSet ||
+                newTaskPeriod != TaskPeriod.NOT_REPEATABLE
+            ) {
+                openBackConfirmDialog()
+            } else {
+                super.onBackPressed()
+            }
+        } else {
+            if (
+                newTitle != task.title.value ||
+                newDescription != task.description.value ||
+                newTagsList != task.tags.value ||
+                newTaskLocation != task.location.value ||
+                newTaskDate != task.date.value ||
+                newTaskTime != task.time.value ||
+                newTaskPeriod != task.period.value
+            ) {
+                openBackConfirmDialog()
+            } else {
+                super.onBackPressed()
+            }
         }
     }
 

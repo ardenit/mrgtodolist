@@ -8,7 +8,7 @@ data class OptionalDate(
     val dateSet: Boolean
 ) {
     companion object {
-        val NOT_SET = OptionalDate(LocalDate.MIN, false)
+        val NOT_SET = OptionalDate(LocalDate.of(1990, 1, 1), false)
     }
 }
 
