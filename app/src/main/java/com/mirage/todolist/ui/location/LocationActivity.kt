@@ -103,6 +103,9 @@ class LocationActivity : AppCompatActivity(),
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.option_get_place) {
+            currentMarkerLocation?.let {
+                currentPlaceName = getPlaceName(it)
+            }
             Timber.v("Saving place name $currentPlaceName into result")
             currentPlaceName?.let {
                 val resultIntent = Intent()
@@ -165,9 +168,6 @@ class LocationActivity : AppCompatActivity(),
                 currentMarker = marker
             }
             currentMarkerLocation = position
-            currentPlaceName = getPlaceName(position)
-            Toast.makeText(this@LocationActivity, currentPlaceName!!, Toast.LENGTH_SHORT).show()
-            Timber.v(currentPlaceName)
             moveCamera(CameraUpdateFactory.newLatLng(position))
         }
         Timber.v("Map Click: $position")

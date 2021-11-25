@@ -451,7 +451,7 @@ class TodoRepository {
     private suspend fun reloadData(dbSnapshot: AccountSnapshot) {
         val newLocalTasks = LinkedHashMap<UUID, MutableLiveTask>()
         val newLocalTags = LinkedHashMap<UUID, MutableLiveTag>()
-        dbSnapshot.tags.forEach { tagEntity ->
+        dbSnapshot.tags.filterNot { it.deleted }.forEach { tagEntity ->
             val tagId = tagEntity.tagId
             val tag = MutableLiveTag(
                 tagId = tagId,
