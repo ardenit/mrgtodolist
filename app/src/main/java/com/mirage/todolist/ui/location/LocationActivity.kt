@@ -80,7 +80,13 @@ class LocationActivity : AppCompatActivity(),
             }
         }
         setContentView(R.layout.activity_location)
-        Places.initialize(applicationContext, BuildConfig.GOOGLE_MAPS_API_KEY)
+        val apiKey = buildString {
+            append(BuildConfig.GOOGLE_MAPS_API_KEY_1)
+            append(BuildConfig.GOOGLE_MAPS_API_KEY_2)
+            append(BuildConfig.GOOGLE_MAPS_API_KEY_3)
+            append(BuildConfig.GOOGLE_MAPS_API_KEY_4)
+        }
+        Places.initialize(applicationContext, apiKey)
         placesClient = Places.createClient(this)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         val mapFragment =
@@ -176,8 +182,8 @@ class LocationActivity : AppCompatActivity(),
     private fun getPlaceName(position: LatLng): String {
         val geocoder = Geocoder(this)
         val addressMatches = geocoder.getFromLocation(position.latitude, position.longitude, 1)
-        val bestMatch = addressMatches[0]
-        return bestMatch.getAddressLine(0)
+        val bestMatch = addressMatches.firstOrNull()
+        return bestMatch?.getAddressLine(0) ?: ""
     }
 
     /**
