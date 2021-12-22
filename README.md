@@ -1,3 +1,3 @@
-![icon](tdicon.png)
+Source code for Mirage TODO app at Google Play: https://play.google.com/store/apps/details?id=com.mirage.todolist
 
-Source code for Mirage TODO app at Google Play.
+![icon](tdicon.png)
